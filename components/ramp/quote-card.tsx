@@ -56,7 +56,11 @@ export function QuoteCard({ quote }: { quote: Quote }) {
           <p className="text-lg font-bold tabular-nums text-primary">
             {formatCurrency(quote.toAmount)}
           </p>
-          <p className="text-xs font-medium text-muted-foreground">
+          <p
+            className="text-xs font-medium text-muted-foreground truncate max-w-[80px] mx-auto"
+            title={quote.toCurrency}
+            style={{ overflowWrap: "anywhere" }}
+          >
             {quote.toCurrency}
           </p>
         </div>
