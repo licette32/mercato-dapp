@@ -73,25 +73,33 @@ sequenceDiagram
   participant Investor
   participant Supplier
 
-  Note over PyME,Supplier: 1. PyME creates deal & deploys escrow
+  rect rgb(240, 248, 255)
+  Note over PyME,Supplier: 1 - PyME creates deal and deploys escrow
   PyME->>App: Create deal (product, supplier, milestones, terms)
   App->>Trustless: Initialize multi-release escrow
   Trustless->>Stellar: Deploy escrow contract
   PyME->>Stellar: Sign with wallet (Freighter / Albedo)
   Stellar-->>App: Escrow address
+  end
 
-  Note over PyME,Supplier: 2. Investor funds the deal
-  Investor->>App: Browse marketplace, select deal
+  rect rgb(245, 255, 245)
+  Note over PyME,Supplier: 2 - Investor funds the deal
+  Investor->>App: Browse marketplace and select deal
   Investor->>Stellar: Fund escrow in USDC via wallet
+  end
 
-  Note over PyME,Supplier: 3. Supplier delivers; milestones released
+  rect rgb(255, 248, 240)
+  Note over PyME,Supplier: 3 - Supplier delivers and milestones are released
   Supplier->>App: Submit delivery proof
   PyME->>App: Approve milestone
   App->>Trustless: Request release
   Trustless->>Stellar: Release payment to supplier
+  end
 
-  Note over PyME,Supplier: 4. PyME repays investors
+  rect rgb(248, 245, 255)
+  Note over PyME,Supplier: 4 - PyME repays investors
   PyME->>Stellar: Repay principal + yield after term
+  end
 ```
 
 ### 2.2 User Roles
@@ -521,24 +529,30 @@ sequenceDiagram
   participant Anchor
   participant External
 
-  User->>RampUI: Enter amount, request quote
+  User->>RampUI: Enter amount and request quote
   RampUI->>API: POST /api/ramp/customer
   API->>Anchor: createCustomer()
   Anchor->>External: Provider API
-  External-->>API-->>RampUI: customer
+  External-->>Anchor: customer data
+  Anchor-->>API: customer
+  API-->>RampUI: customer
 
   RampUI->>API: GET /api/ramp/quote
   API->>Anchor: getQuote()
   Anchor->>External: Quote API
-  External-->>API-->>RampUI: quote (rate, fee, expiry)
+  External-->>Anchor: quote data
+  Anchor-->>API: quote
+  API-->>RampUI: quote (rate, fee, expiry)
 
   User->>RampUI: Confirm on-ramp
   RampUI->>API: POST /api/ramp/on-ramp
   API->>Anchor: createOnRamp()
   Anchor->>External: Create order
-  External-->>API-->>RampUI: payment instructions (CLABE, reference)
+  External-->>Anchor: order details
+  Anchor-->>API: payment instructions
+  API-->>RampUI: CLABE and reference
 
-  User->>External: Send fiat (e.g. SPEI transfer)
+  User->>External: Send fiat via SPEI
   External->>Stellar: Credit USDC to user wallet
 ```
 
@@ -569,7 +583,7 @@ sequenceDiagram
     Anchor-->>RampUI: signableTransaction (XDR)
   end
 
-  User->>RampUI: Sign & submit
+  User->>RampUI: Sign and submit
   RampUI->>Wallet: signTransaction(XDR)
   User->>Wallet: Approve in wallet
   Wallet-->>RampUI: Signed XDR
