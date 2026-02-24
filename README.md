@@ -39,6 +39,14 @@ User roles are **pyme**, **investor**, and **supplier**. Auth and profile data l
 
 ---
 
+## Documentation
+
+Architecture and design docs (with diagrams) live in the **[`doc/`](doc/)** folder:
+
+- **[Architecture](doc/architecture.md)** — System overview, application flows, tech stack, Stellar/Trustless Work escrow, ramp providers (Etherfuse, Alfred Pay, BlindPay), data split, and environment. Includes Mermaid diagrams.
+
+---
+
 ## Project Structure
 
 ```
