@@ -48,7 +48,13 @@ type DealRow = {
   investor?: { company_name?: string; full_name?: string; contact_name?: string } | null
 }
 
-export default async function DashboardDealsPage() {
+type DealsSearchParams = Promise<{ company?: string }> | { company?: string }
+
+export default async function DashboardDealsPage({
+  searchParams,
+}: {
+  searchParams?: DealsSearchParams
+}) {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/auth/login')
@@ -63,14 +69,25 @@ export default async function DashboardDealsPage() {
     redirect('/dashboard')
   }
 
-  const { data: myCompanies } = await supabase
-    .from('supplier_companies')
-    .select('id')
-    .eq('owner_id', user.id)
-  const companyIds = (myCompanies ?? []).map((c) => c.id)
+  const params = searchParams
+    ? typeof (searchParams as Promise<{ company?: string }>).then === 'function'
+      ? await (searchParams as Promise<{ company?: string }>)
+      : (searchParams as { company?: string })
+    : {}
+  const companyFilterId = params.company ?? null
 
-  const { data: deals } = companyIds.length > 0
-    ? await supabase
+  const { data: supplierCompanies } = await supabase
+    .from('supplier_companies')
+    .select('id, company_name')
+    .eq('owner_id', user.id)
+  const companies = supplierCompanies ?? []
+  const companyIds = companies.map((c) => c.id)
+
+  const filterByCompany =
+    companyFilterId && companyIds.includes(companyFilterId) ? companyFilterId : null
+
+  const query = companyIds.length > 0
+    ? supabase
         .from('deals')
         .select(
           `
@@ -88,8 +105,13 @@ export default async function DashboardDealsPage() {
       investor:profiles!deals_investor_id_fkey(company_name, full_name, contact_name)
     `
         )
-        .in('supplier_id', companyIds)
         .order('created_at', { ascending: false })
+    : null
+
+  const { data: deals } = query
+    ? filterByCompany
+      ? await query.eq('supplier_id', filterByCompany)
+      : await query.in('supplier_id', companyIds)
     : { data: null }
 
   const list = (deals ?? []) as DealRow[]
@@ -103,6 +125,32 @@ export default async function DashboardDealsPage() {
           <p className="text-muted-foreground">
             Deals where you are the supplier. Once funded, accept the deal to unlock 50% and add delivery proof to unlock the rest.
           </p>
+          {companies.length > 1 && (
+            <div className="mt-4 flex flex-wrap items-center gap-2">
+              <span className="text-sm text-muted-foreground">Filter by company:</span>
+              <div className="flex flex-wrap gap-2">
+                <Button
+                  asChild
+                  variant={!companyFilterId ? 'default' : 'outline'}
+                  size="sm"
+                >
+                  <Link href="/dashboard/deals">All companies</Link>
+                </Button>
+                {companies.map((c) => (
+                  <Button
+                    key={c.id}
+                    asChild
+                    variant={companyFilterId === c.id ? 'default' : 'outline'}
+                    size="sm"
+                  >
+                    <Link href={`/dashboard/deals?company=${c.id}`}>
+                      {c.company_name || 'Unnamed company'}
+                    </Link>
+                  </Button>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
 
         {list.length === 0 ? (
@@ -127,6 +175,11 @@ export default async function DashboardDealsPage() {
           </Card>
         ) : (
           <div className="space-y-6">
+            <p className="text-sm text-muted-foreground">
+              Sorted by newest first
+              {filterByCompany &&
+                ` · ${companies.find((c) => c.id === filterByCompany)?.company_name || 'Selected company'}`}
+            </p>
             {/* Short security note */}
             <Card className="border-primary/20 bg-primary/5">
               <CardContent className="flex flex-wrap items-center gap-3 pt-6">

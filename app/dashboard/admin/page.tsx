@@ -41,7 +41,13 @@ export interface ReleaseFallbackItem {
   completedAt: string | null
 }
 
-export default async function AdminDashboardPage() {
+type AdminSearchParams = Promise<{ company?: string; sort?: string }> | { company?: string; sort?: string }
+
+export default async function AdminDashboardPage({
+  searchParams,
+}: {
+  searchParams?: AdminSearchParams
+}) {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/auth/login')
@@ -56,14 +62,34 @@ export default async function AdminDashboardPage() {
     redirect('/dashboard')
   }
 
-  const { data: dealsRows } = await supabase
+  const params = searchParams
+    ? typeof (searchParams as Promise<{ company?: string; sort?: string }>).then === 'function'
+      ? await (searchParams as Promise<{ company?: string; sort?: string }>)
+      : (searchParams as { company?: string; sort?: string })
+    : {}
+  const companyFilter = params.company ?? null
+  const sortOrder = (params.sort ?? 'newest') as 'newest' | 'oldest'
+
+  let query = supabase
     .from('deals')
     .select(
-      `id, title, product_name, amount, escrow_contract_address,
+      `id, title, product_name, amount, escrow_contract_address, created_at, pyme_id, supplier_id,
       pyme:profiles!deals_pyme_id_fkey(company_name, full_name, contact_name),
       supplier:supplier_companies(company_name, full_name, contact_name)`
     )
     .not('escrow_contract_address', 'is', null)
+
+  if (companyFilter) {
+    if (companyFilter.startsWith('pyme:')) {
+      const pymeId = companyFilter.slice(5)
+      query = query.eq('pyme_id', pymeId)
+    } else if (companyFilter.startsWith('supplier:')) {
+      const supplierId = companyFilter.slice(9)
+      query = query.eq('supplier_id', supplierId)
+    }
+  }
+
+  const { data: dealsRows } = await query
 
   type DealRow = {
     id: string
@@ -71,11 +97,15 @@ export default async function AdminDashboardPage() {
     product_name?: string
     amount: number
     escrow_contract_address: string | null
+    created_at?: string | null
+    pyme_id?: string
+    supplier_id?: string
     pyme?: { company_name?: string; full_name?: string; contact_name?: string } | null
     supplier?: { company_name?: string; full_name?: string; contact_name?: string } | null
   }
 
-  const dealIds = (dealsRows ?? []).map((d: { id: string }) => d.id)
+  const dealsList = (dealsRows ?? []) as DealRow[]
+  const dealIds = dealsList.map((d) => d.id)
   if (dealIds.length === 0) {
     return (
       <div className="flex min-h-screen flex-col">
@@ -119,15 +149,27 @@ export default async function AdminDashboardPage() {
     .in('deal_id', dealIds)
     .order('created_at', { ascending: true })
 
-  const dealsById = new Map((dealsRows ?? []).map((d: DealRow) => [d.id, d]))
-  const milestonesByDeal = new Map<string, { id: string; created_at: string }[]>()
+  const dealsById = new Map(dealsList.map((d) => [d.id, d]))
+
+  const sortByDealDate = (a: { dealId: string }, b: { dealId: string }) => {
+    const dealA = dealsById.get(a.dealId) as DealRow | undefined
+    const dealB = dealsById.get(b.dealId) as DealRow | undefined
+    const dateA = dealA?.created_at ?? ''
+    const dateB = dealB?.created_at ?? ''
+    const cmp = dateA < dateB ? -1 : dateA > dateB ? 1 : 0
+    return sortOrder === 'newest' ? -cmp : cmp
+  }
+  // Order milestones to match escrow contract (index 0 = Shipment, 1 = Delivery).
+  // created_at is unreliable when milestones are inserted together. Use title DESC:
+  // "Shipment Confirmation" > "Delivery Confirmation" → [Shipment, Delivery] = escrow order.
+  const milestonesByDeal = new Map<string, { id: string; title: string }[]>()
   for (const m of allMilestones ?? []) {
     const list = milestonesByDeal.get(m.deal_id) ?? []
-    list.push({ id: m.id, created_at: m.created_at ?? '' })
+    list.push({ id: m.id, title: m.title ?? '' })
     milestonesByDeal.set(m.deal_id, list)
   }
   for (const list of milestonesByDeal.values()) {
-    list.sort((a, b) => (a.created_at < b.created_at ? -1 : 1))
+    list.sort((a, b) => (a.title > b.title ? -1 : a.title < b.title ? 1 : 0))
   }
 
   const inProgressMilestones = (allMilestones ?? []).filter((m) => m.status === 'in_progress')
@@ -158,6 +200,7 @@ export default async function AdminDashboardPage() {
       supplierName,
     }
   })
+  items.sort(sortByDealDate)
 
   const releaseFallbackItems: ReleaseFallbackItem[] = completedMilestones.map((m) => {
     const deal = dealsById.get(m.deal_id) as DealRow | undefined
@@ -176,6 +219,38 @@ export default async function AdminDashboardPage() {
       completedAt: m.completed_at ?? null,
     }
   })
+  releaseFallbackItems.sort(sortByDealDate)
+
+  const uniquePymes = Array.from(
+    new Map(
+      dealsList
+        .filter((d): d is DealRow & { pyme_id: string } => Boolean(d.pyme_id))
+        .map((d) => [
+          d.pyme_id,
+          {
+            id: d.pyme_id,
+            name: d.pyme?.company_name || d.pyme?.full_name || d.pyme?.contact_name || 'PyME',
+          },
+        ])
+    ).values()
+  )
+  const uniqueSuppliers = Array.from(
+    new Map(
+      dealsList
+        .filter((d): d is DealRow & { supplier_id: string } => Boolean(d.supplier_id))
+        .map((d) => [
+          d.supplier_id,
+          {
+            id: d.supplier_id,
+            name:
+              d.supplier?.company_name ||
+              d.supplier?.full_name ||
+              d.supplier?.contact_name ||
+              'Supplier',
+          },
+        ])
+    ).values()
+  )
 
   return (
     <div className="flex min-h-screen flex-col">
@@ -194,6 +269,68 @@ export default async function AdminDashboardPage() {
               Approve milestones to release funds from escrow. Connect your admin wallet to sign on-chain.
             </p>
           </div>
+        </div>
+
+        <div className="mb-6 flex flex-wrap items-center gap-4">
+          <span className="text-sm text-muted-foreground">Sort:</span>
+          <div className="flex gap-2">
+            <Button asChild variant={sortOrder === 'newest' ? 'default' : 'outline'} size="sm">
+              <Link
+                href={`/dashboard/admin${companyFilter ? `?company=${companyFilter}&sort=newest` : '?sort=newest'}`}
+              >
+                Newest first
+              </Link>
+            </Button>
+            <Button asChild variant={sortOrder === 'oldest' ? 'default' : 'outline'} size="sm">
+              <Link
+                href={`/dashboard/admin${companyFilter ? `?company=${companyFilter}&sort=oldest` : '?sort=oldest'}`}
+              >
+                Oldest first
+              </Link>
+            </Button>
+          </div>
+          {(uniquePymes.length > 0 || uniqueSuppliers.length > 0) && (
+            <>
+              <span className="text-sm text-muted-foreground">Filter by company:</span>
+              <div className="flex flex-wrap gap-2">
+                <Button asChild variant={!companyFilter ? 'default' : 'outline'} size="sm">
+                  <Link
+                    href={`/dashboard/admin${sortOrder !== 'newest' ? `?sort=${sortOrder}` : ''}`}
+                  >
+                    All
+                  </Link>
+                </Button>
+                {uniquePymes.map((p) => (
+                  <Button
+                    key={`pyme-${p.id}`}
+                    asChild
+                    variant={companyFilter === `pyme:${p.id}` ? 'default' : 'outline'}
+                    size="sm"
+                  >
+                    <Link
+                      href={`/dashboard/admin?company=pyme:${p.id}${sortOrder !== 'newest' ? `&sort=${sortOrder}` : ''}`}
+                    >
+                      PyME: {p.name}
+                    </Link>
+                  </Button>
+                ))}
+                {uniqueSuppliers.map((s) => (
+                  <Button
+                    key={`supplier-${s.id}`}
+                    asChild
+                    variant={companyFilter === `supplier:${s.id}` ? 'default' : 'outline'}
+                    size="sm"
+                  >
+                    <Link
+                      href={`/dashboard/admin?company=supplier:${s.id}${sortOrder !== 'newest' ? `&sort=${sortOrder}` : ''}`}
+                    >
+                      Supplier: {s.name}
+                    </Link>
+                  </Button>
+                ))}
+              </div>
+            </>
+          )}
         </div>
 
         <div className="mb-6 flex flex-wrap items-center gap-4">

@@ -26,17 +26,31 @@ interface MilestonesStepProps {
   onUpdate: (field: keyof CreateDealFormData, value: string) => void
 }
 
-const PERCENT_OPTIONS = ['50', '40', '60'] as const
+const PERCENT_OPTIONS = ['30', '40', '50', '60', '70'] as const
+
+function complementPercent(p: string): string {
+  return String(100 - Number(p))
+}
 
 export function MilestonesStep({
   formData,
   totalAmount,
   onUpdate,
 }: MilestonesStepProps) {
-  const m1Amount =
-    (totalAmount * Number(formData.milestone1Percentage)) / 100
-  const m2Amount =
-    (totalAmount * Number(formData.milestone2Percentage)) / 100
+  const m1Pct = Number(formData.milestone1Percentage)
+  const m2Pct = Number(formData.milestone2Percentage)
+  const m1Amount = (totalAmount * m1Pct) / 100
+  const m2Amount = (totalAmount * m2Pct) / 100
+
+  const handleM1PercentChange = (v: string) => {
+    onUpdate('milestone1Percentage', v)
+    onUpdate('milestone2Percentage', complementPercent(v))
+  }
+
+  const handleM2PercentChange = (v: string) => {
+    onUpdate('milestone2Percentage', v)
+    onUpdate('milestone1Percentage', complementPercent(v))
+  }
 
   return (
     <Card>
@@ -76,14 +90,16 @@ export function MilestonesStep({
             <Input
               id="milestone1Name"
               value={formData.milestone1Name}
-              onChange={(e) => onUpdate('milestone1Name', e.target.value)}
+              readOnly
+              className="bg-muted cursor-not-allowed"
+              aria-readonly="true"
             />
           </div>
           <div className="space-y-2">
             <Label htmlFor="milestone1Percentage">Payment Percentage</Label>
             <Select
               value={formData.milestone1Percentage}
-              onValueChange={(v) => onUpdate('milestone1Percentage', v)}
+              onValueChange={handleM1PercentChange}
             >
               <SelectTrigger id="milestone1Percentage">
                 <SelectValue />
@@ -109,14 +125,16 @@ export function MilestonesStep({
             <Input
               id="milestone2Name"
               value={formData.milestone2Name}
-              onChange={(e) => onUpdate('milestone2Name', e.target.value)}
+              readOnly
+              className="bg-muted cursor-not-allowed"
+              aria-readonly="true"
             />
           </div>
           <div className="space-y-2">
             <Label htmlFor="milestone2Percentage">Payment Percentage</Label>
             <Select
               value={formData.milestone2Percentage}
-              onValueChange={(v) => onUpdate('milestone2Percentage', v)}
+              onValueChange={handleM2PercentChange}
             >
               <SelectTrigger id="milestone2Percentage">
                 <SelectValue />

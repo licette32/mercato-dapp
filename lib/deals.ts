@@ -77,7 +77,11 @@ export function mapDealFromDb(row: DealRow): Deal {
     row.investor?.contact_name ||
     undefined
 
-  const milestones: Milestone[] = (row.milestones ?? []).map((m) => ({
+  // Sort to match escrow order: index 0 = Shipment, 1 = Delivery. Title DESC gives [Shipment, Delivery].
+  const rawMilestones = (row.milestones ?? []).slice().sort((a, b) =>
+    (b.title ?? '') > (a.title ?? '') ? 1 : (b.title ?? '') < (a.title ?? '') ? -1 : 0
+  )
+  const milestones: Milestone[] = rawMilestones.map((m) => ({
     id: m.id,
     name: m.title,
     percentage: Number(m.percentage),
