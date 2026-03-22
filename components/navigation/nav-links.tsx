@@ -6,7 +6,7 @@ import { Package, PieChart, Store, TrendingUp } from 'lucide-react'
 const links = [
   { href: '/deals', label: 'Deals', icon: TrendingUp },
   { href: '/suppliers', label: 'Suppliers', icon: Package },
-  { href: '/pymes', label: 'PYMEs', icon: Store },
+  { href: '/pymes', label: 'SMBs', icon: Store },
   { href: '/investors', label: 'Investors', icon: PieChart },
   { href: '/how-it-works', label: 'How It Works', icon: Package },
 ] as const

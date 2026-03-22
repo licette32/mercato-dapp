@@ -1,11 +1,11 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useMemo } from 'react'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
 import { Navigation } from '@/components/navigation'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'
 import {
   Select,
@@ -16,13 +16,12 @@ import {
 } from '@/components/ui/select'
 import {
   Store,
-  Mail,
-  Phone,
   Search,
-  Wallet,
-  ArrowRight,
   Globe,
   Briefcase,
+  TrendingUp,
+  CheckCircle2,
+  ArrowRight,
 } from 'lucide-react'
 import { LATAM_COUNTRIES, SECTORS, getCountryLabel, getSectorLabel } from '@/lib/constants'
 import {
@@ -31,7 +30,7 @@ import {
   type PymeReputationTier,
 } from '@/lib/pyme-reputation'
 
-type Pyme = {
+type Smb = {
   id: string
   company_name: string | null
   full_name: string | null
@@ -43,37 +42,81 @@ type Pyme = {
   country: string | null
   sector: string | null
   deal_count?: number
+  active_deals?: number
   reputationLabel?: string
   reputationTier?: PymeReputationTier
   totalRepaid?: number
+  completionRate?: number
 }
 
-export default function PymesPage() {
+const TIER_ORDER: Record<PymeReputationTier, number> = {
+  top_performer: 0,
+  established: 1,
+  building: 2,
+  new: 3,
+}
+
+const TIER_STYLES: Record<PymeReputationTier, string> = {
+  top_performer: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300',
+  established: 'bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300',
+  building: 'bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300',
+  new: 'bg-muted text-muted-foreground',
+}
+
+function getInitials(smb: Smb): string {
+  const name = smb.company_name || smb.full_name || smb.contact_name || ''
+  return name
+    .split(/\s+/)
+    .slice(0, 2)
+    .map((w) => w[0]?.toUpperCase() ?? '')
+    .join('') || '?'
+}
+
+function SmbCardSkeleton() {
+  return (
+    <Card className="h-full animate-pulse">
+      <CardHeader>
+        <div className="mb-3 flex items-start justify-between">
+          <div className="h-12 w-12 rounded-xl bg-muted" />
+          <div className="h-5 w-20 rounded-md bg-muted" />
+        </div>
+        <div className="h-5 w-40 rounded bg-muted" />
+        <div className="mt-2 h-3 w-28 rounded bg-muted" />
+        <div className="mt-2 h-3 w-full rounded bg-muted" />
+        <div className="mt-1 h-3 w-3/4 rounded bg-muted" />
+      </CardHeader>
+      <CardContent>
+        <div className="border-t border-border pt-3 space-y-2">
+          <div className="h-3 w-32 rounded bg-muted" />
+          <div className="h-3 w-24 rounded bg-muted" />
+        </div>
+      </CardContent>
+    </Card>
+  )
+}
+
+export default function SmbsPage() {
   const supabase = createClient()
-  const [pymes, setPymes] = useState<Pyme[]>([])
-  const [filteredPymes, setFilteredPymes] = useState<Pyme[]>([])
+  const [smbs, setSmbs] = useState<Smb[]>([])
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedCountry, setSelectedCountry] = useState<string>('all')
   const [selectedSector, setSelectedSector] = useState<string>('all')
   const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
-    loadPymes()
+    loadSmbs()
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  useEffect(() => {
-    filterPymes()
-  }, [pymes, searchQuery, selectedCountry, selectedSector])
-
-  const loadPymes = async () => {
+  const loadSmbs = async () => {
     try {
-      const { data: profiles, error: profilesError } = await supabase
+      const { data: profiles, error } = await supabase
         .from('profiles')
         .select('id, company_name, full_name, contact_name, bio, address, phone, email, country, sector')
         .eq('user_type', 'pyme')
         .order('company_name')
 
-      if (profilesError) throw profilesError
+      if (error) throw error
 
       const ids = (profiles ?? []).map((p) => p.id)
       const { data: dealRows } = await supabase
@@ -81,44 +124,53 @@ export default function PymesPage() {
         .select('pyme_id, status, amount')
         .in('pyme_id', ids.length ? ids : ['00000000-0000-0000-0000-000000000000'])
 
-      const dealsByPyme: Record<string, { status: string; amount: number }[]> = {}
-      for (const p of ids) {
-        dealsByPyme[p] = []
-      }
+      const dealsBySmb: Record<string, { status: string; amount: number }[]> = {}
+      for (const p of ids) dealsBySmb[p] = []
       for (const row of dealRows ?? []) {
         const r = row as { pyme_id: string; status: string; amount: number }
-        if (!dealsByPyme[r.pyme_id]) dealsByPyme[r.pyme_id] = []
-        dealsByPyme[r.pyme_id].push({ status: r.status, amount: r.amount })
+        if (!dealsBySmb[r.pyme_id]) dealsBySmb[r.pyme_id] = []
+        dealsBySmb[r.pyme_id].push({ status: r.status, amount: r.amount })
       }
 
-      const withCountsAndReputation = (profiles ?? []).map((p) => {
-        const deals = dealsByPyme[p.id] ?? []
-        const deal_count = deals.length
+      const enriched: Smb[] = (profiles ?? []).map((p) => {
+        const deals = dealsBySmb[p.id] ?? []
         const stats = aggregateDealsToStats(deals)
         const rep = computePymeReputation(stats)
+        const active_deals = deals.filter(
+          (d) => d.status === 'funded' || d.status === 'in_progress'
+        ).length
         return {
           ...p,
-          deal_count,
+          deal_count: deals.length,
+          active_deals,
           reputationLabel: rep.label,
           reputationTier: rep.tier,
           totalRepaid: rep.stats.totalRepaid,
+          completionRate: rep.completionRate,
         }
       })
 
-      setPymes(withCountsAndReputation as Pyme[])
-    } catch (error) {
-      console.error('Error loading PYMEs:', error)
+      // Sort: by reputation tier, then by deal count desc
+      enriched.sort((a, b) => {
+        const tierDiff =
+          TIER_ORDER[a.reputationTier ?? 'new'] - TIER_ORDER[b.reputationTier ?? 'new']
+        if (tierDiff !== 0) return tierDiff
+        return (b.deal_count ?? 0) - (a.deal_count ?? 0)
+      })
+
+      setSmbs(enriched)
+    } catch (err) {
+      console.error('Error loading SMBs:', err)
     } finally {
       setIsLoading(false)
     }
   }
 
-  const filterPymes = () => {
-    let filtered = [...pymes]
-
+  const filteredSmbs = useMemo(() => {
+    let result = [...smbs]
     if (searchQuery) {
       const q = searchQuery.toLowerCase()
-      filtered = filtered.filter(
+      result = result.filter(
         (p) =>
           p.company_name?.toLowerCase().includes(q) ||
           p.full_name?.toLowerCase().includes(q) ||
@@ -126,48 +178,47 @@ export default function PymesPage() {
           p.bio?.toLowerCase().includes(q)
       )
     }
+    if (selectedCountry !== 'all') result = result.filter((p) => p.country === selectedCountry)
+    if (selectedSector !== 'all') result = result.filter((p) => p.sector === selectedSector)
+    return result
+  }, [smbs, searchQuery, selectedCountry, selectedSector])
 
-    if (selectedCountry !== 'all') {
-      filtered = filtered.filter((p) => p.country === selectedCountry)
-    }
+  const displayName = (p: Smb) =>
+    p.company_name || p.full_name || p.contact_name || 'SMB'
 
-    if (selectedSector !== 'all') {
-      filtered = filtered.filter((p) => p.sector === selectedSector)
-    }
-
-    setFilteredPymes(filtered)
-  }
-
-  const displayName = (p: Pyme) =>
-    p.company_name || p.full_name || p.contact_name || 'PYME'
+  const hasActiveFilters =
+    searchQuery || selectedCountry !== 'all' || selectedSector !== 'all'
 
   return (
     <div className="flex min-h-screen flex-col">
       <Navigation />
 
-      <div className="container mx-auto px-4 py-8">
+      <div className="container mx-auto px-4 py-8 max-w-7xl">
+
+        {/* Header */}
         <div className="mb-8">
-          <h1 className="mb-2 text-3xl font-bold tracking-tight">PYME Directory</h1>
+          <h1 className="mb-2 text-3xl font-bold tracking-tight">SMB Directory</h1>
           <p className="text-muted-foreground">
             Small and medium businesses seeking supply-chain financing across LATAM
           </p>
         </div>
 
-        <div className="mb-8 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-          <div className="relative flex-1 md:max-w-md">
+        {/* Filters */}
+        <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center">
+          <div className="relative flex-1 sm:max-w-sm">
             <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" aria-hidden />
             <Input
               type="search"
-              placeholder="Search PYMEs, company names…"
+              placeholder="Search SMBs, company names…"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="pl-9"
-              aria-label="Search PYMEs"
+              aria-label="Search SMBs"
             />
           </div>
           <div className="flex flex-wrap items-center gap-2">
             <Select value={selectedCountry} onValueChange={setSelectedCountry}>
-              <SelectTrigger className="w-[160px]" aria-label="Filter by country">
+              <SelectTrigger className="w-[150px]" aria-label="Filter by country">
                 <SelectValue placeholder="Country" />
               </SelectTrigger>
               <SelectContent>
@@ -180,7 +231,7 @@ export default function PymesPage() {
               </SelectContent>
             </Select>
             <Select value={selectedSector} onValueChange={setSelectedSector}>
-              <SelectTrigger className="w-[180px]" aria-label="Filter by sector">
+              <SelectTrigger className="w-[160px]" aria-label="Filter by sector">
                 <SelectValue placeholder="Sector" />
               </SelectTrigger>
               <SelectContent>
@@ -195,117 +246,139 @@ export default function PymesPage() {
           </div>
         </div>
 
-        <div className="mb-6 flex items-center gap-2 text-sm text-muted-foreground">
-          <Store className="h-4 w-4" aria-hidden />
-          <span>
-            {filteredPymes.length} {filteredPymes.length === 1 ? 'PYME' : 'PYMEs'} found
-          </span>
-        </div>
-
-        {isLoading ? (
-          <div className="flex min-h-[400px] items-center justify-center">
-            <p className="text-muted-foreground">Loading PYMEs…</p>
+        {/* Result count */}
+        {!isLoading && (
+          <div className="mb-6 flex items-center gap-2 text-sm text-muted-foreground">
+            <Store className="h-4 w-4" aria-hidden />
+            <span>
+              {filteredSmbs.length} {filteredSmbs.length === 1 ? 'SMB' : 'SMBs'} found
+              {hasActiveFilters && ' matching your filters'}
+            </span>
           </div>
-        ) : filteredPymes.length === 0 ? (
-          <div className="flex min-h-[400px] flex-col items-center justify-center">
-            <Store className="mb-4 h-12 w-12 text-muted-foreground" aria-hidden />
-            <p className="mb-2 text-lg font-medium">No PYMEs found</p>
+        )}
+
+        {/* Grid */}
+        {isLoading ? (
+          <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+            {Array.from({ length: 6 }).map((_, i) => (
+              <SmbCardSkeleton key={i} />
+            ))}
+          </div>
+        ) : filteredSmbs.length === 0 ? (
+          <div className="flex min-h-[400px] flex-col items-center justify-center text-center">
+            <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-muted">
+              <Store className="h-8 w-8 text-muted-foreground" aria-hidden />
+            </div>
+            <p className="mb-1 text-lg font-semibold">No SMBs found</p>
             <p className="text-sm text-muted-foreground">
-              Try adjusting your search or filters
+              {hasActiveFilters ? 'Try adjusting your search or filters' : 'No SMBs have joined yet'}
             </p>
           </div>
         ) : (
-          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {filteredPymes.map((pyme) => (
-              <Link key={pyme.id} href={`/pymes/${pyme.id}`}>
-                <Card className="h-full transition-colors hover:border-accent hover:bg-muted/30">
-                  <CardHeader>
-                    <div className="mb-2 flex flex-wrap items-start justify-between gap-2">
-                      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10">
-                        <Store className="h-5 w-5 text-primary" aria-hidden />
+          <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+            {filteredSmbs.map((smb) => (
+              <Link key={smb.id} href={`/pymes/${smb.id}`}>
+                <Card className="group h-full transition-all duration-200 hover:border-primary/40 hover:shadow-md hover:-translate-y-0.5">
+                  <CardHeader className="pb-3">
+                    {/* Top row: avatar + badges */}
+                    <div className="mb-3 flex items-start justify-between gap-2">
+                      <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary font-semibold text-base select-none">
+                        {getInitials(smb)}
                       </div>
-                      <div className="flex flex-wrap items-center gap-2 text-right">
-                        {pyme.reputationTier && pyme.reputationTier !== 'new' && (
+                      <div className="flex flex-wrap items-center gap-1.5 justify-end">
+                        {smb.reputationTier && smb.reputationTier !== 'new' && (
                           <span
-                            className={`rounded-md px-2 py-0.5 text-xs font-medium ${
-                              pyme.reputationTier === 'top_performer'
-                                ? 'bg-success/15 text-success'
-                                : pyme.reputationTier === 'established'
-                                  ? 'bg-primary/15 text-primary'
-                                  : 'bg-muted text-muted-foreground'
-                            }`}
+                            className={`rounded-md px-2 py-0.5 text-xs font-medium ${TIER_STYLES[smb.reputationTier]}`}
                           >
-                            {pyme.reputationLabel}
+                            {smb.reputationLabel}
                           </span>
                         )}
-                        {typeof pyme.deal_count === 'number' && pyme.deal_count > 0 && (
+                        {typeof smb.deal_count === 'number' && smb.deal_count > 0 && (
                           <span className="rounded-md bg-muted px-2 py-0.5 text-xs tabular-nums text-muted-foreground">
-                            {pyme.deal_count} deal{pyme.deal_count !== 1 ? 's' : ''}
+                            {smb.deal_count} deal{smb.deal_count !== 1 ? 's' : ''}
                           </span>
                         )}
                       </div>
                     </div>
-                    <CardTitle className="text-lg">{displayName(pyme)}</CardTitle>
-                    {(pyme.country || pyme.sector) && (
-                      <div className="flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
-                        {pyme.sector && (
+
+                    <CardTitle className="text-base leading-snug">{displayName(smb)}</CardTitle>
+
+                    {/* Location / sector */}
+                    {(smb.country || smb.sector) && (
+                      <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground">
+                        {smb.sector && (
                           <span className="flex items-center gap-1">
-                            <Briefcase className="h-3.5 w-3.5 shrink-0" aria-hidden />
-                            {getSectorLabel(pyme.sector)}
+                            <Briefcase className="h-3 w-3 shrink-0" aria-hidden />
+                            {getSectorLabel(smb.sector)}
                           </span>
                         )}
-                        {pyme.country && (
+                        {smb.country && (
                           <span className="flex items-center gap-1">
-                            <Globe className="h-3.5 w-3.5 shrink-0" aria-hidden />
-                            {getCountryLabel(pyme.country)}
+                            <Globe className="h-3 w-3 shrink-0" aria-hidden />
+                            {getCountryLabel(smb.country)}
                           </span>
                         )}
                       </div>
                     )}
-                    {pyme.bio && (
-                      <CardDescription className="line-clamp-2 mt-1">
-                        {pyme.bio}
-                      </CardDescription>
+
+                    {/* Bio */}
+                    {smb.bio && (
+                      <p className="mt-2 text-sm text-muted-foreground line-clamp-2 leading-snug">
+                        {smb.bio}
+                      </p>
                     )}
-                    {typeof pyme.totalRepaid === 'number' && pyme.totalRepaid > 0 && (
-                      <p className="mt-2 text-xs text-muted-foreground">
-                        <span className="font-medium text-success tabular-nums">
+                  </CardHeader>
+
+                  <CardContent className="pt-0">
+                    <div className="border-t border-border pt-3 space-y-2">
+                      {/* Active deals */}
+                      {typeof smb.active_deals === 'number' && smb.active_deals > 0 && (
+                        <div className="flex items-center gap-1.5 text-xs text-amber-600 dark:text-amber-400 font-medium">
+                          <TrendingUp className="h-3.5 w-3.5 shrink-0" />
+                          {smb.active_deals} active deal{smb.active_deals !== 1 ? 's' : ''}
+                        </div>
+                      )}
+
+                      {/* Total repaid */}
+                      {typeof smb.totalRepaid === 'number' && smb.totalRepaid > 0 && (
+                        <div className="flex items-center gap-1.5 text-xs text-emerald-600 dark:text-emerald-400 font-medium">
+                          <CheckCircle2 className="h-3.5 w-3.5 shrink-0" />
                           {new Intl.NumberFormat('en-US', {
                             style: 'currency',
                             currency: 'USD',
                             maximumFractionDigits: 0,
-                          }).format(pyme.totalRepaid)}
-                        </span>{' '}
-                        repaid to investors
-                      </p>
-                    )}
-                  </CardHeader>
-                  <CardContent className="space-y-3">
-                    <div className="space-y-2 border-t border-border pt-3 text-sm">
-                      {pyme.email && (
-                        <div className="flex items-center gap-2 text-muted-foreground">
-                          <Mail className="h-4 w-4 shrink-0" aria-hidden />
-                          <span className="truncate">{pyme.email}</span>
+                          }).format(smb.totalRepaid)}{' '}
+                          repaid
                         </div>
                       )}
-                      {pyme.phone && (
-                        <div className="flex items-center gap-2 text-muted-foreground">
-                          <Phone className="h-4 w-4 shrink-0" aria-hidden />
-                          <span>{pyme.phone}</span>
+
+                      {/* Completion rate */}
+                      {typeof smb.completionRate === 'number' && smb.completionRate > 0 && (
+                        <div className="mt-1">
+                          <div className="mb-1 flex items-center justify-between text-xs text-muted-foreground">
+                            <span>Completion rate</span>
+                            <span className="font-medium tabular-nums">
+                              {Math.round(smb.completionRate * 100)}%
+                            </span>
+                          </div>
+                          <div className="h-1.5 w-full overflow-hidden rounded-full bg-muted">
+                            <div
+                              className="h-full rounded-full bg-emerald-500"
+                              style={{ width: `${Math.round(smb.completionRate * 100)}%` }}
+                            />
+                          </div>
                         </div>
                       )}
-                      {pyme.address && (
-                        <div className="flex items-center gap-2 text-muted-foreground">
-                          <Wallet className="h-4 w-4 shrink-0" aria-hidden />
-                          <span className="truncate font-mono text-xs">
-                            {pyme.address.slice(0, 6)}…{pyme.address.slice(-4)}
-                          </span>
-                        </div>
+
+                      {/* New SMB placeholder */}
+                      {(smb.deal_count ?? 0) === 0 && (
+                        <p className="text-xs text-muted-foreground">No deals yet on MERCATO</p>
                       )}
                     </div>
-                    <div className="flex items-center gap-2 pt-2 text-primary text-sm font-medium">
+
+                    <div className="mt-3 flex items-center gap-1 text-xs font-medium text-primary group-hover:gap-2 transition-all">
                       View profile
-                      <ArrowRight className="h-4 w-4" aria-hidden />
+                      <ArrowRight className="h-3.5 w-3.5" aria-hidden />
                     </div>
                   </CardContent>
                 </Card>
