@@ -43,6 +43,7 @@ User roles are **pyme**, **investor**, and **supplier**. Auth and profile data l
 
 Architecture and design docs (with diagrams) live in the **[`doc/`](doc/)** folder:
 
+- **[Contributing](CONTRIBUTING.md)** — How to contribute (including [Drips Wave — Stellar](https://www.drips.network/wave/stellar)), local checks, and PR / commit expectations.
 - **[Architecture](doc/architecture.md)** — System overview, application flows, tech stack, Stellar/Trustless Work escrow, ramp providers (Etherfuse, Alfred Pay, BlindPay), data split, and environment. Includes Mermaid diagrams.
 
 ---
