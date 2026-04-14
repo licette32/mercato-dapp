@@ -2,6 +2,7 @@ import Link from 'next/link'
 import { Badge } from '@/components/ui/badge'
 import { ArrowRight, Sparkles } from 'lucide-react'
 import { formatCurrency } from '@/lib/format'
+import { cn } from '@/lib/utils'
 import type { Deal } from '@/lib/types'
 
 type StatusConfig = { label: string; pill: string; dot: string }
@@ -44,7 +45,7 @@ const STATUS_CONFIG: Record<string, StatusConfig> = {
   },
 }
 
-export function DealCard({ deal }: { deal: Deal }) {
+export function DealCard({ deal, listIndex }: { deal: Deal; listIndex?: number }) {
   const cfg = STATUS_CONFIG[deal.status] ?? STATUS_CONFIG.awaiting_funding
   const isOpen = deal.status === 'awaiting_funding'
   const completedMilestones = deal.milestones.filter((m) => m.status === 'completed').length
@@ -56,10 +57,26 @@ export function DealCard({ deal }: { deal: Deal }) {
     .filter((v, i, arr) => arr.indexOf(v) === i)
     .join(' · ')
 
+  const staggerMs =
+    listIndex != null ? Math.min(listIndex * 42, 360) : undefined
+
   return (
     <Link
       href={`/deals/${deal.id}`}
-      className="group flex flex-col rounded-2xl border-2 border-border bg-card transition-all hover:border-accent/50 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+      style={
+        staggerMs != null
+          ? { animationDelay: `${staggerMs}ms` }
+          : undefined
+      }
+      className={cn(
+        'group flex flex-col rounded-2xl border-2 border-border bg-card',
+        'transition-[transform,box-shadow,border-color] duration-200 ease-out motion-reduce:transition-colors',
+        'hover:-translate-y-0.5 hover:border-accent/50 hover:shadow-md',
+        'active:translate-y-0 active:scale-[0.995] motion-reduce:active:scale-100',
+        'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
+        listIndex != null &&
+          'motion-safe:animate-in motion-safe:fade-in motion-safe:slide-in-from-bottom-2 motion-safe:duration-300 motion-safe:ease-out motion-safe:fill-mode-backwards',
+      )}
     >
       {/* Header */}
       <div className="flex-1 p-5">
@@ -163,7 +180,10 @@ export function DealCard({ deal }: { deal: Deal }) {
           }`}
         >
           {isOpen ? 'Fund this deal' : 'View deal'}
-          <ArrowRight className="h-3.5 w-3.5" aria-hidden />
+          <ArrowRight
+            className="h-3.5 w-3.5 transition-transform duration-200 ease-out group-hover:translate-x-0.5"
+            aria-hidden
+          />
         </div>
       </div>
     </Link>

@@ -67,11 +67,14 @@ export function Navigation() {
   }
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+    <header className="sticky top-0 z-50 w-full border-b border-border bg-background/95 backdrop-blur transition-[box-shadow,background-color] duration-200 ease-out supports-[backdrop-filter]:bg-background/60">
       <div className="container mx-auto flex h-16 items-center justify-between px-4">
         <div className="flex items-center gap-8">
-          <Link href="/" className="flex items-center gap-2">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary">
+          <Link
+            href="/"
+            className="group flex items-center gap-2 rounded-md outline-offset-4 transition-[opacity,transform] duration-200 ease-out hover:opacity-90 active:scale-[0.98] motion-reduce:active:scale-100"
+          >
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary transition-transform duration-200 ease-out group-hover:scale-[1.03] motion-reduce:group-hover:scale-100">
               <Package className="h-5 w-5 text-primary-foreground" aria-hidden />
             </div>
             <span className="text-xl font-semibold tracking-tight">MERCATO</span>

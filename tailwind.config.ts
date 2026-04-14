@@ -96,10 +96,41 @@ const config: Config = {
             height: '0',
           },
         },
+        'mercato-bar-fill': {
+          from: { transform: 'scaleX(0)' },
+          to: { transform: 'scaleX(1)' },
+        },
+        /** Deal cycle arrows: opacity “glow” + nudge along flow (compositor-friendly) */
+        'mercato-flow-nudge-right': {
+          '0%, 100%': { transform: 'translate3d(0, 0, 0)', opacity: '0.42' },
+          '50%': { transform: 'translate3d(5px, 0, 0)', opacity: '1' },
+        },
+        'mercato-flow-nudge-down': {
+          '0%, 100%': { transform: 'translate3d(0, 0, 0)', opacity: '0.42' },
+          '50%': { transform: 'translate3d(0, 5px, 0)', opacity: '1' },
+        },
+        'mercato-flow-nudge-left': {
+          '0%, 100%': { transform: 'translate3d(0, 0, 0)', opacity: '0.42' },
+          '50%': { transform: 'translate3d(-5px, 0, 0)', opacity: '1' },
+        },
+        'mercato-flow-nudge-up': {
+          '0%, 100%': { transform: 'translate3d(0, 0, 0)', opacity: '0.42' },
+          '50%': { transform: 'translate3d(0, -5px, 0)', opacity: '1' },
+        },
       },
       animation: {
         'accordion-down': 'accordion-down 0.2s ease-out',
         'accordion-up': 'accordion-up 0.2s ease-out',
+        'mercato-bar-fill':
+          'mercato-bar-fill 0.85s cubic-bezier(0.22, 1, 0.36, 1) forwards',
+        'mercato-flow-right':
+          'mercato-flow-nudge-right 2.4s ease-in-out infinite',
+        'mercato-flow-down':
+          'mercato-flow-nudge-down 2.4s ease-in-out infinite',
+        'mercato-flow-left':
+          'mercato-flow-nudge-left 2.4s ease-in-out infinite',
+        'mercato-flow-up':
+          'mercato-flow-nudge-up 2.4s ease-in-out infinite',
       },
     },
   },

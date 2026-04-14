@@ -216,7 +216,7 @@ export function DealsBrowse() {
                 key={pill.value}
                 type="button"
                 onClick={() => setStatusFilter(pill.value)}
-                className={`inline-flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-sm font-medium transition-colors ${
+                className={`inline-flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-sm font-medium transition-[color,background-color,border-color,transform,box-shadow] duration-200 ease-out active:scale-[0.98] motion-reduce:active:scale-100 ${
                   statusFilter === pill.value
                     ? 'bg-foreground text-background'
                     : 'border border-border bg-card text-muted-foreground hover:border-foreground/30 hover:text-foreground'
@@ -357,8 +357,8 @@ export function DealsBrowse() {
           </div>
         ) : filteredDeals.length > 0 ? (
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {filteredDeals.map((deal) => (
-              <DealCard key={deal.id} deal={deal} />
+            {filteredDeals.map((deal, index) => (
+              <DealCard key={deal.id} deal={deal} listIndex={index} />
             ))}
           </div>
         ) : (
