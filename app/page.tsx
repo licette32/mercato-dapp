@@ -2,6 +2,7 @@ import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Navigation } from '@/components/navigation'
+import { HeroDealsCarousel } from '@/components/landing/hero-deals-carousel'
 import { cn } from '@/lib/utils'
 import {
   Boxes,
@@ -36,14 +37,36 @@ const cycleCardHover =
 const cycleIconWrapHover =
   'transition-transform duration-200 ease-out group-hover:scale-[1.06] motion-reduce:group-hover:scale-100'
 
-/** Looped pulse + nudge on cycle arrows; phase delays chase 1→2→3→4→1 (2.4s loop, 600ms per step) */
-const cycleArrowLoopStaggerMs = 600
+/** Looped pulse + nudge on cycle arrows; phase delays chase 1→2→3→4→1 (4s loop, 1s per quadrant) */
+const cycleArrowLoopStaggerMs = 1000
 const cycleArrowLoopWrap =
   'inline-flex rounded-full p-1.5 text-accent motion-reduce:animate-none'
 const cycleArrowLoopRight = cn(cycleArrowLoopWrap, 'motion-safe:animate-mercato-flow-right')
 const cycleArrowLoopDown = cn(cycleArrowLoopWrap, 'motion-safe:animate-mercato-flow-down')
 const cycleArrowLoopLeft = cn(cycleArrowLoopWrap, 'motion-safe:animate-mercato-flow-left')
 const cycleArrowLoopUp = cn(cycleArrowLoopWrap, 'motion-safe:animate-mercato-flow-up')
+
+/** Step number badge pulse, one at a time per 4s (aligned with deal-cycle arrow loop). */
+function cycleStepBadgePulseClass(step: number) {
+  return cn(
+    'origin-center motion-reduce:animate-none',
+    step === 1 && 'motion-safe:animate-mercato-cycle-step-1',
+    step === 2 && 'motion-safe:animate-mercato-cycle-step-2',
+    step === 3 && 'motion-safe:animate-mercato-cycle-step-3',
+    step === 4 && 'motion-safe:animate-mercato-cycle-step-4',
+  )
+}
+
+/** Whole step card pulse, same 4s phases as badges/arrows; gentler scale on the card. */
+function cycleCardPulseClass(step: number) {
+  return cn(
+    'origin-center motion-reduce:animate-none',
+    step === 1 && 'motion-safe:animate-mercato-cycle-card-1',
+    step === 2 && 'motion-safe:animate-mercato-cycle-card-2',
+    step === 3 && 'motion-safe:animate-mercato-cycle-card-3',
+    step === 4 && 'motion-safe:animate-mercato-cycle-card-4',
+  )
+}
 
 export default function HomePage() {
   return (
@@ -102,79 +125,8 @@ export default function HomePage() {
               </div>
             </div>
 
-            {/* Right: sample deal card */}
-            <div className="w-full max-w-sm shrink-0 motion-safe:animate-in motion-safe:fade-in motion-safe:zoom-in-95 motion-safe:slide-in-from-bottom-3 motion-safe:duration-500 motion-safe:delay-200 motion-safe:fill-mode-both">
-              <div className="rounded-2xl border-2 border-border bg-card p-6 shadow-sm transition-[box-shadow,border-color,transform] duration-300 ease-out hover:-translate-y-0.5 hover:border-accent/30 hover:shadow-md motion-reduce:transition-shadow motion-reduce:hover:translate-y-0">
-                <div className="mb-4 flex items-start justify-between gap-3">
-                  <div>
-                    <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                      Textiles · Mexico
-                    </p>
-                    <h3 className="mt-0.5 font-bold">Cotton Yarn — 1,000 units</h3>
-                    <p className="text-sm text-muted-foreground">Manufacturas del Norte</p>
-                  </div>
-                  <Badge variant="secondary" className="shrink-0 bg-accent/10 text-accent">
-                    Open
-                  </Badge>
-                </div>
-
-                <div className="mb-5 grid grid-cols-3 gap-2">
-                  <div className="rounded-lg bg-muted/50 p-3 text-center">
-                    <p className="text-xs text-muted-foreground">Amount</p>
-                    <p className="mt-0.5 font-bold tabular-nums">$12,500</p>
-                    <p className="text-[10px] text-muted-foreground">USDC</p>
-                  </div>
-                  <div className="rounded-lg bg-success/10 p-3 text-center">
-                    <p className="text-xs text-muted-foreground">APR</p>
-                    <p className="mt-0.5 font-bold tabular-nums text-success">12.0%</p>
-                    <p className="text-[10px] text-muted-foreground">yield</p>
-                  </div>
-                  <div className="rounded-lg bg-muted/50 p-3 text-center">
-                    <p className="text-xs text-muted-foreground">Term</p>
-                    <p className="mt-0.5 font-bold tabular-nums">60</p>
-                    <p className="text-[10px] text-muted-foreground">days</p>
-                  </div>
-                </div>
-
-                <div className="mb-5 space-y-2">
-                  <p className="text-xs font-medium text-muted-foreground">Payment milestones</p>
-                  <div className="grid grid-cols-2 gap-2">
-                    <div className="rounded-lg border border-border bg-background p-2.5">
-                      <div className="mb-1.5 flex items-center justify-between">
-                        <span className="text-[11px] font-medium">Shipment</span>
-                        <span className="text-[11px] font-bold tabular-nums">50%</span>
-                      </div>
-                      <div className="h-1.5 overflow-hidden rounded-full bg-muted">
-                        <div className="h-full w-1/2 origin-left rounded-full bg-accent motion-safe:animate-mercato-bar-fill motion-reduce:animate-none" />
-                      </div>
-                    </div>
-                    <div className="rounded-lg border border-border bg-background p-2.5">
-                      <div className="mb-1.5 flex items-center justify-between">
-                        <span className="text-[11px] font-medium">Delivery</span>
-                        <span className="text-[11px] font-bold tabular-nums">50%</span>
-                      </div>
-                      <div className="h-1.5 overflow-hidden rounded-full bg-muted">
-                        <div className="h-full w-1/2 origin-left rounded-full bg-primary motion-safe:animate-mercato-bar-fill motion-safe:delay-150 motion-reduce:animate-none" />
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                <Button className="w-full" asChild>
-                  <Link href="/deals">
-                    Fund this deal
-                    <ArrowRight className="ml-2 h-4 w-4" aria-hidden />
-                  </Link>
-                </Button>
-                <div className="mt-3 flex items-center justify-center gap-1.5 text-[11px] text-muted-foreground">
-                  <Lock className="h-3 w-3 shrink-0" aria-hidden />
-                  Non-custodial escrow · GCNN2…336X
-                </div>
-              </div>
-              <p className="mt-2 text-center text-[11px] text-muted-foreground">
-                Sample deal for illustration
-              </p>
-            </div>
+            {/* Right: illustrative deals carousel (one slide at a time) */}
+            <HeroDealsCarousel />
 
           </div>
         </div>
@@ -250,27 +202,30 @@ export default function HomePage() {
               <div key={step}>
                 <div
                   style={{ animationDelay: `${idx * 95}ms` }}
-                  className={cn(
-                    'flex gap-4 rounded-2xl border-2 p-5',
-                    cycleStepEnter,
-                    cycleCardHover,
-                    color === 'accent' &&
-                      'border-accent/30 bg-accent/5 hover:border-accent/55 hover:bg-accent/10 hover:shadow-accent/10',
-                    color === 'success' &&
-                      'border-success/30 bg-success/5 hover:border-success/55 hover:bg-success/10 hover:shadow-success/10',
-                    color === 'primary' &&
-                      'border-primary/30 bg-primary/5 hover:border-primary/55 hover:bg-primary/10 hover:shadow-primary/10',
-                  )}
+                  className={cn(cycleStepEnter, 'min-w-0')}
                 >
+                  <div
+                    className={cn(
+                      'flex gap-4 rounded-2xl border-2 p-5',
+                      cycleCardHover,
+                      cycleCardPulseClass(step),
+                      color === 'accent' &&
+                        'border-accent/30 bg-accent/5 hover:border-accent/55 hover:bg-accent/10 hover:shadow-accent/10',
+                      color === 'success' &&
+                        'border-success/30 bg-success/5 hover:border-success/55 hover:bg-success/10 hover:shadow-success/10',
+                      color === 'primary' &&
+                        'border-primary/30 bg-primary/5 hover:border-primary/55 hover:bg-primary/10 hover:shadow-primary/10',
+                    )}
+                  >
                   <div className="shrink-0">
                     <span
-                      className={`flex h-7 w-7 items-center justify-center rounded-full text-xs font-bold ${
-                        color === 'accent'
-                          ? 'bg-accent text-accent-foreground'
-                          : color === 'success'
-                            ? 'bg-success text-success-foreground'
-                            : 'bg-primary text-primary-foreground'
-                      }`}
+                      className={cn(
+                        'flex h-7 w-7 items-center justify-center rounded-full text-xs font-bold',
+                        cycleStepBadgePulseClass(step),
+                        color === 'accent' && 'bg-accent text-accent-foreground',
+                        color === 'success' && 'bg-success text-success-foreground',
+                        color === 'primary' && 'bg-primary text-primary-foreground',
+                      )}
                     >
                       {step}
                     </span>
@@ -309,6 +264,7 @@ export default function HomePage() {
                     </p>
                     <h3 className="mb-1 font-bold">{title}</h3>
                     <p className="text-sm text-muted-foreground">{body}</p>
+                  </div>
                   </div>
                 </div>
                 {idx < arr.length - 1 && (
@@ -351,17 +307,24 @@ export default function HomePage() {
             style={{ gridTemplateColumns: '1fr 5rem 1fr', gridTemplateRows: 'auto 5rem auto' }}
           >
             {/* ── Step 1 — top-left ── */}
-            <div
-              style={{ animationDelay: '0ms' }}
-              className={cn(
-                'flex gap-4 rounded-2xl border-2 border-accent/30 bg-accent/5 p-6',
-                cycleStepEnter,
-                cycleCardHover,
-                'hover:border-accent/55 hover:bg-accent/10 hover:shadow-accent/10',
-              )}
-            >
+            <div style={{ animationDelay: '0ms' }} className={cn(cycleStepEnter, 'min-w-0')}>
+              <div
+                className={cn(
+                  'flex gap-4 rounded-2xl border-2 border-accent/30 bg-accent/5 p-6',
+                  cycleCardHover,
+                  cycleCardPulseClass(1),
+                  'hover:border-accent/55 hover:bg-accent/10 hover:shadow-accent/10',
+                )}
+              >
               <div className="shrink-0">
-                <span className="flex h-7 w-7 items-center justify-center rounded-full bg-accent text-xs font-bold text-accent-foreground">1</span>
+                <span
+                  className={cn(
+                    'flex h-7 w-7 items-center justify-center rounded-full bg-accent text-xs font-bold text-accent-foreground',
+                    cycleStepBadgePulseClass(1),
+                  )}
+                >
+                  1
+                </span>
                 <div
                   className={cn(
                     'mt-2 flex h-10 w-10 items-center justify-center rounded-xl bg-accent/15',
@@ -377,6 +340,7 @@ export default function HomePage() {
                 <p className="text-sm text-muted-foreground">
                   Picks a supplier, sets the order amount, defines payment milestones, and deploys a non-custodial escrow on Stellar.
                 </p>
+              </div>
               </div>
             </div>
 
@@ -401,17 +365,24 @@ export default function HomePage() {
             </div>
 
             {/* ── Step 2 — top-right ── */}
-            <div
-              style={{ animationDelay: '160ms' }}
-              className={cn(
-                'flex gap-4 rounded-2xl border-2 border-success/30 bg-success/5 p-6',
-                cycleStepEnter,
-                cycleCardHover,
-                'hover:border-success/55 hover:bg-success/10 hover:shadow-success/10',
-              )}
-            >
+            <div style={{ animationDelay: '160ms' }} className={cn(cycleStepEnter, 'min-w-0')}>
+              <div
+                className={cn(
+                  'flex gap-4 rounded-2xl border-2 border-success/30 bg-success/5 p-6',
+                  cycleCardHover,
+                  cycleCardPulseClass(2),
+                  'hover:border-success/55 hover:bg-success/10 hover:shadow-success/10',
+                )}
+              >
               <div className="shrink-0">
-                <span className="flex h-7 w-7 items-center justify-center rounded-full bg-success text-xs font-bold text-success-foreground">2</span>
+                <span
+                  className={cn(
+                    'flex h-7 w-7 items-center justify-center rounded-full bg-success text-xs font-bold text-success-foreground',
+                    cycleStepBadgePulseClass(2),
+                  )}
+                >
+                  2
+                </span>
                 <div
                   className={cn(
                     'mt-2 flex h-10 w-10 items-center justify-center rounded-xl bg-success/15',
@@ -427,6 +398,7 @@ export default function HomePage() {
                 <p className="text-sm text-muted-foreground">
                   Browses open deals, chooses one, and sends USDC directly into the smart contract. Funds are locked until milestones are approved.
                 </p>
+              </div>
               </div>
             </div>
 
@@ -504,17 +476,24 @@ export default function HomePage() {
             </div>
 
             {/* ── Step 4 — bottom-left ── */}
-            <div
-              style={{ animationDelay: '600ms' }}
-              className={cn(
-                'flex gap-4 rounded-2xl border-2 border-accent/30 bg-accent/5 p-6',
-                cycleStepEnter,
-                cycleCardHover,
-                'hover:border-accent/55 hover:bg-accent/10 hover:shadow-accent/10',
-              )}
-            >
+            <div style={{ animationDelay: '600ms' }} className={cn(cycleStepEnter, 'min-w-0')}>
+              <div
+                className={cn(
+                  'flex gap-4 rounded-2xl border-2 border-accent/30 bg-accent/5 p-6',
+                  cycleCardHover,
+                  cycleCardPulseClass(4),
+                  'hover:border-accent/55 hover:bg-accent/10 hover:shadow-accent/10',
+                )}
+              >
               <div className="shrink-0">
-                <span className="flex h-7 w-7 items-center justify-center rounded-full bg-accent text-xs font-bold text-accent-foreground">4</span>
+                <span
+                  className={cn(
+                    'flex h-7 w-7 items-center justify-center rounded-full bg-accent text-xs font-bold text-accent-foreground',
+                    cycleStepBadgePulseClass(4),
+                  )}
+                >
+                  4
+                </span>
                 <div
                   className={cn(
                     'mt-2 flex h-10 w-10 items-center justify-center rounded-xl bg-accent/15',
@@ -530,6 +509,7 @@ export default function HomePage() {
                 <p className="text-sm text-muted-foreground">
                   After selling the inventory, the PyME repays principal plus yield (8–15% APR). The cycle completes transparently on-chain.
                 </p>
+              </div>
               </div>
             </div>
 
@@ -554,17 +534,24 @@ export default function HomePage() {
             </div>
 
             {/* ── Step 3 — bottom-right ── */}
-            <div
-              style={{ animationDelay: '420ms' }}
-              className={cn(
-                'flex gap-4 rounded-2xl border-2 border-primary/30 bg-primary/5 p-6',
-                cycleStepEnter,
-                cycleCardHover,
-                'hover:border-primary/55 hover:bg-primary/10 hover:shadow-primary/10',
-              )}
-            >
+            <div style={{ animationDelay: '420ms' }} className={cn(cycleStepEnter, 'min-w-0')}>
+              <div
+                className={cn(
+                  'flex gap-4 rounded-2xl border-2 border-primary/30 bg-primary/5 p-6',
+                  cycleCardHover,
+                  cycleCardPulseClass(3),
+                  'hover:border-primary/55 hover:bg-primary/10 hover:shadow-primary/10',
+                )}
+              >
               <div className="shrink-0">
-                <span className="flex h-7 w-7 items-center justify-center rounded-full bg-primary text-xs font-bold text-primary-foreground">3</span>
+                <span
+                  className={cn(
+                    'flex h-7 w-7 items-center justify-center rounded-full bg-primary text-xs font-bold text-primary-foreground',
+                    cycleStepBadgePulseClass(3),
+                  )}
+                >
+                  3
+                </span>
                 <div
                   className={cn(
                     'mt-2 flex h-10 w-10 items-center justify-center rounded-xl bg-primary/15',
@@ -580,6 +567,7 @@ export default function HomePage() {
                 <p className="text-sm text-muted-foreground">
                   Ships goods and uploads delivery proof on-chain. Escrow releases USDC in milestones upon PyME approval.
                 </p>
+              </div>
               </div>
             </div>
           </div>

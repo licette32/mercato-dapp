@@ -117,6 +117,48 @@ const config: Config = {
           '0%, 100%': { transform: 'translate3d(0, 0, 0)', opacity: '0.42' },
           '50%': { transform: 'translate3d(0, -5px, 0)', opacity: '1' },
         },
+        /** Deal cycle step badges: one pulse per loop, staggered 1 → 2 → 3 → 4 (matches arrow phase) */
+        'mercato-cycle-step-pulse-1': {
+          '0%': { transform: 'scale3d(1, 1, 1)' },
+          '6%': { transform: 'scale3d(1.14, 1.14, 1)' },
+          '12%, 100%': { transform: 'scale3d(1, 1, 1)' },
+        },
+        'mercato-cycle-step-pulse-2': {
+          '0%, 25%': { transform: 'scale3d(1, 1, 1)' },
+          '31%': { transform: 'scale3d(1.14, 1.14, 1)' },
+          '37%, 100%': { transform: 'scale3d(1, 1, 1)' },
+        },
+        'mercato-cycle-step-pulse-3': {
+          '0%, 50%': { transform: 'scale3d(1, 1, 1)' },
+          '56%': { transform: 'scale3d(1.14, 1.14, 1)' },
+          '62%, 100%': { transform: 'scale3d(1, 1, 1)' },
+        },
+        'mercato-cycle-step-pulse-4': {
+          '0%, 75%': { transform: 'scale3d(1, 1, 1)' },
+          '81%': { transform: 'scale3d(1.14, 1.14, 1)' },
+          '87%, 100%': { transform: 'scale3d(1, 1, 1)' },
+        },
+        /** Deal cycle whole cards: same phase as step badges, gentler scale */
+        'mercato-cycle-card-pulse-1': {
+          '0%': { transform: 'scale3d(1, 1, 1)' },
+          '6%': { transform: 'scale3d(1.022, 1.022, 1)' },
+          '12%, 100%': { transform: 'scale3d(1, 1, 1)' },
+        },
+        'mercato-cycle-card-pulse-2': {
+          '0%, 25%': { transform: 'scale3d(1, 1, 1)' },
+          '31%': { transform: 'scale3d(1.022, 1.022, 1)' },
+          '37%, 100%': { transform: 'scale3d(1, 1, 1)' },
+        },
+        'mercato-cycle-card-pulse-3': {
+          '0%, 50%': { transform: 'scale3d(1, 1, 1)' },
+          '56%': { transform: 'scale3d(1.022, 1.022, 1)' },
+          '62%, 100%': { transform: 'scale3d(1, 1, 1)' },
+        },
+        'mercato-cycle-card-pulse-4': {
+          '0%, 75%': { transform: 'scale3d(1, 1, 1)' },
+          '81%': { transform: 'scale3d(1.022, 1.022, 1)' },
+          '87%, 100%': { transform: 'scale3d(1, 1, 1)' },
+        },
       },
       animation: {
         'accordion-down': 'accordion-down 0.2s ease-out',
@@ -124,13 +166,29 @@ const config: Config = {
         'mercato-bar-fill':
           'mercato-bar-fill 0.85s cubic-bezier(0.22, 1, 0.36, 1) forwards',
         'mercato-flow-right':
-          'mercato-flow-nudge-right 2.4s ease-in-out infinite',
+          'mercato-flow-nudge-right 4s ease-in-out infinite',
         'mercato-flow-down':
-          'mercato-flow-nudge-down 2.4s ease-in-out infinite',
+          'mercato-flow-nudge-down 4s ease-in-out infinite',
         'mercato-flow-left':
-          'mercato-flow-nudge-left 2.4s ease-in-out infinite',
+          'mercato-flow-nudge-left 4s ease-in-out infinite',
         'mercato-flow-up':
-          'mercato-flow-nudge-up 2.4s ease-in-out infinite',
+          'mercato-flow-nudge-up 4s ease-in-out infinite',
+        'mercato-cycle-step-1':
+          'mercato-cycle-step-pulse-1 4s ease-in-out infinite',
+        'mercato-cycle-step-2':
+          'mercato-cycle-step-pulse-2 4s ease-in-out infinite',
+        'mercato-cycle-step-3':
+          'mercato-cycle-step-pulse-3 4s ease-in-out infinite',
+        'mercato-cycle-step-4':
+          'mercato-cycle-step-pulse-4 4s ease-in-out infinite',
+        'mercato-cycle-card-1':
+          'mercato-cycle-card-pulse-1 4s ease-in-out infinite',
+        'mercato-cycle-card-2':
+          'mercato-cycle-card-pulse-2 4s ease-in-out infinite',
+        'mercato-cycle-card-3':
+          'mercato-cycle-card-pulse-3 4s ease-in-out infinite',
+        'mercato-cycle-card-4':
+          'mercato-cycle-card-pulse-4 4s ease-in-out infinite',
       },
     },
   },
