@@ -1,4 +1,6 @@
-export type DealStatus = 
+export type TxState = 'idle' | 'loading' | 'pending' | 'success' | 'error'
+
+export type DealStatus =
   | 'awaiting_funding' 
   | 'funded' 
   | 'in_progress' 
@@ -6,6 +8,8 @@ export type DealStatus =
   | 'completed' 
   | 'disputed'
   | 'released'
+
+export type FundingStatus = 'open' | 'funded' | 'expired' | 'extended'
 
 export type UserRole = 'pyme' | 'investor' | 'supplier' | 'admin'
 
@@ -39,6 +43,7 @@ export interface Deal {
   escrowAddress?: string
   pymeName: string
   pymeId?: string
+  pymeStakeAmount?: number
   investorName?: string
   investorId?: string
   investorAddress?: string
@@ -47,6 +52,11 @@ export interface Deal {
   yieldAPR?: number
   /** Extra APR (percentage points) offered by PyME on top of the base formula rate */
   yieldBonusApr?: number
+  fundingStatus: FundingStatus
+  fundingWindowDays?: number
+  fundingExpiresAt?: string
+  extensionCount: number
+  extendedAt?: string
 }
 
 export interface User {
@@ -55,4 +65,24 @@ export interface User {
   role: UserRole
   walletAddress?: string
   email?: string
+}
+
+export interface CapitalState {
+  wallet: number
+  inVault: number
+  allocated: number
+}
+
+export interface Reputation {
+  userId: string
+  capitalCommitted: number
+  dealsCompleted: number
+  repaymentPerformance: number
+  reputationScore: number
+  /** Same as reputationScore, for backward compatibility */
+  score: number
+  stakeAmount: number
+  stakeCurrency: string
+  trustLabel: string
+  updatedAt: string
 }
