@@ -1,4 +1,6 @@
-export type DealStatus = 
+export type TxState = 'idle' | 'loading' | 'pending' | 'success' | 'error'
+
+export type DealStatus =
   | 'awaiting_funding' 
   | 'funded' 
   | 'in_progress' 
@@ -69,4 +71,18 @@ export interface CapitalState {
   wallet: number
   inVault: number
   allocated: number
+}
+
+export interface Reputation {
+  userId: string
+  capitalCommitted: number
+  dealsCompleted: number
+  repaymentPerformance: number
+  reputationScore: number
+  /** Same as reputationScore, for backward compatibility */
+  score: number
+  stakeAmount: number
+  stakeCurrency: string
+  trustLabel: string
+  updatedAt: string
 }
