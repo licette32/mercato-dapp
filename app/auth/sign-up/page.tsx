@@ -19,6 +19,7 @@ import { useState } from 'react'
 import { MercatoLogo } from '@/components/mercato-logo'
 import { Package, TrendingUp, Users } from 'lucide-react'
 import { useI18n } from '@/lib/i18n/provider'
+import { useWallet } from '@/hooks/use-wallet'
 
 export default function SignUpPage() {
   const { t } = useI18n()
@@ -31,6 +32,7 @@ export default function SignUpPage() {
   const [error, setError] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(false)
   const router = useRouter()
+  const { connectPollarWallet, connectExternalWallet } = useWallet()
 
   const handleSignUp = async (e: FormEvent) => {
     e.preventDefault()
@@ -255,8 +257,27 @@ export default function SignUpPage() {
                   {t('auth.logIn')}
                 </Link>
               </p>
-            </CardContent>
-          </Card>
+              </CardContent>
+            </Card>
+
+            <Card className="mt-6 border-dashed">
+              <CardContent className="flex flex-col gap-3 pt-6">
+                <div>
+                  <p className="text-sm font-medium">Prefer embedded wallet onboarding?</p>
+                  <p className="text-sm text-muted-foreground">
+                    Start with Pollar if you do not want to install Freighter or Albedo yet.
+                  </p>
+                </div>
+                <div className="flex flex-col gap-2 sm:flex-row">
+                  <Button type="button" variant="outline" onClick={connectExternalWallet} className="sm:flex-1">
+                    Connect Stellar Wallet
+                  </Button>
+                  <Button type="button" variant="secondary" onClick={connectPollarWallet} className="sm:flex-1">
+                    Continue with Pollar Embedded Wallet
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
 
           <p className="mt-8 text-center text-xs text-muted-foreground">
             {t('auth.tagline')}

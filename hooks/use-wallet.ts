@@ -1,20 +1,6 @@
 'use client'
 
-import { useCallback, useEffect, useState } from 'react'
-import { useWalletContext } from '@/providers/wallet-provider'
-import { stellarWalletKit } from '@/lib/trustless/wallet-kit'
-import { normalizeUSDC } from '@/lib/format'
-import { USDC_TRUSTLINE } from '@/lib/trustless/trustlines'
-import {
-  Account,
-  Address,
-  Contract,
-  Networks,
-  TransactionBuilder,
-  rpc,
-  scValToNative,
-} from '@stellar/stellar-sdk'
-import type { ISupportedWallet } from '@creit.tech/stellar-wallets-kit'
+import { useMercatoWallet } from '@/hooks/use-mercato-wallet'
 
 const isTestnet = process.env.NEXT_PUBLIC_TRUSTLESS_NETWORK !== 'mainnet'
 const SOROBAN_RPC_URL = isTestnet
@@ -52,30 +38,11 @@ const getUSDCWalletBalance = async (address: string): Promise<number> => {
 }
 
 export const useWallet = () => {
-  const { setWalletInfo, clearWalletInfo, walletInfo, isConnected } =
-    useWalletContext()
-  const [balance, setBalance] = useState(0)
-
-  const connectWallet = async () => {
-    if (!stellarWalletKit) return
-    await stellarWalletKit.openModal({
-      modalTitle: 'Connect Your Stellar Wallet',
-      onWalletSelected: async (option: ISupportedWallet) => {
-        stellarWalletKit.setWallet(option.id)
-        const { address } = await stellarWalletKit.getAddress()
-        setWalletInfo(address, option.name)
-      },
-    })
-  }
-
-  const disconnectWallet = async () => {
-    if (stellarWalletKit) await stellarWalletKit.disconnect()
-    clearWalletInfo()
-  }
+  const mercatoWallet = useMercatoWallet()
 
   const handleConnect = async () => {
     try {
-      await connectWallet()
+      await mercatoWallet.connectExternalWallet()
     } catch (error) {
       console.error('Error connecting wallet:', error)
     }
@@ -83,44 +50,29 @@ export const useWallet = () => {
 
   const handleDisconnect = async () => {
     try {
-      await disconnectWallet()
+      await mercatoWallet.disconnect()
     } catch (error) {
       console.error('Error disconnecting wallet:', error)
     }
   }
 
-  const truncatedAddress = walletInfo?.address
-    ? `${walletInfo.address.slice(0, 4)}…${walletInfo.address.slice(-4)}`
-    : null
-
-  const refreshBalance = useCallback(async () => {
-    if (!walletInfo?.address) {
-      setBalance(0)
-      return 0
-    }
-
-    try {
-      const nextBalance = await getUSDCWalletBalance(walletInfo.address)
-      setBalance(nextBalance)
-      return nextBalance
-    } catch (error) {
-      console.error('Error loading wallet USDC balance:', error)
-      setBalance(0)
-      return 0
-    }
-  }, [walletInfo?.address])
-
-  useEffect(() => {
-    void refreshBalance()
-  }, [refreshBalance])
-
   return {
-    walletInfo,
-    isConnected,
-    balance,
-    refreshBalance,
-    truncatedAddress,
+    walletInfo: mercatoWallet.walletInfo,
+    isConnected: mercatoWallet.isConnected,
+    truncatedAddress: mercatoWallet.truncatedAddress,
+    provider: mercatoWallet.provider,
+    publicKey: mercatoWallet.publicKey,
+    walletId: mercatoWallet.walletId,
+    status: mercatoWallet.status,
+    isEmbedded: mercatoWallet.isEmbedded,
+    balances: mercatoWallet.balances,
+    txHistory: mercatoWallet.txHistory,
+    canSignTransactions: mercatoWallet.canSignTransactions,
+    connectExternalWallet: mercatoWallet.connectExternalWallet,
+    connectPollarWallet: mercatoWallet.connectPollarWallet,
     handleConnect,
     handleDisconnect,
+    disconnectWallet: mercatoWallet.disconnect,
+    refreshBalance: mercatoWallet.refreshBalance,
   }
 }

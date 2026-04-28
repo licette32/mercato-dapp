@@ -50,7 +50,11 @@ export interface WalletNavProps {
   address: string | undefined
   truncatedAddress: string | null
   onConnect: () => void
+  onConnectPollar: () => void
   onDisconnect: () => void
+  provider?: 'stellar-wallets-kit' | 'pollar' | null
+  status?: 'pending' | 'active' | null
+  isEmbedded?: boolean
 }
 
 interface UserNavProps {
@@ -75,6 +79,11 @@ export function UserNav({ user, profile, onLogout, wallet, variant }: UserNavPro
       toast.success(t('wallet.addressCopied'))
     }
   }
+
+  const walletLabel =
+    wallet?.provider === 'pollar' || wallet?.isEmbedded
+      ? 'Pollar Embedded Wallet'
+      : 'Stellar Wallet'
 
   if (!user) {
     if (variant === 'desktop') {
@@ -150,11 +159,16 @@ export function UserNav({ user, profile, onLogout, wallet, variant }: UserNavPro
                 <>
                   <DropdownMenuLabel>
                     <p className="text-xs font-medium leading-none text-muted-foreground">
-                      {t('wallet.stellarWallet')}
+                      {walletLabel}
                     </p>
                     <p className="mt-0.5 text-xs font-mono break-all">
                       {wallet.address}
                     </p>
+                    {wallet.status && (
+                      <p className="mt-1 text-[11px] uppercase tracking-wide text-muted-foreground">
+                        Status: {wallet.status}
+                      </p>
+                    )}
                   </DropdownMenuLabel>
                   <DropdownMenuItem onClick={copyAddress} className="cursor-pointer">
                     <Copy className="mr-2 h-4 w-4" aria-hidden />
@@ -180,10 +194,16 @@ export function UserNav({ user, profile, onLogout, wallet, variant }: UserNavPro
                   </DropdownMenuItem>
                 </>
               ) : (
-                <DropdownMenuItem onClick={wallet.onConnect} className="cursor-pointer">
-                  <Wallet className="mr-2 h-4 w-4" aria-hidden />
-                  {t('wallet.connectWallet')}
-                </DropdownMenuItem>
+                <>
+                  <DropdownMenuItem onClick={wallet.onConnect} className="cursor-pointer">
+                    <Wallet className="mr-2 h-4 w-4" aria-hidden />
+                    Connect Stellar Wallet
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={wallet.onConnectPollar} className="cursor-pointer">
+                    <Wallet className="mr-2 h-4 w-4" aria-hidden />
+                    Continue with Pollar Embedded Wallet
+                  </DropdownMenuItem>
+                </>
               )}
             </>
           )}
@@ -282,16 +302,21 @@ export function UserNav({ user, profile, onLogout, wallet, variant }: UserNavPro
         <p className="text-sm font-medium">{displayName(profile, user.email)}</p>
         <p className="text-xs text-muted-foreground">{user.email}</p>
       </div>
-      {wallet && (
-        <>
-          <div className="my-2 border-t border-border" />
-          {wallet.isConnected && wallet.address ? (
-            <div className="flex flex-col gap-2 px-2">
-              <p className="text-xs font-medium text-muted-foreground">{t('wallet.stellarWallet')}</p>
-              <p className="text-xs font-mono break-all">{wallet.address}</p>
-              <div className="flex gap-2">
-                <Button variant="outline" size="sm" onClick={copyAddress}>
-                  <Copy className="mr-2 h-3 w-3" aria-hidden />
+          {wallet && (
+            <>
+              <div className="my-2 border-t border-border" />
+              {wallet.isConnected && wallet.address ? (
+                <div className="flex flex-col gap-2 px-2">
+                  <p className="text-xs font-medium text-muted-foreground">{walletLabel}</p>
+                  <p className="text-xs font-mono break-all">{wallet.address}</p>
+                  {wallet.status && (
+                    <p className="text-[11px] uppercase tracking-wide text-muted-foreground">
+                      Status: {wallet.status}
+                    </p>
+                  )}
+                  <div className="flex gap-2">
+                    <Button variant="outline" size="sm" onClick={copyAddress}>
+                      <Copy className="mr-2 h-3 w-3" aria-hidden />
                   {t('wallet.copy')}
                 </Button>
                 <Button
@@ -303,16 +328,22 @@ export function UserNav({ user, profile, onLogout, wallet, variant }: UserNavPro
                   <Unplug className="mr-2 h-3 w-3" aria-hidden />
                   {t('wallet.disconnect')}
                 </Button>
-              </div>
-            </div>
-          ) : (
-            <Button variant="outline" size="sm" className="gap-2 justify-start w-full" onClick={wallet.onConnect}>
-              <Wallet className="h-4 w-4" aria-hidden />
-              {t('wallet.connectWallet')}
-            </Button>
+                  </div>
+                </div>
+              ) : (
+                <div className="flex flex-col gap-2 px-2">
+                  <Button variant="outline" size="sm" className="gap-2 justify-start w-full" onClick={wallet.onConnect}>
+                    <Wallet className="h-4 w-4" aria-hidden />
+                    Connect Stellar Wallet
+                  </Button>
+                  <Button variant="secondary" size="sm" className="gap-2 justify-start w-full" onClick={wallet.onConnectPollar}>
+                    <Wallet className="h-4 w-4" aria-hidden />
+                    Continue with Pollar Embedded Wallet
+                  </Button>
+                </div>
+              )}
+            </>
           )}
-        </>
-      )}
       <Link href="/dashboard" className={linkClass}>
         <LayoutDashboard className="h-4 w-4" aria-hidden />
         {t('nav.dashboard')}

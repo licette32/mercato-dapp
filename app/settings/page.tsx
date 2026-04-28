@@ -20,6 +20,7 @@ import {
 } from '@/components/ui/select'
 import { Loader2 } from 'lucide-react'
 import { LATAM_COUNTRIES, SECTORS } from '@/lib/constants'
+import { WalletStatusCard } from '@/components/wallet/wallet-status-card'
 
 export default function SettingsPage() {
   const router = useRouter()
@@ -178,6 +179,10 @@ export default function SettingsPage() {
             <p className="text-muted-foreground">
               Manage your account settings and profile information
             </p>
+          </div>
+
+          <div className="mb-6">
+            <WalletStatusCard />
           </div>
 
           <Card>

@@ -5,6 +5,7 @@ import {
   AlbedoModule,
   FreighterModule,
 } from '@creit.tech/stellar-wallets-kit'
+import { loadStoredWallet, PollarWalletKitLimitations } from '@/lib/mercato-wallet'
 
 const isTestnet =
   process.env.NEXT_PUBLIC_TRUSTLESS_NETWORK !== 'mainnet'
@@ -45,6 +46,12 @@ export const signTransaction = async ({
   if (!stellarWalletKit) {
     throw new Error('Wallet kit is not available (e.g. in server context).')
   }
+
+  const activeWallet = loadStoredWallet()
+  if (activeWallet?.provider === 'pollar') {
+    throw new Error(PollarWalletKitLimitations)
+  }
+
   const { signedTxXdr } = await stellarWalletKit.signTransaction(unsignedTransaction, {
     address,
     networkPassphrase: NETWORK_PASSPHRASE,

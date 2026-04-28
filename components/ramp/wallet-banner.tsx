@@ -24,9 +24,14 @@ export function WalletBanner() {
             </p>
           </div>
         </div>
-        <Button onClick={meta.handleConnect} size="sm" className="shrink-0">
-          Connect wallet
-        </Button>
+        <div className="flex flex-col gap-2 sm:flex-row">
+          <Button onClick={meta.handleConnect} size="sm" className="shrink-0">
+            Connect Stellar Wallet
+          </Button>
+          <Button onClick={meta.handlePollarConnect} size="sm" variant="secondary" className="shrink-0">
+            Continue with Pollar Embedded Wallet
+          </Button>
+        </div>
       </CardContent>
     </Card>
   )

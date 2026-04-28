@@ -28,6 +28,10 @@ export function Navigation() {
     truncatedAddress,
     handleConnect,
     handleDisconnect,
+    connectPollarWallet,
+    provider,
+    status,
+    isEmbedded,
   } = useWallet()
 
   useEffect(() => {
@@ -101,7 +105,11 @@ export function Navigation() {
                 address: walletInfo?.address,
                 truncatedAddress,
                 onConnect: handleConnect,
+                onConnectPollar: connectPollarWallet,
                 onDisconnect: handleDisconnect,
+                provider,
+                status,
+                isEmbedded,
               }}
             />
           </div>
@@ -130,7 +138,11 @@ export function Navigation() {
                       address: walletInfo?.address,
                       truncatedAddress,
                       onConnect: handleConnect,
+                      onConnectPollar: connectPollarWallet,
                       onDisconnect: handleDisconnect,
+                      provider,
+                      status,
+                      isEmbedded,
                     }}
                   />
                 </nav>
