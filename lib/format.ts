@@ -36,3 +36,12 @@ export const formatPercent = (
     maximumFractionDigits: options?.maxFractionDigits ?? 1,
   }).format(value / 100)
 }
+
+/**
+ * Normalize numeric values to a consistent USDC representation.
+ * Keeps 2 decimals for UI/state parity across the app.
+ */
+export const normalizeUSDC = (value: number): number => {
+  if (!Number.isFinite(value)) return 0
+  return Number(value.toFixed(2))
+}
