@@ -19,8 +19,10 @@ import { Horizon } from '@stellar/stellar-sdk'
 import { DefindexSDK, SupportedNetworks, DepositParams, WithdrawParams } from '@defindex/sdk'
 import { useWalletContext } from '@/providers/wallet-provider'
 import { signTransaction } from '@/lib/trustless/wallet-kit'
-import { submitSignedTransaction } from '@/lib/stellar-submit'
+import { executeTransaction } from '@/lib/stellar-submit'
 import { USDC_TRUSTLINE } from '@/lib/trustless/trustlines'
+import { showLoading, showSuccess, showError } from '@/hooks/use-toast'
+import type { TxState } from '@/lib/types'
 
 const HORIZON_URL =
   process.env.NEXT_PUBLIC_TRUSTLESS_NETWORK === 'mainnet'
@@ -71,6 +73,7 @@ export interface WithdrawResult {
 interface UseDefindexResult {
   walletBalance: number
   vaultBalance: number
+  txState: TxState
   isLoading: boolean
   error: string | null
   refresh: () => Promise<void>
@@ -84,7 +87,8 @@ export function useDefindex(): UseDefindexResult {
 
   const [walletBalance, setWalletBalance] = useState(0)
   const [vaultBalance, setVaultBalance] = useState(0)
-  const [isLoading, setIsLoading] = useState(false)
+  const [txState, setTxState] = useState<TxState>('idle')
+  const [balancesLoading, setBalancesLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const cancelRef = useRef(0)
 
@@ -97,7 +101,7 @@ export function useDefindex(): UseDefindexResult {
     }
 
     const requestId = ++cancelRef.current
-    setIsLoading(true)
+    setBalancesLoading(true)
     setError(null)
 
     try {
@@ -111,7 +115,7 @@ export function useDefindex(): UseDefindexResult {
       const message = err instanceof Error ? err.message : 'Failed to load balances'
       setError(message)
     } finally {
-      if (cancelRef.current === requestId) setIsLoading(false)
+      if (cancelRef.current === requestId) setBalancesLoading(false)
     }
   }, [address])
 
@@ -119,11 +123,12 @@ export function useDefindex(): UseDefindexResult {
     void fetchBalances()
   }, [fetchBalances])
 
-export interface WithdrawResult {
-  success: boolean
-  txHash?: string
-  error?: string
-}
+  const depositToVault = async (
+    params: DepositToVaultParams
+  ): Promise<DepositResult> => {
+    setTxState('loading')
+    setError(null)
+    showLoading('Submitting deposit...')
 
 async function fetchWalletUsdc(address: string): Promise<number> {
   if (!USDC_ISSUER) return 0
@@ -307,79 +312,38 @@ export function useDefindex() {
     [walletInfo?.address, refreshCapitalState],
   )
 
-  const withdrawFromVault = useCallback(
-    async (params: WithdrawFromVaultParams): Promise<WithdrawResult> => {
-      setIsTransactionLoading(true)
-      setError(null)
-      try {
-        if (!params.amount || params.amount <= 0) {
-          throw new Error('Invalid amount: must be greater than 0')
-        }
-        if (!walletInfo?.address) {
-          throw new Error('Wallet not connected')
-        }
-        const apiKey = process.env.NEXT_PUBLIC_DEFINDEX_API_KEY
-        if (!apiKey) {
-          throw new Error('DeFindex API key not configured')
-        }
-        const sdk = getDefindexSdk()
-        if (!sdk) {
-          throw new Error('DeFindex API key not configured')
-        }
-        const vaultData = await sdk.getVaultBalance(
-          params.vaultAddress,
-          walletInfo.address,
-          DEFINDEX_NETWORK,
-        )
-        const availableBalance = vaultData?.underlyingBalance?.[0] ?? 0
-        if (availableBalance < params.amount) {
-          throw new Error('Insufficient vault balance')
-        }
-        const withdrawData: WithdrawParams = {
-          amounts: [params.amount],
-          caller: walletInfo.address,
-          slippageBps: 100,
-        }
-        const withdrawResponse = await sdk.withdrawFromVault(
-          params.vaultAddress,
-          withdrawData,
-          DEFINDEX_NETWORK,
-        )
-        if (!withdrawResponse.xdr) {
-          throw new Error('Failed to create withdraw transaction')
-        }
-        const signedXdr = await signTransaction({
-          unsignedTransaction: withdrawResponse.xdr,
-          address: walletInfo.address,
-        })
-        const result = await submitSignedTransaction(signedXdr)
-        await refreshCapitalState()
-        return {
-          success: true,
-          txHash: result.hash,
-        }
-      } catch (err) {
-        const message = err instanceof Error ? err.message : ''
-        const errorMessage = message.toLowerCase().includes('insufficient')
-          ? 'Insufficient vault balance'
-          : message || 'Failed to withdraw from vault'
-        setError(errorMessage)
-        return {
-          success: false,
-          error: errorMessage,
-        }
-      } finally {
-        setIsTransactionLoading(false)
+      const signedXdr = await signTransaction({
+        unsignedTransaction: depositResponse.xdr,
+        address: walletInfo.address,
+      })
+
+      setTxState('pending')
+      const result = await executeTransaction(signedXdr, setTxState)
+      showSuccess('Deposit confirmed')
+
+      return {
+        success: true,
+        txHash: result.hash,
       }
-    },
-    [walletInfo?.address, refreshCapitalState],
-  )
+    } catch (err) {
+      const errorMessage =
+        err instanceof Error ? err.message : 'Failed to deposit to vault'
+      setError(errorMessage)
+      setTxState('error')
+      showError(errorMessage)
+      return {
+        success: false,
+        error: errorMessage,
+      }
+    }
+  }
 
   const withdrawFromVault = async (
     params: WithdrawFromVaultParams
   ): Promise<WithdrawResult> => {
-    setIsLoading(true)
+    setTxState('loading')
     setError(null)
+    showLoading('Submitting withdrawal...')
 
     try {
       if (!params.amount || params.amount <= 0) {
@@ -432,7 +396,9 @@ export function useDefindex() {
         address: walletInfo.address,
       })
 
-      const result = await submitSignedTransaction(signedXdr)
+      setTxState('pending')
+      const result = await executeTransaction(signedXdr, setTxState)
+      showSuccess('Withdrawal confirmed')
 
       return {
         success: true,
@@ -444,12 +410,12 @@ export function useDefindex() {
         ? 'Insufficient vault balance'
         : message || 'Failed to withdraw from vault'
       setError(errorMessage)
+      setTxState('error')
+      showError(errorMessage)
       return {
         success: false,
         error: errorMessage,
       }
-    } finally {
-      setIsLoading(false)
     }
   }
 
@@ -467,7 +433,8 @@ export function useDefindex() {
     isTransactionLoading,
     walletBalance,
     vaultBalance,
-    isLoading,
+    txState,
+    isLoading: balancesLoading || txState === 'loading' || txState === 'pending',
     error,
     refresh: fetchBalances,
     depositToVault,
