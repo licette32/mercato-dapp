@@ -55,6 +55,7 @@ interface RampMeta {
   isConnected: boolean
   walletInfo: { address: string } | null
   handleConnect: () => void
+  handlePollarConnect: () => void
 }
 
 interface RampContextValue {
@@ -72,7 +73,7 @@ export function useRamp(): RampContextValue {
 }
 
 export function RampProvider({ children }: { children: React.ReactNode }) {
-  const { walletInfo, isConnected, handleConnect } = useWallet()
+  const { walletInfo, isConnected, handleConnect, connectPollarWallet } = useWallet()
   const [config, setConfig] = useState<RampConfig | null>(null)
   const [selectedProvider, setSelectedProvider] = useState<string | null>(null)
   const [customerByProvider, setCustomerByProvider] = useState<
@@ -248,6 +249,7 @@ export function RampProvider({ children }: { children: React.ReactNode }) {
         isConnected,
         walletInfo: walletInfo ? { address: walletInfo.address } : null,
         handleConnect,
+        handlePollarConnect: connectPollarWallet,
       },
     }),
     [
@@ -270,6 +272,7 @@ export function RampProvider({ children }: { children: React.ReactNode }) {
       isConnected,
       walletInfo,
       handleConnect,
+      connectPollarWallet,
     ],
   )
 

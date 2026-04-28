@@ -2,8 +2,10 @@ import type React from "react"
 import type { Metadata } from 'next'
 import { GeistSans } from 'geist/font/sans'
 import { GeistMono } from 'geist/font/mono'
+import '@pollar/react/styles.css'
 import { ThemeProvider } from '@/components/theme-provider'
 import { TrustlessWorkProvider } from '@/lib/trustless/config'
+import { PollarProvider } from '@/providers/pollar-provider'
 import { WalletProvider } from '@/providers/wallet-provider'
 import { Toaster } from '@/components/ui/sonner'
 import { I18nProvider } from '@/lib/i18n/provider'
@@ -37,14 +39,16 @@ export default async function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <TrustlessWorkProvider>
-            <WalletProvider>
-              <I18nProvider locale={locale} messages={messages}>
-                {children}
-                <Toaster />
-              </I18nProvider>
-            </WalletProvider>
-          </TrustlessWorkProvider>
+          <PollarProvider>
+            <TrustlessWorkProvider>
+              <WalletProvider>
+                <I18nProvider locale={locale} messages={messages}>
+                  {children}
+                  <Toaster />
+                </I18nProvider>
+              </WalletProvider>
+            </TrustlessWorkProvider>
+          </PollarProvider>
         </ThemeProvider>
       </body>
     </html>

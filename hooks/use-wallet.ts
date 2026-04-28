@@ -1,33 +1,13 @@
 'use client'
 
-import { useWalletContext } from '@/providers/wallet-provider'
-import { stellarWalletKit } from '@/lib/trustless/wallet-kit'
-import type { ISupportedWallet } from '@creit.tech/stellar-wallets-kit'
+import { useMercatoWallet } from '@/hooks/use-mercato-wallet'
 
 export const useWallet = () => {
-  const { setWalletInfo, clearWalletInfo, walletInfo, isConnected } =
-    useWalletContext()
-
-  const connectWallet = async () => {
-    if (!stellarWalletKit) return
-    await stellarWalletKit.openModal({
-      modalTitle: 'Connect Your Stellar Wallet',
-      onWalletSelected: async (option: ISupportedWallet) => {
-        stellarWalletKit.setWallet(option.id)
-        const { address } = await stellarWalletKit.getAddress()
-        setWalletInfo(address, option.name)
-      },
-    })
-  }
-
-  const disconnectWallet = async () => {
-    if (stellarWalletKit) await stellarWalletKit.disconnect()
-    clearWalletInfo()
-  }
+  const mercatoWallet = useMercatoWallet()
 
   const handleConnect = async () => {
     try {
-      await connectWallet()
+      await mercatoWallet.connectExternalWallet()
     } catch (error) {
       console.error('Error connecting wallet:', error)
     }
@@ -35,21 +15,29 @@ export const useWallet = () => {
 
   const handleDisconnect = async () => {
     try {
-      await disconnectWallet()
+      await mercatoWallet.disconnect()
     } catch (error) {
       console.error('Error disconnecting wallet:', error)
     }
   }
 
-  const truncatedAddress = walletInfo?.address
-    ? `${walletInfo.address.slice(0, 4)}…${walletInfo.address.slice(-4)}`
-    : null
-
   return {
-    walletInfo,
-    isConnected,
-    truncatedAddress,
+    walletInfo: mercatoWallet.walletInfo,
+    isConnected: mercatoWallet.isConnected,
+    truncatedAddress: mercatoWallet.truncatedAddress,
+    provider: mercatoWallet.provider,
+    publicKey: mercatoWallet.publicKey,
+    walletId: mercatoWallet.walletId,
+    status: mercatoWallet.status,
+    isEmbedded: mercatoWallet.isEmbedded,
+    balances: mercatoWallet.balances,
+    txHistory: mercatoWallet.txHistory,
+    canSignTransactions: mercatoWallet.canSignTransactions,
+    connectExternalWallet: mercatoWallet.connectExternalWallet,
+    connectPollarWallet: mercatoWallet.connectPollarWallet,
     handleConnect,
     handleDisconnect,
+    disconnectWallet: mercatoWallet.disconnect,
+    refreshBalance: mercatoWallet.refreshBalance,
   }
 }

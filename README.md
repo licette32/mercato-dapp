@@ -118,6 +118,8 @@ hooks/
 
 ## Getting Started
 
+For a single step-by-step setup checklist, use [SETUP.md](SETUP.md). The summary below stays here for quick reference.
+
 ### Prerequisites
 
 - [Node.js](https://nodejs.org/) 18+
@@ -147,12 +149,43 @@ cp env.sample .env.local
 | `NEXT_PUBLIC_SUPABASE_URL` | Supabase project URL |
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Supabase anon (public) key |
 | `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | Supabase publishable key (if used) |
+| `SUPABASE_SERVICE_ROLE_KEY` | Supabase service role key for server-only operations |
 | `NEXT_PUBLIC_TRUSTLESS_WORK_API_KEY` | Trustless Work API key |
 | `NEXT_PUBLIC_TRUSTLESS_NETWORK` | `testnet` or `mainnet` |
 | `NEXT_PUBLIC_MERCATO_PLATFORM_ADDRESS` | Stellar address for the platform (escrow roles) |
 | `NEXT_PUBLIC_TRUSTLESSLINE_ADDRESS` | USDC trustline contract address for escrow |
+| `NEXT_PUBLIC_POLLAR_PUBLISHABLE_KEY` | Pollar public/publishable key |
+| `POLLAR_SECRET_KEY` | Pollar server-side secret key |
+| `POLLAR_WEBHOOK_SECRET` | Pollar webhook signing secret, if webhooks are enabled |
+| `NEXT_PUBLIC_POLLAR_NETWORK` | `testnet` or `mainnet` for Pollar embedded wallets |
 
 Ramp keys (`ETHERFUSE_*`, `ALFREDPAY_*`, `BLINDPAY_*`) are optional; see `env.sample` and [Architecture §9](doc/architecture.md#9-environment-variables).
+Pollar keys are required only if you want the embedded wallet onboarding path enabled.
+
+### Supabase schema setup
+
+If your Supabase project is empty, run the schema scripts in order before applying any newer migrations:
+
+1. `scripts/001_create_profiles.sql`
+2. `scripts/002_create_deals.sql`
+3. `scripts/003_create_milestones.sql`
+4. `scripts/004_profile_trigger.sql`
+5. `scripts/005_add_supplier_fields.sql`
+6. `scripts/006_add_escrow_fields.sql`
+7. `scripts/007_add_full_name.sql`
+8. `scripts/008_add_admin_user_type.sql`
+9. `scripts/009_deals_allow_investor_fund_update.sql`
+10. `scripts/010_milestones_allow_admin_update.sql`
+11. `scripts/011_latam_supplier_fields.sql`
+12. `scripts/012_supplier_companies_multi_company.sql`
+13. `scripts/013_supplier_products_select_public.sql`
+14. `scripts/014_create_notifications.sql`
+15. `scripts/015_add_yield_bonus_apr.sql`
+16. `scripts/016_add_deal_funding_window.sql`
+17. `scripts/017_add_profile_stake_signal.sql`
+18. `supabase/migrations/20260428000100_add_pollar_wallet_metadata.sql`
+
+The easiest way to do this in the browser is Supabase Dashboard -> `SQL Editor` -> `New query`, then paste each file in sequence.
 
 ### 3. Run the app
 

@@ -25,6 +25,7 @@ import {
 import { formatDate } from '@/lib/date-utils'
 import { InvestorCapitalOverview } from '@/components/dashboard/investor-capital-overview'
 import { getServerDictionary } from '@/lib/i18n/server'
+import { WalletStatusCard } from '@/components/wallet/wallet-status-card'
 
 type DashboardSearchParams = Promise<{ company?: string }> | { company?: string }
 
@@ -325,6 +326,10 @@ export default async function DashboardPage({
               </Button>
             )}
           </div>
+        </div>
+
+        <div className="mb-8">
+          <WalletStatusCard />
         </div>
 
         {/* Supplier: Company filter */}

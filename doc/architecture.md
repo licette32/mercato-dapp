@@ -687,10 +687,15 @@ sequenceDiagram
 |----------|-------|-------------|
 | `NEXT_PUBLIC_SUPABASE_URL` | Public | Supabase project URL |
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Public | Supabase anon key |
+| `SUPABASE_SERVICE_ROLE_KEY` | Server | Supabase service role key |
 | `NEXT_PUBLIC_TRUSTLESS_WORK_API_KEY` | Public | Trustless Work API key |
 | `NEXT_PUBLIC_TRUSTLESS_NETWORK` | Public | `testnet` or `mainnet` |
 | `NEXT_PUBLIC_MERCATO_PLATFORM_ADDRESS` | Public | Platform Stellar address (escrow roles) |
 | `NEXT_PUBLIC_TRUSTLESSLINE_ADDRESS` | Public | USDC trustline contract address |
+| `NEXT_PUBLIC_POLLAR_PUBLISHABLE_KEY` | Public | Pollar public/publishable key |
+| `POLLAR_SECRET_KEY` | Server | Pollar secret key |
+| `POLLAR_WEBHOOK_SECRET` | Server | Pollar webhook signing secret |
+| `NEXT_PUBLIC_POLLAR_NETWORK` | Public | `testnet` or `mainnet` for embedded wallets |
 | `ETHERFUSE_API_KEY` | Server | Etherfuse API key |
 | `ETHERFUSE_BASE_URL` | Server | Etherfuse API base URL |
 | `ALFREDPAY_API_KEY` | Server | AlfredPay API key |
