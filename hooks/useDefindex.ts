@@ -149,8 +149,8 @@ export const useDefindex = (options?: UseDefindexOptions) => {
     availableCapital: normalizeUSDC(
       getAvailableCapital({
         wallet: walletBalance,
-        reserved: 0,
-        stake: 0,
+        reserved: 0, // TODO(#4): connect when Capital State Model is implemented
+        stake: 0,    // TODO: connect from useStake() hook when available
       })
     ),
     isLoadingBalances,
