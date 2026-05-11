@@ -142,7 +142,7 @@ export default async function HomePage() {
         <div className="mx-auto max-w-5xl">
           <div className="mb-12 text-center">
             <Badge variant="secondary" className={cn('mb-4', cycleHeaderEnter)}>
-              The deal cycle
+              {t.home.cycleBadge}
             </Badge>
             <h2
               id="deal-cycle-heading"
@@ -152,7 +152,7 @@ export default async function HomePage() {
                 'motion-safe:delay-75',
               )}
             >
-              From order to repayment
+              {t.home.cycleTitle}
             </h2>
             <p
               className={cn(
@@ -161,7 +161,7 @@ export default async function HomePage() {
                 'motion-safe:delay-150',
               )}
             >
-              Four roles, one transparent loop — secured by Stellar escrow at every step.
+              {t.home.cycleSubtitle}
             </p>
           </div>
 
@@ -170,33 +170,33 @@ export default async function HomePage() {
             {[
               {
                 step: 1,
-                role: 'PyME · Buyer',
-                title: 'Creates the deal',
-                body: 'Selects a supplier, sets the order amount, defines payment milestones, and deploys a non-custodial escrow on Stellar.',
+                role: t.home.cycleStep1Role,
+                title: t.home.cycleStep1Title,
+                body: t.home.cycleStep1Body,
                 icon: Boxes,
                 color: 'accent',
               },
               {
                 step: 2,
-                role: 'Investor',
-                title: 'Funds the escrow',
-                body: 'Browses open deals, chooses one, and sends USDC directly into the smart contract. Funds are locked until milestones are approved.',
+                role: t.home.cycleStep2Role,
+                title: t.home.cycleStep2Title,
+                body: t.home.cycleStep2Body,
                 icon: DollarSign,
                 color: 'success',
               },
               {
                 step: 3,
-                role: 'Supplier',
-                title: 'Ships & gets paid',
-                body: 'Ships the goods and uploads delivery proof on-chain. Escrow releases USDC in milestones upon PyME approval.',
+                role: t.home.cycleStep3Role,
+                title: t.home.cycleStep3Title,
+                body: t.home.cycleStep3BodyMobile,
                 icon: Truck,
                 color: 'primary',
               },
               {
                 step: 4,
-                role: 'PyME · Buyer',
-                title: 'Repays investors',
-                body: 'After selling the inventory, the PyME repays principal plus yield (8–15% APR). The cycle completes on-chain.',
+                role: t.home.cycleStep4Role,
+                title: t.home.cycleStep4Title,
+                body: t.home.cycleStep4BodyMobile,
                 icon: RotateCcw,
                 color: 'accent',
               },
@@ -299,7 +299,7 @@ export default async function HomePage() {
               )}
             >
               <RotateCcw className="h-3.5 w-3.5" aria-hidden />
-              Cycle repeats with the next deal
+              {t.home.cycleRepeats}
             </div>
           </div>
 
@@ -337,10 +337,10 @@ export default async function HomePage() {
                 </div>
               </div>
               <div>
-                <p className="mb-0.5 text-xs font-semibold uppercase tracking-wider text-accent">PyME · Buyer</p>
-                <h3 className="mb-1 font-bold">Creates the deal</h3>
+                <p className="mb-0.5 text-xs font-semibold uppercase tracking-wider text-accent">{t.home.cycleStep1Role}</p>
+                <h3 className="mb-1 font-bold">{t.home.cycleStep1Title}</h3>
                 <p className="text-sm text-muted-foreground">
-                  Picks a supplier, sets the order amount, defines payment milestones, and deploys a non-custodial escrow on Stellar.
+                  {t.home.cycleStep1BodyDesktop}
                 </p>
               </div>
               </div>
@@ -395,10 +395,10 @@ export default async function HomePage() {
                 </div>
               </div>
               <div>
-                <p className="mb-0.5 text-xs font-semibold uppercase tracking-wider text-success">Investor</p>
-                <h3 className="mb-1 font-bold">Funds the escrow</h3>
+                <p className="mb-0.5 text-xs font-semibold uppercase tracking-wider text-success">{t.home.cycleStep2Role}</p>
+                <h3 className="mb-1 font-bold">{t.home.cycleStep2Title}</h3>
                 <p className="text-sm text-muted-foreground">
-                  Browses open deals, chooses one, and sends USDC directly into the smart contract. Funds are locked until milestones are approved.
+                  {t.home.cycleStep2Body}
                 </p>
               </div>
               </div>
@@ -424,9 +424,9 @@ export default async function HomePage() {
                   <ArrowUp className="h-6 w-6 shrink-0" aria-hidden />
                 </span>
                 <span className="text-center text-[10px] leading-tight text-muted-foreground/60">
-                  next
-                  <br />
-                  deal
+                  {t.home.cycleNextDeal.split('\n').map((line, i) => (
+                    <span key={i}>{line}{i === 0 && <br />}</span>
+                  ))}
                 </span>
               </div>
             </div>
@@ -453,7 +453,7 @@ export default async function HomePage() {
                 />
               </div>
               <span className="text-center text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">
-                Escrow
+                {t.home.cycleEscrow}
               </span>
             </div>
 
@@ -506,10 +506,10 @@ export default async function HomePage() {
                 </div>
               </div>
               <div>
-                <p className="mb-0.5 text-xs font-semibold uppercase tracking-wider text-accent">PyME · Buyer</p>
-                <h3 className="mb-1 font-bold">Repays investors</h3>
+                <p className="mb-0.5 text-xs font-semibold uppercase tracking-wider text-accent">{t.home.cycleStep4Role}</p>
+                <h3 className="mb-1 font-bold">{t.home.cycleStep4Title}</h3>
                 <p className="text-sm text-muted-foreground">
-                  After selling the inventory, the PyME repays principal plus yield (8–15% APR). The cycle completes transparently on-chain.
+                  {t.home.cycleStep4Body}
                 </p>
               </div>
               </div>
@@ -564,10 +564,10 @@ export default async function HomePage() {
                 </div>
               </div>
               <div>
-                <p className="mb-0.5 text-xs font-semibold uppercase tracking-wider text-primary">Supplier</p>
-                <h3 className="mb-1 font-bold">Ships & gets paid</h3>
+                <p className="mb-0.5 text-xs font-semibold uppercase tracking-wider text-primary">{t.home.cycleStep3Role}</p>
+                <h3 className="mb-1 font-bold">{t.home.cycleStep3Title}</h3>
                 <p className="text-sm text-muted-foreground">
-                  Ships goods and uploads delivery proof on-chain. Escrow releases USDC in milestones upon PyME approval.
+                  {t.home.cycleStep3Body}
                 </p>
               </div>
               </div>
@@ -581,9 +581,9 @@ export default async function HomePage() {
         <div className="container mx-auto px-4">
           <div className="mx-auto max-w-5xl">
             <div className="mb-12 text-center">
-              <h2 className="mb-3 text-3xl font-bold tracking-tight">Built on trust & transparency</h2>
+              <h2 className="mb-3 text-3xl font-bold tracking-tight">{t.home.trustTitle}</h2>
               <p className="text-muted-foreground">
-                Non-custodial, on-chain, and auditable — every step of the deal cycle.
+                {t.home.trustSubtitle}
               </p>
             </div>
 
@@ -594,9 +594,9 @@ export default async function HomePage() {
                   <Lock className="h-5 w-5 text-accent" aria-hidden />
                 </div>
                 <div>
-                  <h3 className="mb-1 font-semibold">Non-custodial escrow</h3>
+                  <h3 className="mb-1 font-semibold">{t.home.trustCard1Title}</h3>
                   <p className="text-sm text-muted-foreground">
-                    Funds go directly into a Stellar smart contract via Trustless Work. MERCATO never touches investor capital — only the contract logic authorizes a release.
+                    {t.home.trustCard1Body}
                   </p>
                 </div>
               </div>
@@ -606,9 +606,9 @@ export default async function HomePage() {
                   <CheckCircle2 className="h-5 w-5 text-success" aria-hidden />
                 </div>
                 <div>
-                  <h3 className="mb-1 font-semibold">Milestone-based payments</h3>
+                  <h3 className="mb-1 font-semibold">{t.home.trustCard2Title}</h3>
                   <p className="text-sm text-muted-foreground">
-                    Suppliers receive USDC in stages as milestones are approved — no waiting on net-30/60 terms. Investors get repaid at the end of the deal term with full yield.
+                    {t.home.trustCard2Body}
                   </p>
                 </div>
               </div>
@@ -618,9 +618,9 @@ export default async function HomePage() {
                   <Wallet2 className="h-5 w-5 text-primary" aria-hidden />
                 </div>
                 <div>
-                  <h3 className="mb-1 font-semibold">Wallet-signed transactions</h3>
+                  <h3 className="mb-1 font-semibold">{t.home.trustCard3Title}</h3>
                   <p className="text-sm text-muted-foreground">
-                    Every escrow deployment, funding, and milestone release requires a signature from your Stellar wallet (Freighter or Albedo). You stay in control at every step.
+                    {t.home.trustCard3Body}
                   </p>
                 </div>
               </div>
@@ -630,9 +630,9 @@ export default async function HomePage() {
                   <Eye className="h-5 w-5 text-accent" aria-hidden />
                 </div>
                 <div>
-                  <h3 className="mb-1 font-semibold">Full on-chain proof</h3>
+                  <h3 className="mb-1 font-semibold">{t.home.trustCard4Title}</h3>
                   <p className="text-sm text-muted-foreground">
-                    Every payment, milestone approval, and delivery confirmation is recorded on Stellar — verifiable by anyone, at any time, without trusting MERCATO.
+                    {t.home.trustCard4Body}
                   </p>
                 </div>
               </div>
@@ -642,9 +642,9 @@ export default async function HomePage() {
                   <Coins className="h-5 w-5 text-success" aria-hidden />
                 </div>
                 <div>
-                  <h3 className="mb-1 font-semibold">USDC denominated</h3>
+                  <h3 className="mb-1 font-semibold">{t.home.trustCard5Title}</h3>
                   <p className="text-sm text-muted-foreground">
-                    All deals are denominated in USDC on Stellar — a stable, dollar-pegged asset. Investors earn 8–15% APR with no crypto-volatility exposure.
+                    {t.home.trustCard5Body}
                   </p>
                 </div>
               </div>
@@ -654,9 +654,9 @@ export default async function HomePage() {
                   <ArrowLeftRight className="h-5 w-5 text-primary" aria-hidden />
                 </div>
                 <div>
-                  <h3 className="mb-1 font-semibold">Fiat on/off ramps</h3>
+                  <h3 className="mb-1 font-semibold">{t.home.trustCard6Title}</h3>
                   <p className="text-sm text-muted-foreground">
-                    Convert between local currency and USDC within the app via Etherfuse (Mexico, SPEI), Alfred Pay (LATAM), or BlindPay (global) — no third-party exchange needed.
+                    {t.home.trustCard6Body}
                   </p>
                 </div>
               </div>
@@ -675,7 +675,7 @@ export default async function HomePage() {
               <span className="font-semibold">MERCATO</span>
             </div>
             <p className="text-sm text-muted-foreground">
-              © 2025 MERCATO. Supply Chain Finance on Stellar.
+              {t.home.footerCopyright}
             </p>
           </div>
         </div>
