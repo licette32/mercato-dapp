@@ -667,88 +667,94 @@ export default async function HomePage() {
       </section>
 
       {/* Stellar Ecosystem Partners */}
-      <section className="border-t border-border/50 bg-muted/20 py-12">
+      <section className="border-t border-border/50 bg-muted/20 py-14">
         <div className="container mx-auto px-4">
           <div className="mx-auto max-w-4xl">
-            <p className="mb-8 text-center text-xs font-semibold uppercase tracking-widest text-muted-foreground/60">
-              Built on the Stellar ecosystem
+            <p className="mb-10 text-center text-[11px] font-semibold uppercase tracking-widest text-muted-foreground/50">
+              Built with the Stellar ecosystem
             </p>
 
-            <div className="flex flex-wrap items-center justify-center gap-x-12 gap-y-8">
+            <div className="flex flex-wrap items-center justify-center gap-x-10 gap-y-8 sm:gap-x-14">
 
               {/* Trustless Work */}
               <a
                 href="https://trustlesswork.com"
                 target="_blank"
                 rel="noopener noreferrer"
-                aria-label="Trustless Work"
-                className="group flex items-center gap-2.5 opacity-70 transition-opacity duration-200 hover:opacity-100"
+                aria-label="Trustless Work — escrow infrastructure"
+                className="group flex items-center gap-2.5 opacity-60 transition-all duration-200 hover:opacity-100"
               >
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src="/trustless-work-logo.png"
-                  alt="Trustless Work logo"
-                  className="h-7 w-auto"
+                  alt="Trustless Work"
+                  width={28}
+                  height={28}
+                  className="h-7 w-auto object-contain"
                 />
-                <span className="text-sm font-semibold tracking-tight text-foreground/80 group-hover:text-foreground">
+                <span className="text-sm font-semibold tracking-tight text-foreground/70 transition-colors group-hover:text-foreground">
                   Trustless Work
                 </span>
               </a>
 
-              <span className="hidden h-5 w-px bg-border sm:block" aria-hidden />
+              <span className="hidden h-4 w-px bg-border/60 sm:block" aria-hidden />
 
               {/* Etherfuse */}
               <a
                 href="https://etherfuse.com"
                 target="_blank"
                 rel="noopener noreferrer"
-                aria-label="Etherfuse"
-                className="opacity-70 transition-opacity duration-200 hover:opacity-100"
+                aria-label="Etherfuse — fiat on/off ramp"
+                className="opacity-60 transition-all duration-200 hover:opacity-100"
               >
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src="/etherfuse-logo.svg"
-                  alt="Etherfuse logo"
-                  className="h-6 w-auto dark:invert"
+                  alt="Etherfuse"
+                  height={24}
+                  className="h-6 w-auto object-contain dark:invert"
                 />
               </a>
 
-              <span className="hidden h-5 w-px bg-border sm:block" aria-hidden />
+              <span className="hidden h-4 w-px bg-border/60 sm:block" aria-hidden />
 
-              {/* DeFindex */}
+              {/* DeFindex — white SVG, needs dark pill in light mode */}
               <a
                 href="https://defindex.io"
                 target="_blank"
                 rel="noopener noreferrer"
-                aria-label="DeFindex"
-                className="opacity-70 transition-opacity duration-200 hover:opacity-100"
+                aria-label="DeFindex — yield vault infrastructure"
+                className="group opacity-60 transition-all duration-200 hover:opacity-100"
               >
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src="/defindex-logo.svg"
-                  alt="DeFindex logo"
-                  className="h-7 w-auto invert dark:invert-0"
-                />
+                <span className="flex items-center rounded-lg bg-gray-900 px-3 py-1.5 transition-colors group-hover:bg-gray-800 dark:bg-transparent dark:px-0 dark:py-0">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src="/defindex-logo.svg"
+                    alt="DeFindex"
+                    height={28}
+                    className="h-7 w-auto object-contain"
+                  />
+                </span>
               </a>
 
-              <span className="hidden h-5 w-px bg-border sm:block" aria-hidden />
+              <span className="hidden h-4 w-px bg-border/60 sm:block" aria-hidden />
 
               {/* Stellar */}
               <a
                 href="https://stellar.org"
                 target="_blank"
                 rel="noopener noreferrer"
-                aria-label="Stellar"
-                className="group flex items-center gap-2 opacity-70 transition-opacity duration-200 hover:opacity-100"
+                aria-label="Stellar — blockchain layer"
+                className="group flex items-center gap-2 opacity-60 transition-all duration-200 hover:opacity-100"
               >
                 <svg
                   viewBox="0 0 24 24"
-                  className="h-5 w-5 fill-foreground/80 group-hover:fill-foreground"
+                  className="h-5 w-5 fill-foreground/70 transition-colors group-hover:fill-foreground"
                   aria-hidden
                 >
                   <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.8 17.4l-1.3.6-8.9-4.1.6-1.3 7.5 3.4-5.5-8.2 1.1-.8 7.5 11.2-.9-.6.6-1.3.9.6-.1.5z"/>
                 </svg>
-                <span className="text-sm font-semibold tracking-tight text-foreground/80 group-hover:text-foreground">
+                <span className="text-sm font-semibold tracking-tight text-foreground/70 transition-colors group-hover:text-foreground">
                   Stellar
                 </span>
               </a>
