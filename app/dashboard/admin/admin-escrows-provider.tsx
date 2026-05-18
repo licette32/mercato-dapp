@@ -4,9 +4,8 @@ import { useState, useEffect, useMemo, useRef } from 'react'
 import { useGetEscrowFromIndexerByContractIds } from '@trustless-work/escrow/hooks'
 import type { GetEscrowsFromIndexerResponse } from '@trustless-work/escrow'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { ShieldCheck, FileCheck } from 'lucide-react'
+import { ShieldCheck } from 'lucide-react'
 import { PendingApprovals } from './pending-approvals'
-import { ReleaseFundsFallback } from './release-funds-fallback'
 import type { PendingApprovalItem, ReleaseFallbackItem } from './page'
 import { useI18n } from '@/lib/i18n/provider'
 
@@ -68,36 +67,19 @@ export function AdminEscrowsProvider({ items, releaseFallbackItems }: AdminEscro
   }, [contractIdsKey])
 
   return (
-    <>
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <ShieldCheck className="h-5 w-5" aria-hidden />
-            {t('adminEscrows.pendingCardTitle')}
-          </CardTitle>
-          <CardDescription>
-            {t('adminEscrows.pendingCardDescription')}
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <PendingApprovals items={items} escrowsByContractId={escrowsByContractId} />
-        </CardContent>
-      </Card>
-
-      <Card className="mt-8">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <FileCheck className="h-5 w-5" aria-hidden />
-            {t('adminEscrows.fallbackCardTitle')}
-          </CardTitle>
-          <CardDescription>
-            {t('adminEscrows.fallbackCardDescription')}
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <ReleaseFundsFallback items={releaseFallbackItems} escrowsByContractId={escrowsByContractId} />
-        </CardContent>
-      </Card>
-    </>
+    <Card>
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2">
+          <ShieldCheck className="h-5 w-5" aria-hidden />
+          {t('adminEscrows.pendingCardTitle')}
+        </CardTitle>
+        <CardDescription>
+          {t('adminEscrows.pendingCardDescription')}
+        </CardDescription>
+      </CardHeader>
+      <CardContent>
+        <PendingApprovals items={items} escrowsByContractId={escrowsByContractId} />
+      </CardContent>
+    </Card>
   )
 }
