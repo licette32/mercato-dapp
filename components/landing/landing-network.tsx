@@ -26,7 +26,7 @@ export function LandingNetwork() {
   return (
     <section
       ref={ref}
-      className="relative overflow-hidden border-y border-border/40 bg-gradient-to-b from-brand-ultra/80 via-background to-background py-24 dark:from-brand-mid/5 md:py-32"
+      className="relative overflow-hidden border-y border-border/40 bg-gradient-to-b from-brand-ultra/80 via-background to-background py-24 dark:from-background md:py-32"
     >
       <div className="pointer-events-none absolute left-1/2 top-0 h-px w-2/3 -translate-x-1/2 bg-gradient-to-r from-transparent via-brand-light/50 to-transparent" />
 

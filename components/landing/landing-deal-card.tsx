@@ -19,7 +19,7 @@ const EVENT_META: Record<
 > = {
   open: {
     icon: Zap,
-    pill: 'bg-brand-pale text-brand-mid ring-1 ring-brand-light/30 dark:bg-brand-mid/20 dark:text-brand-light',
+    pill: 'bg-brand-pale text-brand-mid ring-1 ring-brand-light/30 dark:bg-white/[0.06] dark:text-brand-light',
     glow: 'shadow-[0_12px_40px_hsl(var(--brand-mid)/0.22)]',
   },
   funded: {
@@ -29,7 +29,7 @@ const EVENT_META: Record<
   },
   production: {
     icon: Package,
-    pill: 'bg-brand-pale text-brand-dark ring-1 ring-brand-mid/20 dark:bg-brand-mid/25 dark:text-brand-light',
+    pill: 'bg-brand-pale text-brand-dark ring-1 ring-brand-mid/20 dark:bg-white/[0.06] dark:text-brand-light',
     glow: 'shadow-[0_12px_48px_hsl(var(--brand-light)/0.25)]',
   },
   milestone: {
@@ -138,7 +138,7 @@ export function LandingDealCard({ item, highlighted, style }: LandingDealCardPro
         className={cn(
           'flex items-center justify-center gap-2 rounded-xl py-2 text-sm font-semibold transition-colors',
           item.eventType === 'open'
-            ? 'bg-brand-pale/80 text-brand-mid group-hover:bg-brand-mid group-hover:text-white dark:bg-brand-mid/20 dark:text-brand-light dark:group-hover:bg-brand-mid'
+            ? 'bg-brand-pale/80 text-brand-mid group-hover:bg-brand-mid group-hover:text-white dark:bg-white/[0.06] dark:text-brand-light dark:group-hover:bg-brand-mid'
             : 'bg-muted/40 text-foreground group-hover:bg-muted',
         )}
       >

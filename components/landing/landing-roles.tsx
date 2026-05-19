@@ -48,7 +48,7 @@ const ROLES: {
     cta: { label: 'Create your first deal', href: '/auth/sign-up' },
     accent: 'text-brand-mid dark:text-brand-light',
     accentBorder: 'border-brand-mid bg-brand-mid',
-    panelBg: 'bg-gradient-to-br from-brand-ultra via-background to-brand-pale/40 dark:from-brand-mid/10 dark:via-card dark:to-background',
+    panelBg: 'bg-gradient-to-br from-brand-ultra via-background to-brand-pale/40 dark:from-[hsl(0,0%,5%)] dark:via-card dark:to-background',
     watermark: 'text-brand-mid/10 dark:text-brand-light/10',
   },
   {
@@ -94,12 +94,12 @@ const ROLES: {
 function SmeMockup() {
   return (
     <div className="rounded-2xl border border-border/70 bg-card shadow-elevated">
-      <div className="border-b border-border bg-brand-ultra/80 px-4 py-3 dark:bg-brand-mid/10">
+      <div className="border-b border-border bg-brand-ultra/80 px-4 py-3 dark:bg-white/[0.04]">
         <p className="text-[10px] font-bold uppercase tracking-widest text-brand-mid">New purchase order</p>
         <p className="text-sm font-bold text-foreground">Supplier & milestones</p>
       </div>
       <div className="space-y-3 p-4">
-        <div className="flex items-center gap-3 rounded-xl border border-brand-pale bg-brand-ultra/50 p-3 dark:border-brand-mid/30 dark:bg-brand-mid/10">
+        <div className="flex items-center gap-3 rounded-xl border border-brand-pale bg-brand-ultra/50 p-3 dark:border-white/10 dark:bg-white/[0.04]">
           <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-brand-dark text-xs font-bold text-white">AP</div>
           <div>
             <p className="text-sm font-semibold">Acero del Pacífico</p>

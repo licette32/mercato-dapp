@@ -42,7 +42,7 @@ export function LivePOShowcase() {
         className={cn(
           'overflow-hidden rounded-2xl border shadow-2xl',
           isDark
-            ? 'border-brand-light/20 bg-[#0A140D] shadow-black/40'
+            ? 'border-white/10 bg-[hsl(var(--landing-product-bg))] shadow-black/60'
             : 'border-border bg-card shadow-brand-dark/10',
         )}
       >
@@ -50,7 +50,7 @@ export function LivePOShowcase() {
         <div
           className={cn(
             'flex items-center gap-2 border-b px-4 py-3',
-            isDark ? 'border-brand-light/10 bg-[#0f1c12]' : 'border-border bg-brand-ultra',
+            isDark ? 'border-white/8 bg-[hsl(var(--landing-product-chrome))]' : 'border-border bg-brand-ultra',
           )}
         >
           <span className="h-3 w-3 rounded-full bg-red-400/90" />
@@ -59,7 +59,7 @@ export function LivePOShowcase() {
           <div
             className={cn(
               'mx-auto flex items-center gap-2 rounded-md px-3 py-1 text-xs',
-              isDark ? 'bg-[#0A140D] text-white/30' : 'bg-background text-muted-foreground',
+              isDark ? 'bg-[hsl(var(--landing-product-bg))] text-white/35' : 'bg-background text-muted-foreground',
             )}
           >
             <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-brand-light" />
@@ -67,7 +67,7 @@ export function LivePOShowcase() {
           </div>
         </div>
 
-        <div className={cn('space-y-4 p-5', isDark ? 'bg-[#0A140D]' : 'bg-card')}>
+        <div className={cn('space-y-4 p-5', isDark ? 'bg-[hsl(var(--landing-product-bg))]' : 'bg-card')}>
           <div className="flex items-start justify-between gap-3">
             <div>
               <div className="mb-1 flex items-center gap-2">
@@ -91,7 +91,7 @@ export function LivePOShowcase() {
                 </span>
               </div>
             </div>
-            <span className="shrink-0 rounded-full border border-brand-light/30 bg-brand-pale px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider text-brand-mid dark:bg-brand-mid/15 dark:text-brand-light">
+            <span className="shrink-0 rounded-full border border-brand-light/30 bg-brand-pale px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider text-brand-mid dark:border-brand-light/25 dark:bg-white/[0.06] dark:text-brand-light">
               PO #MKT-2847
             </span>
           </div>
@@ -107,7 +107,7 @@ export function LivePOShowcase() {
                 className={cn(
                   'rounded-xl border p-3 text-center',
                   m.accent
-                    ? 'border-brand-light/40 bg-brand-pale dark:bg-brand-mid/15'
+                    ? 'border-brand-light/40 bg-brand-pale dark:border-brand-light/20 dark:bg-white/[0.06]'
                     : isDark
                       ? 'border-white/5 bg-white/[0.04]'
                       : 'border-border bg-muted/40',
@@ -172,7 +172,7 @@ export function LivePOShowcase() {
           <div
             key={eventIdx}
             className={cn(
-              'flex items-center gap-2.5 rounded-xl border border-brand-light/25 bg-brand-pale p-3 dark:bg-brand-mid/15',
+              'flex items-center gap-2.5 rounded-xl border border-brand-light/25 bg-brand-pale p-3 dark:bg-white/[0.05]',
               'motion-safe:animate-in motion-safe:fade-in motion-safe:slide-in-from-bottom-2 motion-safe:duration-500',
             )}
           >
@@ -195,7 +195,7 @@ export function LivePOShowcase() {
         ].map(({ icon: Icon, text }) => (
           <span
             key={text}
-            className="flex items-center gap-1.5 rounded-full border border-brand-light/25 bg-brand-pale px-3 py-1.5 text-[11px] font-medium text-brand-mid dark:bg-brand-mid/10 dark:text-brand-light"
+            className="flex items-center gap-1.5 rounded-full border border-brand-light/25 bg-brand-pale px-3 py-1.5 text-[11px] font-medium text-brand-mid dark:bg-white/[0.04] dark:text-brand-light"
           >
             <Icon className="h-3.5 w-3.5 shrink-0 text-brand-light" />
             {text}

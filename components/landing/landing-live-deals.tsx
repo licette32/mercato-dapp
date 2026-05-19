@@ -111,13 +111,13 @@ export function LandingLiveDeals() {
           <div
             ref={headerRef}
             className={cn(
-              'container relative z-30 mx-auto shrink-0 px-4 pb-4 md:px-6 md:pb-6',
+              'container relative isolate z-30 mx-auto shrink-0 bg-background px-4 pb-4 md:px-6 md:pb-6',
               'transition-all duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:transition-none',
               visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6',
             )}
           >
             <div className="mb-3 flex flex-wrap items-center gap-3">
-              <span className="inline-flex items-center gap-2 rounded-full border border-brand-light/30 bg-brand-ultra/90 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-brand-mid dark:bg-brand-mid/15 dark:text-brand-light">
+              <span className="inline-flex items-center gap-2 rounded-full border border-brand-light/30 bg-brand-ultra/90 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-brand-mid dark:border-white/10 dark:bg-white/[0.05] dark:text-brand-light">
                 <Radio className="h-3 w-3 motion-safe:animate-pulse" aria-hidden />
                 {hasLive ? 'Live on Mercato' : 'Platform activity'}
               </span>
@@ -135,7 +135,7 @@ export function LandingLiveDeals() {
                   className="font-display mb-2 text-[clamp(1.75rem,4vw,2.75rem)] font-normal leading-[1.08] tracking-tight text-foreground text-balance"
                 >
                   See capital moving{' '}
-                  <span className="text-gradient-brand">right now.</span>
+                  <span className="text-brand-mid dark:text-brand-light">right now.</span>
                 </h2>
                 <p className="text-base leading-relaxed text-muted-foreground md:text-lg">
                   Fund open orders, follow milestones, or explore completed deals — all in one feed.
@@ -164,10 +164,10 @@ export function LandingLiveDeals() {
             />
 
             <div
-              className="pointer-events-none absolute left-1/2 top-[42%] z-0 h-[min(70vw,420px)] w-[min(70vw,420px)] -translate-x-1/2 -translate-y-1/2 rounded-full opacity-50"
+              className="pointer-events-none absolute left-1/2 top-[62%] z-0 h-[min(60vw,360px)] w-[min(60vw,360px)] -translate-x-1/2 -translate-y-1/2 rounded-full opacity-40 dark:opacity-25"
               style={{
                 background:
-                  'radial-gradient(circle, hsl(var(--brand-light) / 0.14) 0%, transparent 70%)',
+                  'radial-gradient(circle, hsl(var(--brand-light) / 0.1) 0%, transparent 70%)',
                 transform: `translate(-50%, -50%) scale(${0.9 + progress * 0.15})`,
               }}
               aria-hidden

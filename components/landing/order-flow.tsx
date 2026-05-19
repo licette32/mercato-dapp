@@ -93,11 +93,11 @@ function StepVisual({ stepId }: { stepId: StepId }) {
         <div className="rounded-2xl border border-border/70 bg-card p-4 shadow-md">
           <div className="mb-3 flex items-center justify-between">
             <p className="text-[10px] font-bold uppercase tracking-wider text-brand-mid">Purchase order</p>
-            <span className="rounded-md bg-brand-pale px-2 py-0.5 text-[10px] font-semibold text-brand-mid dark:bg-brand-mid/20 dark:text-brand-light">
+            <span className="rounded-md bg-brand-pale px-2 py-0.5 text-[10px] font-semibold text-brand-mid dark:bg-white/[0.06] dark:text-brand-light">
               Draft → Live
             </span>
           </div>
-          <div className="mb-3 flex items-center gap-2 rounded-xl border border-brand-pale bg-brand-ultra/80 p-2.5 dark:border-brand-mid/30 dark:bg-brand-mid/10">
+          <div className="mb-3 flex items-center gap-2 rounded-xl border border-brand-pale bg-brand-ultra/80 p-2.5 dark:border-white/10 dark:bg-white/[0.04]">
             <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-brand-dark text-[10px] font-bold text-white">AP</div>
             <div className="min-w-0">
               <p className="truncate text-xs font-semibold">Acero del Pacífico</p>
@@ -154,7 +154,7 @@ function StepVisual({ stepId }: { stepId: StepId }) {
       return (
         <div className="rounded-2xl border border-border/70 bg-card p-4 shadow-md">
           <div className="mb-3 flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-brand-pale dark:bg-brand-mid/20">
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-brand-pale dark:bg-white/[0.06]">
               <Truck className="h-5 w-5 text-brand-mid dark:text-brand-light" aria-hidden />
             </div>
             <div>
@@ -162,7 +162,7 @@ function StepVisual({ stepId }: { stepId: StepId }) {
               <p className="text-[10px] text-muted-foreground">Proof uploaded on-chain</p>
             </div>
           </div>
-          <div className="rounded-xl border border-dashed border-brand-mid/40 bg-brand-ultra/50 px-3 py-2 text-center dark:bg-brand-mid/10">
+          <div className="rounded-xl border border-dashed border-brand-mid/40 bg-brand-ultra/50 px-3 py-2 text-center dark:bg-white/[0.04]">
             <p className="text-xs font-medium text-brand-mid dark:text-brand-light">Final 50% → supplier</p>
           </div>
         </div>
@@ -220,7 +220,7 @@ export function OrderFlow() {
       <div className="mb-8 hidden md:block">
         <div className="relative px-1">
           <div
-            className="absolute left-[10%] right-[10%] top-[1.35rem] h-1 overflow-hidden rounded-full bg-brand-pale dark:bg-brand-mid/20"
+            className="absolute left-[10%] right-[10%] top-[1.35rem] h-1 overflow-hidden rounded-full bg-brand-pale dark:bg-white/[0.06]"
             aria-hidden
           >
             <div
@@ -274,7 +274,7 @@ export function OrderFlow() {
       {/* Detail panel — desktop */}
       <div
         key={panelKey}
-        className="tab-panel-enter hidden overflow-hidden rounded-3xl border border-border/70 bg-gradient-to-br from-brand-ultra/80 via-card to-background shadow-elevated dark:from-brand-mid/10 dark:via-card md:block"
+        className="tab-panel-enter hidden overflow-hidden rounded-3xl border border-border/70 bg-gradient-to-br from-brand-ultra/80 via-card to-background shadow-elevated dark:from-[hsl(0,0%,4%)] dark:via-card dark:to-background md:block"
       >
         <div className="grid lg:grid-cols-[1fr_1.05fr]">
           <div className="relative border-b border-border/60 p-8 lg:border-b-0 lg:border-r lg:p-10">
@@ -291,7 +291,7 @@ export function OrderFlow() {
             <p className="mb-6 max-w-md text-base leading-relaxed text-muted-foreground md:text-lg">
               {step.body}
             </p>
-            <span className="inline-flex items-center gap-2 rounded-full border border-brand-pale bg-background/80 px-3 py-1 text-xs font-semibold text-foreground dark:border-brand-mid/30">
+            <span className="inline-flex items-center gap-2 rounded-full border border-brand-pale bg-background/80 px-3 py-1 text-xs font-semibold text-foreground dark:border-white/10">
               <StepIcon className="h-3.5 w-3.5 text-brand-mid dark:text-brand-light" aria-hidden />
               {step.actor}
             </span>
@@ -304,7 +304,7 @@ export function OrderFlow() {
                   onClick={() => selectStep(i)}
                   className={cn(
                     'h-1.5 rounded-full transition-all duration-300',
-                    i === active ? 'w-8 bg-brand-mid' : 'w-2 bg-brand-pale hover:bg-brand-light/60 dark:bg-brand-mid/30',
+                    i === active ? 'w-8 bg-brand-mid' : 'w-2 bg-brand-pale hover:bg-brand-light/60 dark:bg-white/10',
                   )}
                   aria-label={`Go to step ${i + 1}`}
                 />
@@ -352,7 +352,7 @@ export function OrderFlow() {
           key={panelKey}
           className="tab-panel-enter overflow-hidden rounded-2xl border border-brand-light/30 bg-card shadow-elevated"
         >
-          <div className="border-b border-border bg-brand-ultra/50 p-5 dark:bg-brand-mid/10">
+          <div className="border-b border-border bg-brand-ultra/50 p-5 dark:bg-white/[0.04]">
             <StepVisual stepId={step.id} />
           </div>
           <div className="p-5">

@@ -47,12 +47,15 @@ export function LandingHero() {
 
   return (
     <section className="relative min-h-[92vh] overflow-hidden bg-landing-hero pb-8 md:min-h-[88vh]">
-      <div className="pointer-events-none absolute inset-0" aria-hidden>
+      <div className="pointer-events-none absolute inset-0 z-0" aria-hidden>
         <div
           className={cn(
-            'hero-glow absolute -left-40 -top-32 h-[600px] w-[600px] rounded-full blur-[120px]',
+            'hero-glow absolute h-[520px] w-[520px] rounded-full blur-[120px]',
             isDark
-              ? 'bg-[radial-gradient(circle,rgba(26,69,48,0.7)_0%,transparent_70%)]'
+              ? '-left-[22rem] -top-40 md:-left-[26rem]'
+              : '-left-32 -top-32 md:-left-40',
+            isDark
+              ? 'bg-[radial-gradient(circle,rgba(63,160,104,0.1)_0%,transparent_68%)]'
               : 'bg-[radial-gradient(circle,rgba(63,160,104,0.28)_0%,transparent_70%)]',
           )}
         />
@@ -60,23 +63,25 @@ export function LandingHero() {
           className={cn(
             'hero-glow-b absolute -right-24 top-1/4 h-[480px] w-[480px] rounded-full blur-[100px]',
             isDark
-              ? 'bg-[radial-gradient(circle,rgba(38,112,70,0.35)_0%,transparent_70%)]'
+              ? 'bg-[radial-gradient(circle,rgba(255,255,255,0.04)_0%,transparent_65%)]'
               : 'bg-[radial-gradient(circle,rgba(38,112,70,0.15)_0%,transparent_70%)]',
           )}
         />
         <div
-          className="absolute inset-0 opacity-[0.35] dark:opacity-[0.05]"
+          className="absolute inset-0 opacity-[0.35] dark:opacity-[0.12]"
           style={{
-            backgroundImage: 'radial-gradient(hsl(var(--brand-mid) / 0.12) 1px, transparent 1px)',
+            backgroundImage: isDark
+              ? 'radial-gradient(hsl(0 0% 100% / 0.05) 1px, transparent 1px)'
+              : 'radial-gradient(hsl(var(--brand-mid) / 0.12) 1px, transparent 1px)',
             backgroundSize: '32px 32px',
           }}
         />
       </div>
 
-      <div className="container relative mx-auto px-4 pt-20 md:pt-24 lg:pt-28">
+      <div className="container relative z-10 mx-auto px-4 pt-20 md:pt-24 lg:pt-28">
         <div className="mx-auto grid max-w-6xl items-center gap-14 lg:grid-cols-[1.05fr_1fr] lg:gap-12">
 
-          <div className="relative z-10 text-center lg:text-left">
+          <div className="relative isolate z-10 text-center lg:text-left">
             <span
               className={cn(
                 'hero-stagger-1 mb-8 inline-flex items-center gap-2 rounded-full px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.2em]',
@@ -93,7 +98,7 @@ export function LandingHero() {
             <h1 className="hero-stagger-2 font-display mb-6 text-[clamp(2.75rem,6vw,4.25rem)] leading-[0.95] tracking-tight text-foreground">
               <span className="block">The purchase</span>
               <span className="block">order</span>
-              <span className="mt-1 block text-gradient-brand">is the deal.</span>
+              <span className="mt-1 block text-brand-mid dark:text-brand-light">is the deal.</span>
             </h1>
 
             <p className="hero-stagger-3 mx-auto mb-10 max-w-md text-lg leading-relaxed text-muted-foreground md:text-xl lg:mx-0">
@@ -128,7 +133,7 @@ export function LandingHero() {
           <div className="relative mx-auto w-full max-w-lg lg:max-w-none">
             <FloatingChip className="absolute -left-2 top-8 z-20 hidden lg:block float-b" delay="-1s">
               <div className="flex items-center gap-2">
-                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-brand-pale text-brand-mid dark:bg-brand-mid/30">
+                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-brand-pale text-brand-mid dark:bg-white/10">
                   <TrendingUp className="h-4 w-4" />
                 </div>
                 <div>
@@ -140,7 +145,7 @@ export function LandingHero() {
 
             <FloatingChip className="absolute -right-2 bottom-16 z-20 hidden lg:block float-c" delay="-3s">
               <div className="flex items-center gap-2">
-                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-brand-pale text-brand-mid dark:bg-brand-mid/30">
+                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-brand-pale text-brand-mid dark:bg-white/10">
                   <ShieldCheck className="h-4 w-4" />
                 </div>
                 <div>
@@ -162,7 +167,7 @@ export function LandingHero() {
       </div>
 
       <div className="relative z-10 mt-16 w-full md:mt-20">
-        <div className="glass-strong w-full overflow-hidden border-y border-brand-light/20 shadow-sm dark:border-brand-mid/25">
+        <div className="glass-strong w-full overflow-hidden border-y border-brand-light/20 shadow-sm dark:border-white/10">
           <div className="overflow-hidden py-3.5 md:py-4">
             <div className="marquee-track flex w-max gap-12 motion-reduce:animate-none" aria-hidden>
               {[...TICKER, ...TICKER].map((item, i) => (

@@ -25,7 +25,7 @@ export function LandingCta() {
   return (
     <section className="relative overflow-hidden py-20 md:py-28">
       <div
-        className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_80%_60%_at_20%_0%,hsl(var(--brand-pale)/0.9),transparent_55%),radial-gradient(ellipse_70%_50%_at_100%_100%,hsl(var(--brand-light)/0.12),transparent_50%)] dark:bg-[radial-gradient(ellipse_80%_60%_at_20%_0%,hsl(var(--brand-mid)/0.12),transparent_55%),radial-gradient(ellipse_70%_50%_at_100%_100%,hsl(var(--brand-mid)/0.08),transparent_50%)]"
+        className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_80%_60%_at_20%_0%,hsl(var(--brand-pale)/0.9),transparent_55%),radial-gradient(ellipse_70%_50%_at_100%_100%,hsl(var(--brand-light)/0.12),transparent_50%)] dark:bg-[radial-gradient(ellipse_80%_60%_at_20%_0%,hsl(0_0%_100%/0.04),transparent_55%),radial-gradient(ellipse_70%_50%_at_100%_100%,hsl(var(--brand-mid)/0.06),transparent_50%)]"
         aria-hidden
       />
 
@@ -119,7 +119,7 @@ export function LandingCta() {
                 ))}
               </ul>
 
-              <div className="mt-8 rounded-2xl border border-dashed border-brand-mid/30 bg-brand-pale/50 px-4 py-3 text-center dark:border-brand-light/20 dark:bg-brand-mid/10">
+              <div className="mt-8 rounded-2xl border border-dashed border-brand-mid/30 bg-brand-pale/50 px-4 py-3 text-center dark:border-brand-light/20 dark:bg-white/[0.04]">
                 <p className="text-sm font-medium text-brand-dark dark:text-brand-light">
                   No bank paperwork · Milestone escrow · LATAM supply chains
                 </p>

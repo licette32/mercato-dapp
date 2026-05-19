@@ -18,7 +18,7 @@ const FOOTER_LINKS = {
 
 export function LandingFooter() {
   return (
-    <footer className="border-t border-border/60 bg-gradient-to-b from-brand-ultra/40 to-background dark:from-brand-mid/5">
+    <footer className="border-t border-border/60 bg-gradient-to-b from-brand-ultra/40 to-background dark:from-background">
       <div className="container mx-auto px-4 py-12 md:py-14">
         <div className="grid gap-10 md:grid-cols-[1.4fr_1fr_1fr] md:gap-12">
           <div>
