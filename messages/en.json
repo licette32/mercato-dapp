@@ -279,6 +279,12 @@
     "progressComplete": "{percent}% Complete"
   },
   "dashboard": {
+    "hubLabel": "Your hub",
+    "handyActions": "Handy actions",
+    "openLabel": "Open",
+    "seekingFunding": "Seeking funding",
+    "pendingDeliveries": "Deliveries in progress",
+    "milestoneActionNeeded": "Milestone action needed",
     "welcome": "Welcome back, {name}",
     "there": "there",
     "atCompany": "at {company}",

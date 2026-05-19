@@ -279,6 +279,12 @@
     "progressComplete": "{percent}% completado"
   },
   "dashboard": {
+    "hubLabel": "Tu panel",
+    "handyActions": "Acciones útiles",
+    "openLabel": "Abrir",
+    "seekingFunding": "Buscando financiamiento",
+    "pendingDeliveries": "Entregas en curso",
+    "milestoneActionNeeded": "Hito requiere acción",
     "welcome": "Bienvenido de nuevo, {name}",
     "there": "ahí",
     "atCompany": "en {company}",
