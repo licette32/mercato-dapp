@@ -113,12 +113,12 @@ export function LandingLiveDeals() {
       className="landing-section-anchor relative bg-background pt-4 pb-6 md:pt-8 md:pb-8"
       aria-labelledby="live-deals-heading"
     >
-      <div className="relative min-h-[58vh] md:min-h-[68vh]">
-        <div className="sticky top-16 z-20 flex h-[min(480px,calc(100vh-5.5rem))] flex-col overflow-hidden md:top-20 md:h-[min(520px,calc(100vh-6rem))]">
+      <div className="relative min-h-[62vh] md:min-h-[72vh]">
+        <div className="sticky top-16 z-20 flex h-[min(520px,calc(100vh-5.5rem))] flex-col gap-6 overflow-hidden md:top-20 md:h-[min(560px,calc(100vh-6rem))] md:gap-8">
           <div
             ref={headerRef}
             className={cn(
-              'container relative isolate z-30 mx-auto shrink-0 bg-background px-4 pb-4 md:px-6 md:pb-6',
+              'container relative isolate z-30 mx-auto shrink-0 bg-background px-4 pb-1 md:px-6 md:pb-2',
               'transition-all duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:transition-none',
               visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6',
             )}

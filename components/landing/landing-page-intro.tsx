@@ -24,7 +24,12 @@ export function LandingPartnersStrip() {
   const { t } = useI18n()
 
   return (
-    <ScrollReveal as="section" className="border-t border-border/40 bg-brand-ultra/50 py-12 dark:bg-muted/10" delay={100}>
+    <ScrollReveal
+      as="section"
+      id="built-with"
+      className="landing-section-anchor border-t border-border/40 bg-brand-ultra/50 py-12 dark:bg-muted/10"
+      delay={100}
+    >
       <div className="container mx-auto px-4">
         <div className="mx-auto max-w-6xl">
           <p className="mb-8 text-center text-[11px] font-semibold uppercase tracking-[0.2em] text-brand-mid/60">

@@ -1,24 +1,29 @@
 'use client'
 
 import Link from 'next/link'
+import { usePathname } from 'next/navigation'
 import { MercatoLogo } from '@/components/mercato-logo'
 import { useI18n } from '@/lib/i18n/provider'
+import {
+  landingSectionHref,
+  PUBLIC_NAV_LINKS,
+} from '@/lib/navigation/landing-nav'
 import { ArrowUpRight } from 'lucide-react'
 
 export function LandingFooter() {
   const { t } = useI18n()
+  const pathname = usePathname()
+  const onHome = pathname === '/'
 
   const footerLinks = {
-    [t('landing.footer.platformTitle')]: [
-      { label: t('landing.footer.browseDeals'), href: '/deals' },
-      { label: t('landing.footer.howItWorks'), href: '/how-it-works' },
-      { label: t('nav.suppliers'), href: '/suppliers' },
-      { label: t('nav.investors'), href: '/investors' },
-    ],
+    [t('landing.footer.exploreTitle')]: PUBLIC_NAV_LINKS.map(({ sectionId, labelKey }) => ({
+      label: t(labelKey),
+      href: landingSectionHref(sectionId, onHome),
+    })),
     [t('landing.footer.getStartedTitle')]: [
+      { label: t('landing.footer.browseDeals'), href: '/deals' },
       { label: t('landing.footer.createAccount'), href: '/auth/sign-up' },
       { label: t('landing.footer.signIn'), href: '/auth/login' },
-      { label: t('landing.footer.createDeal'), href: '/create-deal' },
     ],
   }
 

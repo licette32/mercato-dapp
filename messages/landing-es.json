@@ -295,13 +295,11 @@
   "footer": {
     "tagline": "Financiamiento de cadena de suministro para Latinoamérica — órdenes de compra, escrow por hitos y rendimientos de economía real en Stellar.",
     "builtOn": "Construido en Stellar",
-    "platformTitle": "Plataforma",
+    "exploreTitle": "Explorar",
     "getStartedTitle": "Comenzar",
     "browseDeals": "Ver órdenes",
-    "howItWorks": "Cómo funciona",
     "createAccount": "Crear cuenta",
     "signIn": "Iniciar sesión",
-    "createDeal": "Crear negocio",
     "copyright": "© 2026 MERCATO. Financiamiento de cadena de suministro para Latinoamérica."
   },
   "showcase": {

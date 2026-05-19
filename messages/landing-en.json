@@ -295,13 +295,11 @@
   "footer": {
     "tagline": "Supply chain finance for Latin America — purchase orders, milestone escrow, and real-economy returns on Stellar.",
     "builtOn": "Built on Stellar",
-    "platformTitle": "Platform",
+    "exploreTitle": "Explore",
     "getStartedTitle": "Get started",
     "browseDeals": "Browse deals",
-    "howItWorks": "How it works",
     "createAccount": "Create account",
     "signIn": "Sign in",
-    "createDeal": "Create a deal",
     "copyright": "© 2026 MERCATO. Supply Chain Finance for Latin America."
   },
   "showcase": {
