@@ -49,7 +49,7 @@ export function AdminPriorityStrip({ stats, t }: AdminPriorityStripProps) {
               </div>
             </div>
             <Button asChild size="sm" className="rounded-full bg-orange-600 hover:bg-orange-700">
-              <Link href="/dashboard/admin">
+              <Link href="/dashboard/admin/approvals">
                 {m.openQueue}
                 <ArrowRight className="ml-2 h-4 w-4" />
               </Link>
@@ -72,7 +72,7 @@ export function AdminPriorityStrip({ stats, t }: AdminPriorityStripProps) {
               </div>
             </div>
             <Button asChild size="sm" variant="outline" className="rounded-full">
-              <Link href="/dashboard/admin">
+              <Link href="/dashboard/admin/releases">
                 {m.opRelease}
                 <ArrowRight className="ml-2 h-4 w-4" />
               </Link>

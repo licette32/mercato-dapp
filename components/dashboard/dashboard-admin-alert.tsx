@@ -35,7 +35,7 @@ export function DashboardAdminAlert({ stats, labels }: DashboardAdminAlertProps)
         </div>
       </div>
       <Button asChild className="rounded-full bg-orange-600 hover:bg-orange-700">
-        <Link href="/dashboard/admin">
+        <Link href="/dashboard/admin/approvals">
           {labels.goApprovals}
           <ArrowRight className="ml-2 h-4 w-4" />
         </Link>

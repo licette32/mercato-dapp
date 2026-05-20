@@ -69,7 +69,7 @@ export function AdminPlatformSnapshot({ stats, t }: AdminPlatformSnapshotProps) 
             </p>
           </div>
           <Button variant="outline" size="sm" asChild className="mt-4 w-fit rounded-full">
-            <Link href="/dashboard/admin">
+            <Link href="/dashboard/admin/vault">
               {m.manageVault}
               <ArrowRight className="ml-2 h-4 w-4" />
             </Link>

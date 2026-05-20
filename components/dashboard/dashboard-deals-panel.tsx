@@ -292,7 +292,7 @@ function DealTableRow({
         </Button>
         {userType === 'admin' && hasPending && (
           <Button asChild size="sm" className="ml-1 h-7 px-2 text-xs">
-            <Link href="/dashboard/admin">{labels.tableApprove}</Link>
+            <Link href="/dashboard/admin/approvals">{labels.tableApprove}</Link>
           </Button>
         )}
       </td>

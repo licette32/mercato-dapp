@@ -44,7 +44,7 @@ export function AdminCommandHero({ welcome, roleLabel, t }: AdminCommandHeroProp
           <p className="text-base text-muted-foreground">{m.tagline}</p>
         </div>
         <Button asChild className={cn('rounded-full', theme.accentMuted)}>
-          <Link href="/dashboard/admin">
+          <Link href="/dashboard/admin/approvals">
             {m.primaryCta}
             <ArrowRight className="ml-2 h-4 w-4" aria-hidden />
           </Link>

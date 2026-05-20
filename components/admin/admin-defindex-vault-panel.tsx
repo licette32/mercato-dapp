@@ -1,6 +1,6 @@
 'use client'
 
-import { useCallback, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
 import {
@@ -27,6 +27,8 @@ import {
   Wand2,
   Info,
 } from 'lucide-react'
+import { VaultDeploymentChecklist } from '@/components/admin/vault-deployment-checklist'
+import { resolveDeployedVaultAddress } from '@/lib/defindex/extract-vault-address'
 import { signTransaction } from '@/lib/trustless/wallet-kit'
 import { useWallet } from '@/hooks/use-wallet'
 import { usePollarSession } from '@/providers/pollar-provider'
@@ -66,6 +68,8 @@ const DEFAULTS: VaultFormState = {
 
 // Verified testnet contract addresses from DeFindex testnet.contracts.json
 // https://github.com/paltalabs/defindex/blob/main/public/testnet.contracts.json
+const LAST_DEPLOY_STORAGE_KEY = 'mercato:admin-last-vault-deploy'
+
 const TESTNET_PRESETS = {
   blendUsdc: {
     label: 'BlendUSDC',
@@ -132,8 +136,33 @@ export function AdminDefindexVaultPanel({ configuredVaultAddress }: Props) {
   const [showAdvanced, setShowAdvanced] = useState(false)
   const [copied, setCopied] = useState(false)
   const [lastTxHash, setLastTxHash] = useState<string | null>(null)
+  const [lastVaultAddress, setLastVaultAddress] = useState<string | null>(null)
 
   const hasVaultEnv = Boolean(configuredVaultAddress.trim())
+
+  useEffect(() => {
+    try {
+      const raw = sessionStorage.getItem(LAST_DEPLOY_STORAGE_KEY)
+      if (!raw) return
+      const parsed = JSON.parse(raw) as { txHash?: string; vaultAddress?: string }
+      if (parsed.txHash) setLastTxHash(parsed.txHash)
+      if (parsed.vaultAddress) setLastVaultAddress(parsed.vaultAddress)
+    } catch {
+      /* ignore */
+    }
+  }, [])
+
+  useEffect(() => {
+    if (!lastTxHash) return
+    try {
+      sessionStorage.setItem(
+        LAST_DEPLOY_STORAGE_KEY,
+        JSON.stringify({ txHash: lastTxHash, vaultAddress: lastVaultAddress }),
+      )
+    } catch {
+      /* ignore */
+    }
+  }, [lastTxHash, lastVaultAddress])
 
   const set = (key: keyof VaultFormState) =>
     (e: React.ChangeEvent<HTMLInputElement>) =>
@@ -199,6 +228,7 @@ export function AdminDefindexVaultPanel({ configuredVaultAddress }: Props) {
     const config = buildConfig(form, address)
     setBusy(true)
     setLastTxHash(null)
+    setLastVaultAddress(null)
     try {
       const res = await fetch('/api/defindex/admin/create-vault', {
         method: 'POST',
@@ -208,7 +238,11 @@ export function AdminDefindexVaultPanel({ configuredVaultAddress }: Props) {
       })
       if (!res.ok) throw new Error(await readErrorMessage(res))
 
-      const { xdr } = (await res.json()) as { xdr: string }
+      const createPayload = (await res.json()) as {
+        xdr?: string
+        simulationResponse?: string
+      }
+      const { xdr } = createPayload
       if (!xdr) throw new Error('No XDR returned from DeFindex.')
 
       const submitted = await signAndSubmit(xdr, address)
@@ -217,9 +251,16 @@ export function AdminDefindexVaultPanel({ configuredVaultAddress }: Props) {
         return
       }
 
+      const vaultAddress = resolveDeployedVaultAddress(createPayload, submitted)
       if (submitted?.txHash) setLastTxHash(submitted.txHash)
+      if (vaultAddress) setLastVaultAddress(vaultAddress)
+
       toast.success('Vault deployed! Check the next steps below.', {
-        description: submitted?.txHash ? `Tx: ${submitted.txHash}` : undefined,
+        description: vaultAddress
+          ? `Vault: ${vaultAddress.slice(0, 8)}…`
+          : submitted?.txHash
+            ? `Tx: ${submitted.txHash}`
+            : undefined,
       })
     } catch (e) {
       toast.error(e instanceof Error ? e.message : 'Vault creation failed.')
@@ -493,75 +534,13 @@ export function AdminDefindexVaultPanel({ configuredVaultAddress }: Props) {
             )}
           </div>
 
-          {/* Post-deployment checklist */}
           {lastTxHash && (
-            <div className="space-y-3 rounded-lg border border-emerald-500/30 bg-emerald-500/5 p-4 text-xs">
-              <div className="flex items-center gap-2">
-                <CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-500" aria-hidden />
-                <p className="font-semibold text-emerald-700 dark:text-emerald-400">
-                  Vault deployed — complete these 3 steps to go live
-                </p>
-              </div>
-              <p className="break-all font-mono text-muted-foreground">{lastTxHash}</p>
-
-              <ol className="space-y-3 pl-1">
-                <li className="flex gap-3">
-                  <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-emerald-500/20 text-[10px] font-bold text-emerald-700 dark:text-emerald-400">1</span>
-                  <div>
-                    <p className="font-medium text-foreground">Find the vault contract address</p>
-                    <p className="mt-0.5 text-muted-foreground">
-                      Open the transaction on{' '}
-                      <a
-                        href={`https://testnet.stellar.expert/explorer/testnet/tx/${lastTxHash}`}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="inline-flex items-center gap-0.5 underline underline-offset-2"
-                      >
-                        Stellar Expert <ExternalLink className="h-2.5 w-2.5" />
-                      </a>
-                      {' '}and copy the new <code className="rounded bg-muted px-0.5">C…</code> contract address from the result.
-                    </p>
-                  </div>
-                </li>
-                <li className="flex gap-3">
-                  <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-emerald-500/20 text-[10px] font-bold text-emerald-700 dark:text-emerald-400">2</span>
-                  <div>
-                    <p className="font-medium text-foreground">Set the env var &amp; redeploy</p>
-                    <p className="mt-0.5 text-muted-foreground">
-                      Add the address to <code className="rounded bg-muted px-0.5">.env</code>:
-                    </p>
-                    <pre className="mt-1 rounded bg-muted px-2 py-1 text-[11px] leading-relaxed">
-{`NEXT_PUBLIC_DEFINDEX_VAULT_ADDRESS=C…
-MERCATO_DEFINDEX_VAULT_ADDRESS=C…`}
-                    </pre>
-                  </div>
-                </li>
-                <li className="flex gap-3">
-                  <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-emerald-500/20 text-[10px] font-bold text-emerald-700 dark:text-emerald-400">3</span>
-                  <div>
-                    <p className="font-medium text-foreground">First deposit + first rebalance</p>
-                    <p className="mt-0.5 text-muted-foreground">
-                      Deposit a minimum of <strong>1001 stroops</strong> (≈ 0.0001001 USDC — practically free) to
-                      initialize the vault, then call <strong>rebalance</strong> to allocate funds into the strategy.
-                      You can do this via the{' '}
-                      <a
-                        href="https://docs.defindex.io/api-integration-guide/creating-a-defindex-vault"
-                        target="_blank"
-                        rel="noreferrer"
-                        className="inline-flex items-center gap-0.5 underline underline-offset-2"
-                      >
-                        DeFindex API or stellar-cli <ExternalLink className="h-2.5 w-2.5" />
-                      </a>.
-                    </p>
-                    <pre className="mt-1 rounded bg-muted px-2 py-1 text-[11px] leading-relaxed whitespace-pre-wrap">
-{`curl -X POST https://api.defindex.io/vault/VAULT_ADDRESS/rebalance?network=testnet \\
-  -H "Authorization: Bearer YOUR_API_KEY" \\
-  -d '{"caller":"YOUR_MANAGER_ADDRESS","instructions":[{"type":"Invest","strategy_address":"STRATEGY_ADDRESS","amount":1000000}]}'`}
-                    </pre>
-                  </div>
-                </li>
-              </ol>
-            </div>
+            <VaultDeploymentChecklist
+              txHash={lastTxHash}
+              vaultAddress={lastVaultAddress}
+              managerAddress={walletInfo?.address ?? ''}
+              strategyAddress={form.strategyAddress.trim()}
+            />
           )}
 
           <Button

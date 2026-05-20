@@ -186,7 +186,7 @@ export function buildDashboardViewModel(
         {
           label: t.nav.milestoneApprovals,
           description: t.dashboard.actions.milestoneApprovalsDescription,
-          href: '/dashboard/admin',
+          href: '/dashboard/admin/approvals',
           icon: ShieldCheck,
           primary: true,
         },
@@ -200,7 +200,7 @@ export function buildDashboardViewModel(
       ]
       primaryAction = {
         label: t.dashboard.goApprovals,
-        href: '/dashboard/admin',
+        href: '/dashboard/admin/approvals',
         icon: ShieldCheck,
       }
       dealsTitle = t.dashboard.recentPlatformDeals

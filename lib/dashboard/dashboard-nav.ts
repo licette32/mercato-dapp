@@ -2,14 +2,16 @@ import type { LucideIcon } from 'lucide-react'
 import {
   Building2,
   CheckCircle2,
+  FileCheck,
   HandCoins,
+  Landmark,
   LayoutDashboard,
   LineChart,
   Package,
   Plus,
-  ShieldCheck,
   Sprout,
   TrendingUp,
+  Unlock,
   Wallet,
 } from 'lucide-react'
 import type { DashboardRoleKey } from './role-theme'
@@ -142,15 +144,35 @@ export function getDashboardNavSections(userType: string): DashboardNavSection[]
           items: [overview],
         },
         {
-          titleKey: 'dashboardNav.sectionPlatform',
+          titleKey: 'dashboardNav.sectionOperations',
           items: [
             {
-              href: '/dashboard/admin',
+              href: '/dashboard/admin/approvals',
               labelKey: 'dashboardNav.approvals',
-              icon: ShieldCheck,
+              icon: FileCheck,
             },
+            {
+              href: '/dashboard/admin/releases',
+              labelKey: 'dashboardNav.releaseQueue',
+              icon: Unlock,
+            },
+            {
+              href: '/dashboard/admin/vault',
+              labelKey: 'dashboardNav.vaultMonitor',
+              icon: Landmark,
+            },
+          ],
+        },
+        {
+          titleKey: 'dashboardNav.sectionPlatform',
+          items: [
             deals,
             marketplace,
+            {
+              href: '/suppliers',
+              labelKey: 'dashboardNav.suppliers',
+              icon: Building2,
+            },
             ramp,
           ],
         },

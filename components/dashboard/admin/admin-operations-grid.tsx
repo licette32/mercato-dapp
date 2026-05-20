@@ -4,6 +4,7 @@ import {
   Building2,
   Package,
   ShieldCheck,
+  Landmark,
   Unlock,
   Wallet,
   type LucideIcon,
@@ -23,12 +24,18 @@ export function AdminOperationsGrid({ t }: AdminOperationsGridProps) {
   const theme = getRoleTheme('admin')
 
   const operations: Op[] = [
-    { label: m.opApprovals, description: m.opApprovalsDesc, href: '/dashboard/admin', icon: ShieldCheck, primary: true },
-    { label: m.opRelease, description: m.opReleaseDesc, href: '/dashboard/admin', icon: Unlock },
+    { label: m.opApprovals, description: m.opApprovalsDesc, href: '/dashboard/admin/approvals', icon: ShieldCheck, primary: true },
+    { label: m.opRelease, description: m.opReleaseDesc, href: '/dashboard/admin/releases', icon: Unlock },
     { label: m.opDeals, description: m.opDealsDesc, href: '/dashboard/deals', icon: Package },
     { label: m.opMarketplace, description: m.opMarketplaceDesc, href: '/deals', icon: Package },
     { label: m.opSuppliers, description: m.opSuppliersDesc, href: '/suppliers', icon: Building2 },
     { label: m.opRamp, description: m.opRampDesc, href: '/dashboard/ramp', icon: Wallet },
+    {
+      label: m.opVaultMonitor,
+      description: m.opVaultMonitorDesc,
+      href: '/dashboard/admin/vault',
+      icon: Landmark,
+    },
   ]
 
   return (

@@ -20,7 +20,7 @@ export function AdminApprovalQueue({ items, t }: AdminApprovalQueueProps) {
           {m.sectionQueue}
         </h2>
         <Button variant="ghost" size="sm" asChild className="rounded-full">
-          <Link href="/dashboard/admin">
+          <Link href="/dashboard/admin/approvals">
             {m.queueViewAll}
             <ArrowRight className="ml-2 h-4 w-4" />
           </Link>
@@ -34,7 +34,7 @@ export function AdminApprovalQueue({ items, t }: AdminApprovalQueueProps) {
           {items.map((item) => (
             <li key={item.milestoneId}>
               <Link
-                href="/dashboard/admin"
+                href="/dashboard/admin/approvals"
                 className="flex flex-wrap items-center justify-between gap-3 px-5 py-4 transition-colors hover:bg-muted/40"
               >
                 <div className="min-w-0">

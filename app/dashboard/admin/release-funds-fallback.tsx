@@ -11,7 +11,7 @@ import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Wallet, DollarSign, ExternalLink } from 'lucide-react'
-import type { ReleaseFallbackItem } from './page'
+import type { ReleaseFallbackItem } from '@/lib/admin/types'
 import { useI18n } from '@/lib/i18n/provider'
 
 interface ReleaseFundsFallbackProps {
