@@ -3,7 +3,6 @@
 import { Suspense, useEffect, useState } from 'react'
 import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { Navigation } from '@/components/navigation'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
@@ -23,14 +22,13 @@ import { useI18n } from '@/lib/i18n/provider'
 
 export default function BlindPaySetupPage() {
   return (
-    <Suspense fallback={
-      <div className="flex min-h-screen flex-col">
-        <Navigation />
+    <Suspense
+      fallback={
         <div className="container mx-auto flex flex-1 items-center justify-center px-4 py-8">
           <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
         </div>
-      </div>
-    }>
+      }
+    >
       <BlindPaySetupContent />
     </Suspense>
   )
@@ -178,9 +176,7 @@ function BlindPaySetupContent() {
   }
 
   return (
-    <div className="flex min-h-screen flex-col">
-      <Navigation />
-      <div className="container mx-auto max-w-lg px-4 py-8">
+          <div className="container mx-auto max-w-lg px-4 py-8">
         <Button variant="ghost" size="sm" asChild>
           <Link href="/dashboard/ramp" className="gap-2">
             <ArrowLeft className="h-4 w-4" />
@@ -409,7 +405,6 @@ function BlindPaySetupContent() {
             </Card>
           )}
         </div>
-      </div>
     </div>
   )
 }

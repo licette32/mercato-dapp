@@ -36,7 +36,30 @@ export type AdminStats = {
   seekingFunding: number
   activeDeals: number
   completedDeals: number
+  /** All milestones in_progress (platform-wide) */
   pendingApprovals: number
+  /** in_progress milestones on deals with escrow — operational queue */
+  pendingEscrowApprovals: number
+  /** completed milestones on escrow deals awaiting on-chain release */
+  releaseQueue: number
+  escrowDeals: number
+  totalVolume: number
+  activeVolume: number
+  pymeCount: number
+  investorCount: number
+  supplierCount: number
+  supplierCompanyCount: number
+  vaultConfigured: boolean
+}
+
+export type AdminApprovalPreview = {
+  milestoneId: string
+  dealId: string
+  dealTitle: string
+  milestoneTitle: string
+  pymeName: string
+  supplierName: string
+  amount: number
 }
 
 export type SupplierProductsCard = {
@@ -58,4 +81,5 @@ export type DashboardPayload = {
   supplierProductsForCard: SupplierProductsCard | null
   roleStats: RoleStats | null
   adminStats: AdminStats | null
+  adminApprovalPreview: AdminApprovalPreview[]
 }

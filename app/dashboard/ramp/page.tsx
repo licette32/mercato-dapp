@@ -2,7 +2,6 @@
 
 import { Suspense, useState } from 'react'
 import Link from 'next/link'
-import { Navigation } from '@/components/navigation'
 import { Button } from '@/components/ui/button'
 import { Card, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
@@ -117,15 +116,12 @@ function RampFallback() {
 
 export default function RampPage() {
   return (
-    <div className="flex min-h-screen flex-col">
-      <Navigation />
-      <Suspense
+          <Suspense
         fallback={<RampFallback />}
       >
         <RampProvider>
           <RampContent />
         </RampProvider>
       </Suspense>
-    </div>
   )
 }

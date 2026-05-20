@@ -1,7 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
-import { Navigation } from '@/components/navigation'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -237,7 +236,6 @@ export default async function AdminDashboardPage({
 
   return (
     <div className="flex min-h-screen flex-col bg-muted/20">
-      <Navigation />
 
       <div className="container mx-auto max-w-6xl px-4 py-8">
 

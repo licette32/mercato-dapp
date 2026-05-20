@@ -1,7 +1,9 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
-import { Navigation } from '@/components/navigation'
+import { DashboardDealsView } from '@/components/dashboard/dashboard-deals-view'
+import { getDashboardData } from '@/lib/dashboard/get-dashboard-data'
+import { getServerDictionary } from '@/lib/i18n/server'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -65,16 +67,19 @@ export default async function DashboardDealsPage({
     .eq('id', user.id)
     .single()
 
-  if (profile?.user_type !== 'supplier') {
-    redirect('/dashboard')
-  }
-
   const params = searchParams
     ? typeof (searchParams as Promise<{ company?: string }>).then === 'function'
       ? await (searchParams as Promise<{ company?: string }>)
       : (searchParams as { company?: string })
     : {}
   const companyFilterId = params.company ?? null
+
+  if (profile?.user_type !== 'supplier') {
+    const t = await getServerDictionary()
+    const { data: fullProfile } = await supabase.from('profiles').select('*').eq('id', user.id).single()
+    const data = await getDashboardData(supabase, user.id, fullProfile, user.email, companyFilterId)
+    return <DashboardDealsView data={data} t={t} />
+  }
 
   const { data: supplierCompanies } = await supabase
     .from('supplier_companies')
@@ -117,9 +122,7 @@ export default async function DashboardDealsPage({
   const list = (deals ?? []) as DealRow[]
 
   return (
-    <div className="flex min-h-screen flex-col">
-      <Navigation />
-      <div className="container mx-auto px-4 py-8">
+    <div className="container mx-auto px-4 py-8">
         <div className="mb-6">
           <h1 className="text-3xl font-bold">My deals</h1>
           <p className="text-muted-foreground">
@@ -359,7 +362,6 @@ export default async function DashboardDealsPage({
             })}
           </div>
         )}
-      </div>
     </div>
   )
 }

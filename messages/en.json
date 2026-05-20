@@ -54,6 +54,11 @@
     "settings": "Settings",
     "logout": "Log out"
   },
+  "userMenu": {
+    "manageWallets": "Manage wallets",
+    "walletNotConnected": "Connect a wallet to fund deals and receive payouts.",
+    "explorer": "Explorer"
+  },
   "wallet": {
     "stellarWallet": "Stellar Wallet",
     "addressCopied": "Wallet address copied",
@@ -277,6 +282,32 @@
     "mustEqual100": " - must equal 100%",
     "stepProgress": "Step {current} of {total}",
     "progressComplete": "{percent}% Complete"
+  },
+  "dashboardNav": {
+    "sidebarLabel": "Dashboard navigation",
+    "openMenu": "Open dashboard menu",
+    "menuHint": "Sections",
+    "sectionHome": "Home",
+    "sectionTreasury": "Wallets & treasury",
+    "sectionPortfolio": "Portfolio",
+    "sectionDeals": "Deals",
+    "sectionOperations": "Operations",
+    "sectionPlatform": "Platform",
+    "overview": "Overview",
+    "wallets": "Wallets",
+    "walletsDescription": "Connect and manage your Stellar and Pollar embedded wallets, balances, and transaction history.",
+    "vault": "Mercato Vault",
+    "vaultDescription": "Deposit USDC into the Mercato DeFindex vault, track yield, and move funds between wallet and vault.",
+    "deals": "My deals",
+    "dealsDescription": "Deals you fund, create, or fulfill — with status, amounts, and milestones.",
+    "investments": "Portfolio",
+    "marketplace": "Browse marketplace",
+    "ramp": "Add funds / Cash out",
+    "createDeal": "Create deal",
+    "browseInvestors": "Browse investors",
+    "deliveries": "Deliveries",
+    "companies": "Companies & catalog",
+    "approvals": "Milestone approvals"
   },
   "dashboard": {
     "hubLabel": "Your hub",

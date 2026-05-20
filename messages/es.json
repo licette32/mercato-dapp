@@ -54,6 +54,11 @@
     "settings": "Configuración",
     "logout": "Cerrar sesión"
   },
+  "userMenu": {
+    "manageWallets": "Administrar billeteras",
+    "walletNotConnected": "Conecta una billetera para financiar órdenes y recibir pagos.",
+    "explorer": "Explorador"
+  },
   "wallet": {
     "stellarWallet": "Billetera Stellar",
     "addressCopied": "Dirección de billetera copiada",
@@ -277,6 +282,32 @@
     "mustEqual100": " - debe sumar 100%",
     "stepProgress": "Paso {current} de {total}",
     "progressComplete": "{percent}% completado"
+  },
+  "dashboardNav": {
+    "sidebarLabel": "Navegación del panel",
+    "openMenu": "Abrir menú del panel",
+    "menuHint": "Secciones",
+    "sectionHome": "Inicio",
+    "sectionTreasury": "Billeteras y tesorería",
+    "sectionPortfolio": "Portafolio",
+    "sectionDeals": "Órdenes",
+    "sectionOperations": "Operaciones",
+    "sectionPlatform": "Plataforma",
+    "overview": "Resumen",
+    "wallets": "Billeteras",
+    "walletsDescription": "Conecta y administra tus billeteras Stellar y Pollar embebida, saldos e historial.",
+    "vault": "Bóveda Mercato",
+    "vaultDescription": "Deposita USDC en la bóveda DeFindex de Mercato, sigue el rendimiento y mueve fondos entre billetera y bóveda.",
+    "deals": "Mis órdenes",
+    "dealsDescription": "Órdenes que financias, creas o cumples — con estado, montos e hitos.",
+    "investments": "Portafolio",
+    "marketplace": "Explorar mercado",
+    "ramp": "Fondos / Retiros",
+    "createDeal": "Crear orden",
+    "browseInvestors": "Ver inversionistas",
+    "deliveries": "Entregas",
+    "companies": "Empresas y catálogo",
+    "approvals": "Aprobaciones de hitos"
   },
   "dashboard": {
     "hubLabel": "Tu panel",

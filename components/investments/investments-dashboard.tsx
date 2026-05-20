@@ -1,8 +1,6 @@
 import Link from 'next/link'
 import { ArrowRight, ShieldCheck } from 'lucide-react'
-import { Navigation } from '@/components/navigation'
 import { Button } from '@/components/ui/button'
-import { InvestorCapitalOverview } from '@/components/dashboard/investor-capital-overview'
 import { PortfolioHero } from '@/components/investments/portfolio-hero'
 import { PortfolioKpis } from '@/components/investments/portfolio-kpis'
 import { PortfolioAllocation } from '@/components/investments/portfolio-allocation'
@@ -76,9 +74,7 @@ export function InvestmentsDashboard({ portfolio, tab, t }: InvestmentsDashboard
   }
 
   return (
-    <div className="flex min-h-screen flex-col">
-      <Navigation />
-      <div className="container mx-auto max-w-7xl space-y-8 px-4 py-8">
+    <div className="container mx-auto max-w-7xl space-y-8 px-4 py-8">
         <PortfolioHero
           portfolio={portfolio}
           labels={{
@@ -92,8 +88,6 @@ export function InvestmentsDashboard({ portfolio, tab, t }: InvestmentsDashboard
             activePositions: m.activePositions,
           }}
         />
-
-        <InvestorCapitalOverview viewerRole="investor" />
 
         {portfolio.deals.length === 0 ? (
           <InvestmentsEmpty
@@ -178,7 +172,6 @@ export function InvestmentsDashboard({ portfolio, tab, t }: InvestmentsDashboard
             </div>
           </>
         )}
-      </div>
     </div>
   )
 }

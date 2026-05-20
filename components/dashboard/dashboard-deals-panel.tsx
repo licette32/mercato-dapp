@@ -82,7 +82,7 @@ export function DashboardDealsPanel({
   }
 
   return (
-    <div>
+    <div className="min-w-0">
       <div className="mb-4 flex items-center justify-between gap-3">
         <h2 className="text-[11px] font-bold uppercase tracking-[0.18em] text-muted-foreground">{labels.title}</h2>
         <Button asChild variant="ghost" size="sm" className="text-xs">

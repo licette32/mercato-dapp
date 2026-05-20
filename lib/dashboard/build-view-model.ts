@@ -95,7 +95,7 @@ export function buildDashboardViewModel(
 
   let actions: DashboardAction[] = [rampAction]
   let primaryAction: DashboardViewModel['primaryAction']
-  let dealsViewAllHref = '/deals'
+  let dealsViewAllHref = '/dashboard/deals'
   let dealsTitle = t.dashboard.recentDeals
   let dealsColumns: DashboardViewModel['dealsColumns'] = { showCreated: true }
   let emptyBody = t.dashboard.noDealsPyme
@@ -143,6 +143,7 @@ export function buildDashboardViewModel(
         rampAction,
       ]
       primaryAction = { label: t.nav.browseDeals, href: '/deals', icon: TrendingUp }
+      dealsViewAllHref = '/deals'
       dealsColumns = { showSmb: true }
       emptyBody = t.dashboard.noDealsInvestor
       emptyCta = t.dashboard.browseDealsCta
@@ -171,7 +172,6 @@ export function buildDashboardViewModel(
         },
         rampAction,
       ]
-      dealsViewAllHref = '/dashboard/deals'
       dealsColumns = { showCompany: true, showSmb: true }
       emptyBody =
         supplierCompanies.length === 0
@@ -204,6 +204,7 @@ export function buildDashboardViewModel(
         icon: ShieldCheck,
       }
       dealsTitle = t.dashboard.recentPlatformDeals
+      dealsViewAllHref = '/deals'
       dealsColumns = {
         showSmb: true,
         showSupplier: true,
@@ -281,19 +282,7 @@ export function getDashboardStatTiles(
   const userType = profile.userType
 
   if (userType === 'admin' && adminStats) {
-    return [
-      { label: t.deals.totalDeals, value: adminStats.totalDeals, icon: Package },
-      { label: t.dealStatus.seeking_funding, value: adminStats.seekingFunding, icon: TrendingUp },
-      { label: t.deals.active, value: adminStats.activeDeals, icon: CheckCircle2 },
-      { label: t.deals.completed, value: adminStats.completedDeals, icon: CheckCircle2 },
-      {
-        label: t.dashboard.pendingApprovals,
-        value: adminStats.pendingApprovals,
-        icon: ShieldCheck,
-        highlight: adminStats.pendingApprovals > 0,
-        footer: adminStats.pendingApprovals > 0 ? t.dashboard.reviewNow : undefined,
-      },
-    ]
+    return []
   }
 
   if (!roleStats) return []
