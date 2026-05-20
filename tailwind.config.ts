@@ -13,8 +13,22 @@ const config: Config = {
       fontFamily: {
         sans: ['var(--font-geist-sans)', 'ui-sans-serif', 'system-ui', 'sans-serif'],
         mono: ['var(--font-geist-mono)', 'ui-monospace', 'monospace'],
+        display: ['var(--font-display)', 'Georgia', 'serif'],
       },
       colors: {
+        brand: {
+          dark:  'hsl(var(--brand-dark))',
+          mid:   'hsl(var(--brand-mid))',
+          light: 'hsl(var(--brand-light))',
+          pale:  'hsl(var(--brand-pale))',
+          ultra: 'hsl(var(--brand-ultra))',
+        },
+        landing: {
+          hero: 'hsl(var(--landing-hero))',
+          'hero-accent': 'hsl(var(--landing-hero-accent))',
+          cta: 'hsl(var(--landing-cta))',
+          'cta-fg': 'hsl(var(--landing-cta-fg))',
+        },
         background: 'hsl(var(--background))',
         foreground: 'hsl(var(--foreground))',
         card: {
@@ -138,6 +152,66 @@ const config: Config = {
           '81%': { transform: 'scale3d(1.14, 1.14, 1)' },
           '87%, 100%': { transform: 'scale3d(1, 1, 1)' },
         },
+        /** Hero dot-grid parallax drift */
+        'mercato-grid-drift': {
+          '0%, 100%': { backgroundPosition: '0 0' },
+          '50%': { backgroundPosition: '16px 16px' },
+        },
+        /** Stat number flip-in */
+        'mercato-flip-in': {
+          from: { transform: 'translateY(8px)', opacity: '0' },
+          to:   { transform: 'translateY(0)',   opacity: '1' },
+        },
+        /** Float variations for satellite cards */
+        'mercato-float-a': {
+          '0%, 100%': { transform: 'translate3d(0, 0, 0)' },
+          '50%': { transform: 'translate3d(0, -8px, 0)' },
+        },
+        'mercato-float-b': {
+          '0%, 100%': { transform: 'translate3d(0, 0, 0)' },
+          '50%': { transform: 'translate3d(0, 6px, 0)' },
+        },
+        'mercato-float-c': {
+          '0%, 100%': { transform: 'translate3d(0, 0, 0)' },
+          '50%': { transform: 'translate3d(0, -5px, 0)' },
+        },
+        /** Shimmer sweep for progress bars and highlights */
+        'mercato-shimmer': {
+          from: { transform: 'translateX(-100%)' },
+          to: { transform: 'translateX(200%)' },
+        },
+        /** Slow ping for status indicators */
+        'mercato-ping-slow': {
+          '75%, 100%': { transform: 'scale(2.2)', opacity: '0' },
+        },
+        /** Progress bar fill */
+        'mercato-progress-fill': {
+          from: { width: '0%' },
+        },
+        /** Staggered reveal for activity feed items */
+        'mercato-slide-up-fade': {
+          from: { transform: 'translateY(10px)', opacity: '0' },
+          to: { transform: 'translateY(0)', opacity: '1' },
+        },
+        /** Capital flow pulse along connection lines */
+        'mercato-capital-flow': {
+          '0%, 100%': { opacity: '0.3', transform: 'scaleX(0.95)' },
+          '50%': { opacity: '1', transform: 'scaleX(1)' },
+        },
+        /** SVG stroke draw */
+        'mercato-line-draw': {
+          from: { strokeDashoffset: '300' },
+          to: { strokeDashoffset: '0' },
+        },
+        /** Orbit rotation */
+        'mercato-orbit-1': {
+          from: { transform: 'rotate(0deg) translateX(120px) rotate(0deg)' },
+          to: { transform: 'rotate(360deg) translateX(120px) rotate(-360deg)' },
+        },
+        'mercato-orbit-2': {
+          from: { transform: 'rotate(180deg) translateX(140px) rotate(-180deg)' },
+          to: { transform: 'rotate(540deg) translateX(140px) rotate(-540deg)' },
+        },
         /** Deal cycle whole cards: same phase as step badges, gentler scale */
         'mercato-cycle-card-pulse-1': {
           '0%': { transform: 'scale3d(1, 1, 1)' },
@@ -189,6 +263,21 @@ const config: Config = {
           'mercato-cycle-card-pulse-3 4s ease-in-out infinite',
         'mercato-cycle-card-4':
           'mercato-cycle-card-pulse-4 4s ease-in-out infinite',
+        'mercato-float-a': 'mercato-float-a 6s ease-in-out infinite',
+        'mercato-float-b': 'mercato-float-b 7s ease-in-out infinite',
+        'mercato-float-c': 'mercato-float-c 5.5s ease-in-out infinite',
+        'mercato-shimmer': 'mercato-shimmer 2.4s linear infinite',
+        'mercato-ping-slow': 'mercato-ping-slow 2.2s cubic-bezier(0,0,0.2,1) infinite',
+        'mercato-ping-slower': 'mercato-ping-slow 3.4s cubic-bezier(0,0,0.2,1) infinite',
+        'mercato-progress-fill': 'mercato-progress-fill 1.4s cubic-bezier(0.22,1,0.36,1) forwards',
+        'mercato-slide-up-fade': 'mercato-slide-up-fade 0.5s cubic-bezier(0.22,1,0.36,1) both',
+        'mercato-ticker': 'mercato-ticker 0.18s steps(1) both',
+        'mercato-orbit-1': 'mercato-orbit-1 18s linear infinite',
+        'mercato-orbit-2': 'mercato-orbit-2 22s linear infinite',
+        'mercato-capital-flow': 'mercato-capital-flow 2.8s ease-in-out infinite',
+        'mercato-line-draw': 'mercato-line-draw 1.2s cubic-bezier(0.22,1,0.36,1) forwards',
+        'mercato-grid-drift': 'mercato-grid-drift 20s ease-in-out infinite',
+        'mercato-flip-in': 'mercato-flip-in 0.4s cubic-bezier(0.22,1,0.36,1) both',
       },
     },
   },

@@ -80,8 +80,8 @@ export default function SignUpPage() {
             href="/"
             className="mb-10 flex items-center justify-center gap-2 text-2xl font-bold tracking-tight text-foreground transition-opacity hover:opacity-90"
           >
-            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary text-primary-foreground">
-              <MercatoLogo className="h-5" />
+            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-brand-mid">
+              <MercatoLogo onBrand className="h-5" />
             </span>
             <span>MERCATO</span>
           </Link>

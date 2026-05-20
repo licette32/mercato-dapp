@@ -26,7 +26,13 @@
   },
   "nav": {
     "main": "Principal",
+    "marketing": "Página principal",
     "openMenu": "Abrir menú",
+    "whyMercato": "Por qué Mercato",
+    "roles": "Quién participa",
+    "builtWith": "Construido con",
+    "liveDeals": "En vivo en Mercato",
+    "faq": "Preguntas frecuentes",
     "deals": "Órdenes",
     "suppliers": "Proveedores",
     "smbs": "PyMEs",
@@ -47,6 +53,11 @@
     "deliveryProof": "Prueba de entrega",
     "settings": "Configuración",
     "logout": "Cerrar sesión"
+  },
+  "userMenu": {
+    "manageWallets": "Administrar billeteras",
+    "walletNotConnected": "Conecta una billetera para financiar órdenes y recibir pagos.",
+    "explorer": "Explorador"
   },
   "wallet": {
     "stellarWallet": "Billetera Stellar",
@@ -110,7 +121,7 @@
     "trustCard5Body": "Todos los negocios están denominados en USDC en Stellar — un activo estable vinculado al dólar. Los inversionistas ganan 8–15% APR sin exposición a la volatilidad cripto.",
     "trustCard6Title": "Rampas fiat",
     "trustCard6Body": "Convierte entre moneda local y USDC dentro de la app vía Etherfuse (México, SPEI), Alfred Pay (LATAM) o BlindPay (global) — sin necesidad de un exchange externo.",
-    "footerCopyright": "© 2025 MERCATO. Financiamiento de cadena de suministro en Stellar."
+    "footerCopyright": "© 2026 MERCATO. Financiamiento de cadena de suministro en Stellar."
   },
   "auth": {
     "loginTitle": "Bienvenido de nuevo",
@@ -272,7 +283,43 @@
     "stepProgress": "Paso {current} de {total}",
     "progressComplete": "{percent}% completado"
   },
+  "dashboardNav": {
+    "sidebarLabel": "Navegación del panel",
+    "openMenu": "Abrir menú del panel",
+    "menuHint": "Secciones",
+    "sectionHome": "Inicio",
+    "sectionTreasury": "Billeteras y tesorería",
+    "sectionPortfolio": "Portafolio",
+    "sectionDeals": "Órdenes",
+    "sectionOperations": "Operaciones",
+    "sectionPlatform": "Plataforma",
+    "overview": "Resumen",
+    "wallets": "Billeteras",
+    "walletsDescription": "Conecta y administra tus billeteras Stellar y Pollar embebida, saldos e historial.",
+    "vault": "Bóveda Mercato",
+    "vaultDescription": "Deposita USDC en la bóveda DeFindex de Mercato, sigue el rendimiento y mueve fondos entre billetera y bóveda.",
+    "deals": "Mis órdenes",
+    "dealsDescription": "Órdenes que financias, creas o cumples — con estado, montos e hitos.",
+    "investments": "Portafolio",
+    "marketplace": "Explorar mercado",
+    "ramp": "Fondos / Retiros",
+    "createDeal": "Crear orden",
+    "browseInvestors": "Ver inversionistas",
+    "deliveries": "Entregas",
+    "companies": "Empresas y catálogo",
+    "approvals": "Aprobaciones de hitos",
+    "releaseQueue": "Cola de liberación",
+    "adminVault": "Bóveda Mercato",
+    "vaultMonitor": "Monitor de bóveda",
+    "suppliers": "Proveedores"
+  },
   "dashboard": {
+    "hubLabel": "Tu panel",
+    "handyActions": "Acciones útiles",
+    "openLabel": "Abrir",
+    "seekingFunding": "Buscando financiamiento",
+    "pendingDeliveries": "Entregas en curso",
+    "milestoneActionNeeded": "Hito requiere acción",
     "welcome": "Bienvenido de nuevo, {name}",
     "there": "ahí",
     "atCompany": "en {company}",
@@ -363,6 +410,16 @@
     }
   },
   "settings": {
+    "hubLabel": "Configuración de cuenta",
+    "backDashboard": "Volver al panel",
+    "sectionProfile": "Perfil público",
+    "sectionProfileDesc": "Cómo te ven PyMEs, inversores y proveedores en órdenes y directorios.",
+    "sectionWallet": "Billeteras",
+    "sectionWalletDesc": "Conecta Pollar embebida o una billetera Stellar externa para escrow y pagos.",
+    "sectionAccount": "Cuenta",
+    "accountEmail": "Correo de acceso",
+    "trustTitle": "Señal de confianza",
+    "trustDescription": "Compromiso opcional en USDC visible en tu perfil de reputación.",
     "title": "Configuración",
     "subtitle": "Administra tu cuenta y la información del perfil",
     "profileTitle": "Información del perfil",
@@ -398,7 +455,39 @@
     "stakeSuccess": "¡Señal de confianza actualizada!",
     "stakeError": "Error al actualizar la señal. Inténtalo de nuevo.",
     "profileSuccess": "¡Perfil actualizado!",
-    "profileError": "Error al actualizar el perfil. Inténtalo de nuevo."
+    "profileError": "Error al actualizar el perfil. Inténtalo de nuevo.",
+    "onboarding": {
+      "eyebrow": "Bienvenido a Mercato",
+      "title": "Configura tu cuenta",
+      "subtitle": "Elige cómo usarás Mercato y agrega algunos datos para personalizar tu experiencia.",
+      "progressLabel": "Progreso de configuración",
+      "stepRole": "Tipo de cuenta",
+      "stepProfile": "Tu perfil",
+      "stepDone": "Listo",
+      "roleHeading": "¿Cómo usarás Mercato?",
+      "roleDescription": "Define tu panel, navegación y acciones disponibles. No podrás cambiarlo después sin soporte.",
+      "roleRequired": "Selecciona un tipo de cuenta para continuar.",
+      "profileHeading": "Datos del perfil",
+      "profileHint": {
+        "pyme": "Cuéntanos sobre tu negocio para que inversores y proveedores te reconozcan en las órdenes.",
+        "investor": "Indica cómo inviertes para que las PyMEs confíen en tu perfil.",
+        "supplier": "Describe tu empresa para que las PyMEs te encuentren y soliciten productos."
+      },
+      "optional": "opcional",
+      "fullNameRequired": "El nombre completo es obligatorio.",
+      "companyRequired": "El nombre de la empresa es obligatorio para tu tipo de cuenta.",
+      "countryRequired": "Selecciona un país.",
+      "sectorRequired": "Selecciona un sector.",
+      "supplierCatalogHint": "Al terminar, podrás agregar empresas y productos en tu catálogo de proveedor.",
+      "continue": "Continuar",
+      "back": "Atrás",
+      "finish": "Finalizar configuración",
+      "doneTitle": "Todo listo",
+      "doneDescription": "Tu tipo de cuenta y perfil están guardados. Puedes actualizar otros ajustes cuando quieras.",
+      "goDashboard": "Ir al panel",
+      "goSupplierSetup": "Configurar catálogo",
+      "skipToDashboard": "Ir al panel"
+    }
   },
   "geo": {
     "countries": {

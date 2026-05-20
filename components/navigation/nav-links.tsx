@@ -9,15 +9,15 @@ const links = [
   { href: '/suppliers', labelKey: 'nav.suppliers', icon: Package },
   { href: '/pymes', labelKey: 'nav.smbs', icon: Store },
   { href: '/investors', labelKey: 'nav.investors', icon: PieChart },
-  { href: '/how-it-works', labelKey: 'nav.howItWorks', icon: Package },
 ] as const
 
 interface NavLinksProps {
   /** Desktop: horizontal nav. Mobile: vertical list in sheet. */
   variant: 'desktop' | 'mobile'
+  onNavigate?: () => void
 }
 
-export function NavLinks({ variant }: NavLinksProps) {
+export function NavLinks({ variant, onNavigate }: NavLinksProps) {
   const isDesktop = variant === 'desktop'
   const { t } = useI18n()
 
@@ -29,6 +29,7 @@ export function NavLinks({ variant }: NavLinksProps) {
             key={href}
             href={href}
             className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
+            onClick={onNavigate}
           >
             {t(labelKey)}
           </Link>
@@ -44,6 +45,7 @@ export function NavLinks({ variant }: NavLinksProps) {
           key={href}
           href={href}
           className="flex items-center gap-2 text-sm font-medium"
+          onClick={onNavigate}
         >
           <Icon className="h-4 w-4" aria-hidden />
           {t(labelKey)}

@@ -6,7 +6,7 @@ import type { GetEscrowsFromIndexerResponse } from '@trustless-work/escrow'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { ShieldCheck } from 'lucide-react'
 import { PendingApprovals } from './pending-approvals'
-import type { PendingApprovalItem, ReleaseFallbackItem } from './page'
+import type { PendingApprovalItem, ReleaseFallbackItem } from '@/lib/admin/types'
 import { useI18n } from '@/lib/i18n/provider'
 
 interface AdminEscrowsProviderProps {

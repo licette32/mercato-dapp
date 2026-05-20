@@ -368,9 +368,27 @@ export function WalletProvider({ children }: { children: ReactNode }) {
         if (otpError) throw otpError
 
         pollarSupabaseSyncCompletedRef.current = accessToken
+
+        const {
+          data: { user: signedInUser },
+        } = await supabase.auth.getUser()
+        let destination = '/dashboard'
+        if (signedInUser) {
+          const { data: profile } = await supabase
+            .from('profiles')
+            .select('user_type')
+            .eq('id', signedInUser.id)
+            .single()
+          if (!profile?.user_type) {
+            destination = '/settings?onboarding=1'
+          }
+        }
+
         router.refresh()
         if (pathname.startsWith('/auth/login') || pathname.startsWith('/auth/sign-up')) {
-          router.push('/dashboard')
+          router.push(destination)
+        } else if (destination.includes('onboarding=1') && !pathname.startsWith('/settings')) {
+          router.push(destination)
         }
       } catch (error) {
         pollarSupabaseSyncCompletedRef.current = null

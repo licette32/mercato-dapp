@@ -26,12 +26,18 @@
   },
   "nav": {
     "main": "Main",
+    "marketing": "Landing page",
     "openMenu": "Open menu",
+    "whyMercato": "Why Mercato",
+    "roles": "Who it's for",
+    "builtWith": "Built with",
+    "liveDeals": "Live on Mercato",
+    "faq": "FAQ",
     "deals": "Deals",
     "suppliers": "Suppliers",
     "smbs": "SMBs",
     "investors": "Investors",
-    "howItWorks": "How It Works",
+    "howItWorks": "How it works",
     "account": "Account",
     "login": "Login",
     "signUp": "Sign up",
@@ -47,6 +53,11 @@
     "deliveryProof": "Delivery Proof",
     "settings": "Settings",
     "logout": "Log out"
+  },
+  "userMenu": {
+    "manageWallets": "Manage wallets",
+    "walletNotConnected": "Connect a wallet to fund deals and receive payouts.",
+    "explorer": "Explorer"
   },
   "wallet": {
     "stellarWallet": "Stellar Wallet",
@@ -110,7 +121,7 @@
     "trustCard5Body": "All deals are denominated in USDC on Stellar — a stable, dollar-pegged asset. Investors earn 8–15% APR with no crypto-volatility exposure.",
     "trustCard6Title": "Fiat on/off ramps",
     "trustCard6Body": "Convert between local currency and USDC within the app via Etherfuse (Mexico, SPEI), Alfred Pay (LATAM), or BlindPay (global) — no third-party exchange needed.",
-    "footerCopyright": "© 2025 MERCATO. Supply Chain Finance on Stellar."
+    "footerCopyright": "© 2026 MERCATO. Supply Chain Finance on Stellar."
   },
   "auth": {
     "loginTitle": "Welcome back",
@@ -272,7 +283,43 @@
     "stepProgress": "Step {current} of {total}",
     "progressComplete": "{percent}% Complete"
   },
+  "dashboardNav": {
+    "sidebarLabel": "Dashboard navigation",
+    "openMenu": "Open dashboard menu",
+    "menuHint": "Sections",
+    "sectionHome": "Home",
+    "sectionTreasury": "Wallets & treasury",
+    "sectionPortfolio": "Portfolio",
+    "sectionDeals": "Deals",
+    "sectionOperations": "Operations",
+    "sectionPlatform": "Platform",
+    "overview": "Overview",
+    "wallets": "Wallets",
+    "walletsDescription": "Connect and manage your Stellar and Pollar embedded wallets, balances, and transaction history.",
+    "vault": "Mercato Vault",
+    "vaultDescription": "Deposit USDC into the Mercato DeFindex vault, track yield, and move funds between wallet and vault.",
+    "deals": "My deals",
+    "dealsDescription": "Deals you fund, create, or fulfill — with status, amounts, and milestones.",
+    "investments": "Portfolio",
+    "marketplace": "Browse marketplace",
+    "ramp": "Add funds / Cash out",
+    "createDeal": "Create deal",
+    "browseInvestors": "Browse investors",
+    "deliveries": "Deliveries",
+    "companies": "Companies & catalog",
+    "approvals": "Milestone approvals",
+    "releaseQueue": "Release queue",
+    "adminVault": "Mercato vault",
+    "vaultMonitor": "Vault monitor",
+    "suppliers": "Suppliers"
+  },
   "dashboard": {
+    "hubLabel": "Your hub",
+    "handyActions": "Handy actions",
+    "openLabel": "Open",
+    "seekingFunding": "Seeking funding",
+    "pendingDeliveries": "Deliveries in progress",
+    "milestoneActionNeeded": "Milestone action needed",
     "welcome": "Welcome back, {name}",
     "there": "there",
     "atCompany": "at {company}",
@@ -363,6 +410,16 @@
     }
   },
   "settings": {
+    "hubLabel": "Account settings",
+    "backDashboard": "Back to dashboard",
+    "sectionProfile": "Public profile",
+    "sectionProfileDesc": "How you appear to PyMEs, investors, and suppliers on deals and directories.",
+    "sectionWallet": "Wallets",
+    "sectionWalletDesc": "Connect Pollar embedded or an external Stellar wallet for escrow and payouts.",
+    "sectionAccount": "Account",
+    "accountEmail": "Sign-in email",
+    "trustTitle": "Trust signal",
+    "trustDescription": "Optional USDC commitment shown on your reputation profile.",
     "title": "Settings",
     "subtitle": "Manage your account settings and profile information",
     "profileTitle": "Profile Information",
@@ -398,7 +455,39 @@
     "stakeSuccess": "Stake signal updated successfully!",
     "stakeError": "Error updating stake signal. Please try again.",
     "profileSuccess": "Profile updated successfully!",
-    "profileError": "Error updating profile. Please try again."
+    "profileError": "Error updating profile. Please try again.",
+    "onboarding": {
+      "eyebrow": "Welcome to Mercato",
+      "title": "Set up your account",
+      "subtitle": "Choose how you use Mercato and add a few details so we can tailor your experience.",
+      "progressLabel": "Onboarding progress",
+      "stepRole": "Account type",
+      "stepProfile": "Your profile",
+      "stepDone": "Done",
+      "roleHeading": "How will you use Mercato?",
+      "roleDescription": "This sets your dashboard, navigation, and available actions. You can’t change it later without support.",
+      "roleRequired": "Select an account type to continue.",
+      "profileHeading": "Profile details",
+      "profileHint": {
+        "pyme": "Tell us about your business so investors and suppliers recognize you on deals.",
+        "investor": "Share how you invest so PyMEs and the marketplace can trust your profile.",
+        "supplier": "Describe your company so PyMEs can find you and request catalog deals."
+      },
+      "optional": "optional",
+      "fullNameRequired": "Full name is required.",
+      "companyRequired": "Company name is required for your account type.",
+      "countryRequired": "Please select a country.",
+      "sectorRequired": "Please select a sector.",
+      "supplierCatalogHint": "After finishing, you can add companies and products in your supplier catalog.",
+      "continue": "Continue",
+      "back": "Back",
+      "finish": "Finish setup",
+      "doneTitle": "You’re all set",
+      "doneDescription": "Your account type and profile are saved. You can update other settings anytime.",
+      "goDashboard": "Go to dashboard",
+      "goSupplierSetup": "Set up supplier catalog",
+      "skipToDashboard": "Skip to dashboard"
+    }
   },
   "geo": {
     "countries": {

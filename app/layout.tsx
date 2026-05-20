@@ -2,6 +2,15 @@ import type React from "react"
 import type { Metadata } from 'next'
 import { GeistSans } from 'geist/font/sans'
 import { GeistMono } from 'geist/font/mono'
+import { DM_Serif_Display } from 'next/font/google'
+
+const dmSerifDisplay = DM_Serif_Display({
+  subsets: ['latin'],
+  weight: '400',
+  style: ['normal', 'italic'],
+  variable: '--font-display',
+  display: 'swap',
+})
 import '@pollar/react/styles.css'
 import { ThemeProvider } from '@/components/theme-provider'
 import { TrustlessWorkProvider } from '@/lib/trustless/config'
@@ -32,7 +41,7 @@ export default async function RootLayout({
   const messages = getDictionary(locale)
 
   return (
-    <html lang={locale} className={`${GeistSans.variable} ${GeistMono.variable}`} suppressHydrationWarning>
+    <html lang={locale} className={`scroll-smooth ${GeistSans.variable} ${GeistMono.variable} ${dmSerifDisplay.variable}`} suppressHydrationWarning>
       <body className="font-sans antialiased" suppressHydrationWarning>
         <ThemeProvider
           attribute="class"

@@ -13,7 +13,7 @@ import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Separator } from '@/components/ui/separator'
 import { Wallet, CheckCircle2, ExternalLink, Building2, User, DollarSign, FileText } from 'lucide-react'
-import type { PendingApprovalItem } from './page'
+import type { PendingApprovalItem } from '@/lib/admin/types'
 import { useI18n } from '@/lib/i18n/provider'
 
 interface PendingApprovalsProps {

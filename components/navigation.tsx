@@ -12,6 +12,7 @@ import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet'
 import { Menu } from 'lucide-react'
 import { MercatoLogo } from '@/components/mercato-logo'
 import { NavLinks } from '@/components/navigation/nav-links'
+import { PublicNavLinks } from '@/components/navigation/public-nav-links'
 import { UserNav, type NavProfile, type NavUser } from '@/components/navigation/user-nav'
 import { NotificationDropdown } from '@/components/notifications/notification-dropdown'
 import { LanguageSwitcher } from '@/components/language-switcher'
@@ -23,6 +24,8 @@ export function Navigation() {
   const supabase = useMemo(() => createClient(), [])
   const [user, setUser] = useState<NavUser | null>(null)
   const [profile, setProfile] = useState<NavProfile | null>(null)
+  const [authReady, setAuthReady] = useState(false)
+  const [mobileOpen, setMobileOpen] = useState(false)
   const {
     walletInfo,
     isConnected,
@@ -48,7 +51,7 @@ export function Navigation() {
         setProfile(p)
       }
     }
-    init()
+    void init().finally(() => setAuthReady(true))
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (_event, session) => {
@@ -73,8 +76,6 @@ export function Navigation() {
     setUser(null)
     setProfile(null)
     try {
-      /* Pollar ↔ Supabase sync re-logs in via verifyOtp if the embedded wallet stays
-         authenticated after signOut. Always tear down wallet + Pollar session on app logout. */
       await handleDisconnect()
     } catch (e) {
       console.error('[Navigation] wallet disconnect during logout failed', e)
@@ -88,51 +89,75 @@ export function Navigation() {
     router.refresh()
   }
 
+  const isAuthenticated = authReady && !!user
+  const closeMobile = () => setMobileOpen(false)
+  const logoHref = isAuthenticated ? '/dashboard' : '/'
+  const walletProps = {
+    isConnected,
+    address: walletInfo?.address,
+    truncatedAddress,
+    onConnect: handleConnect,
+    onConnectPollar: connectPollarWallet,
+    onDisconnect: handleDisconnect,
+    provider,
+    status,
+    isEmbedded,
+  }
+
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border bg-background/95 backdrop-blur transition-[box-shadow,background-color] duration-200 ease-out supports-[backdrop-filter]:bg-background/60">
-      <div className="container mx-auto flex h-16 items-center justify-between px-4">
-        <div className="flex items-center gap-8">
+      <div className="container mx-auto flex h-16 items-center justify-between gap-4 px-4">
+        <div className="flex min-w-0 items-center gap-4 lg:gap-8">
           <Link
-            href="/"
-            className="group flex items-center gap-2 rounded-md outline-offset-4 transition-[opacity,transform] duration-200 ease-out hover:opacity-90 active:scale-[0.98] motion-reduce:active:scale-100"
+            href={logoHref}
+            className="group flex shrink-0 items-center gap-2 rounded-md outline-offset-4 transition-[opacity,transform] duration-200 ease-out hover:opacity-90 active:scale-[0.98] motion-reduce:active:scale-100"
           >
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary transition-transform duration-200 ease-out group-hover:scale-[1.03] motion-reduce:group-hover:scale-100">
-              <MercatoLogo className="h-5" />
-            </div>
+            <MercatoLogo className="h-8 w-8 transition-transform duration-200 ease-out group-hover:scale-[1.03] motion-reduce:group-hover:scale-100" />
             <span className="text-xl font-semibold tracking-tight">{t('common.brand')}</span>
           </Link>
-          <NavLinks variant="desktop" />
+          {authReady &&
+            (isAuthenticated ? (
+              <NavLinks variant="desktop" />
+            ) : (
+              <PublicNavLinks variant="desktop" />
+            ))}
         </div>
 
-        <div className="flex items-center gap-4">
-          <div className="hidden items-center gap-3 md:flex">
+        <div className="flex items-center gap-2 sm:gap-3">
+          <div className="hidden items-center gap-2 md:flex md:gap-3">
             <LanguageSwitcher />
             <ThemeToggle />
-            {user?.id && <NotificationDropdown userId={user.id} variant="desktop" />}
-            <UserNav
-              variant="desktop"
-              user={user}
-              profile={profile}
-              onLogout={handleLogout}
-              wallet={{
-                isConnected,
-                address: walletInfo?.address,
-                truncatedAddress,
-                onConnect: handleConnect,
-                onConnectPollar: connectPollarWallet,
-                onDisconnect: handleDisconnect,
-                provider,
-                status,
-                isEmbedded,
-              }}
-            />
+            {isAuthenticated && user?.id && (
+              <NotificationDropdown userId={user.id} variant="desktop" />
+            )}
+            {authReady && !isAuthenticated && (
+              <>
+                <Button variant="ghost" size="sm" asChild>
+                  <Link href="/auth/login">{t('nav.login')}</Link>
+                </Button>
+                <Button size="sm" asChild className="rounded-full px-5">
+                  <Link href="/auth/sign-up">{t('nav.getStarted')}</Link>
+                </Button>
+              </>
+            )}
+            {authReady && isAuthenticated && (
+              <UserNav
+                variant="desktop"
+                user={user}
+                profile={profile}
+                onLogout={handleLogout}
+                wallet={walletProps}
+              />
+            )}
           </div>
 
-          <div className="flex items-center gap-2 md:hidden">
+          <div className="flex items-center gap-1.5 md:hidden">
             <LanguageSwitcher />
             <ThemeToggle />
-            {user?.id && <NotificationDropdown userId={user.id} variant="mobile" />}
-            <Sheet>
+            {isAuthenticated && user?.id && (
+              <NotificationDropdown userId={user.id} variant="mobile" />
+            )}
+            <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
               <SheetTrigger asChild>
                 <Button variant="ghost" size="icon" aria-label={t('nav.openMenu')}>
                   <Menu className="h-5 w-5" aria-hidden />
@@ -140,24 +165,19 @@ export function Navigation() {
               </SheetTrigger>
               <SheetContent side="right" className="w-[300px] overscroll-contain">
                 <nav className="flex flex-col gap-4" aria-label={t('nav.main')}>
-                  <NavLinks variant="mobile" />
+                  {authReady &&
+                    (isAuthenticated ? (
+                      <NavLinks variant="mobile" onNavigate={closeMobile} />
+                    ) : (
+                      <PublicNavLinks variant="mobile" onNavigate={closeMobile} />
+                    ))}
                   <div className="my-2 border-t border-border" />
                   <UserNav
                     variant="mobile"
-                    user={user}
+                    user={authReady ? user : null}
                     profile={profile}
                     onLogout={handleLogout}
-                    wallet={{
-                      isConnected,
-                      address: walletInfo?.address,
-                      truncatedAddress,
-                      onConnect: handleConnect,
-                      onConnectPollar: connectPollarWallet,
-                      onDisconnect: handleDisconnect,
-                      provider,
-                      status,
-                      isEmbedded,
-                    }}
+                    wallet={isAuthenticated ? walletProps : undefined}
                   />
                 </nav>
               </SheetContent>

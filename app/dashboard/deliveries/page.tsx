@@ -1,7 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
-import { Navigation } from '@/components/navigation'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -61,9 +60,7 @@ export default async function DeliveriesPage() {
   }
 
   return (
-    <div className="flex min-h-screen flex-col">
-      <Navigation />
-      <div className="container mx-auto px-4 py-8">
+          <div className="container mx-auto px-4 py-8">
         <div className="mb-6">
           <h1 className="text-3xl font-bold">{m.deliveries.title}</h1>
           <p className="text-muted-foreground">{m.deliveries.description}</p>
@@ -133,7 +130,6 @@ export default async function DeliveriesPage() {
             })}
           </div>
         )}
-      </div>
     </div>
   )
 }

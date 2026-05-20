@@ -1,0 +1,335 @@
+{
+  "hero": {
+    "badge": "Supply chain finance",
+    "titleLine1": "The purchase",
+    "titleLine2": "order",
+    "titleAccent": "is the deal.",
+    "description": "Capital flows with goods. SMEs grow, suppliers get paid, investors earn — all around a live purchase order.",
+    "primaryCta": "Get started free",
+    "secondaryCta": "Explore deals",
+    "chipApr": "+12.5% APR",
+    "chipVerified": "Verified",
+    "ticker": [
+      "PO #MKT-2847 · In production",
+      "Milestone 1 released · Acero del Pacífico",
+      "New deal open · Cotton yarn batch",
+      "Escrow funded · LED panels order",
+      "Delivery confirmed · repayment pending",
+      "Verified supplier · 4.8★ rating"
+    ]
+  },
+  "roles": {
+    "eyebrow": "Who it's for",
+    "titleLine1": "One platform.",
+    "titleLine2": "Three ways to grow.",
+    "sme": {
+      "label": "SMEs",
+      "headline": "Stop waiting on capital.",
+      "subhead": "Start shipping.",
+      "body": "Create a purchase order, choose a verified supplier, set milestones — then open it to investors. Working capital in hours, not bank cycles.",
+      "bullet1": "Deploy a PO in minutes",
+      "bullet2": "Build reputation with every deal",
+      "bullet3": "Repay from inventory sales",
+      "cta": "Create your first deal",
+      "mockupTitle": "New purchase order",
+      "mockupSubtitle": "Supplier & milestones"
+    },
+    "investor": {
+      "label": "Investors",
+      "headline": "Yield on real trade.",
+      "subhead": "Not speculation.",
+      "body": "Browse open purchase orders, fund escrow on Stellar, and earn 8–15% APR while production and delivery milestones protect your capital.",
+      "bullet1": "See exactly what you fund",
+      "bullet2": "Milestone-gated releases",
+      "bullet3": "30–90 day terms",
+      "cta": "Browse open deals"
+    },
+    "supplier": {
+      "label": "Suppliers",
+      "headline": "Get paid as you deliver.",
+      "subhead": "Every milestone.",
+      "body": "USDC is locked before you produce. Payments release when shipment and delivery are confirmed — no chasing invoices across borders.",
+      "bullet1": "Funds secured upfront",
+      "bullet2": "Verified supplier profile",
+      "bullet3": "Repeat buyers on Mercato",
+      "cta": "Join as supplier",
+      "mockupVerified": "Verified · Top 3%",
+      "mockupProduction": "Production start",
+      "mockupDelivery": "Delivery confirmed",
+      "mockupPaid": "Paid",
+      "mockupPending": "Pending"
+    },
+    "forRole": "For {role}",
+    "escrowNote": "Milestone escrow on Stellar",
+    "footerLine": "One purchase order links all three — pick your role and enter the flow.",
+    "chooseRoleAria": "Choose your role",
+    "investorMockupTitle": "Open deals",
+    "investorMockupAvg": "12.3% avg",
+    "smeMockupOpenCta": "Open for investors →",
+    "smeMockupOrders": "156 orders"
+  },
+  "rates": {
+    "eyebrow": "Why Mercato",
+    "titleLine1": "Bank-grade pricing.",
+    "titleAccent": "Without the bank-grade barriers.",
+    "description": "SMEs face 19–21% CAT at banks they often cannot access — or 60%+ from informal lenders. Mercato sits in the middle: {apr} on the full purchase order, validated by the deal itself — not your credit file.",
+    "aprHighlight": "18–24% APR",
+    "stat1Value": "85%",
+    "stat1Label": "of SMEs in LATAM lack access to formal bank credit",
+    "stat2Value": "100%",
+    "stat2Label": "of the PO financed on Mercato — not 80% like factoring",
+    "stat3Value": "18–24%",
+    "stat3Label": "APR range — comparable to banks, without their barriers",
+    "chartLabel": "Annual cost (APR / CAT)",
+    "chartLegendMercato": "Mercato",
+    "chartLegendAlt": "Alternatives",
+    "bestFit": "Best fit",
+    "accessHigh": "Broad access",
+    "accessMedium": "Moderate barriers",
+    "accessLow": "Strict requirements",
+    "sourcePrefix": "Source:",
+    "closingEyebrow": "The real comparison",
+    "closingTitle": "Mercato isn't cheaper than an informal lender — it's as {accessible} as one, priced closer to a {bank}, and built around the purchase order itself.",
+    "closingAccessible": "accessible",
+    "closingBank": "bank",
+    "closingDisclaimer": "Rates shown reflect verified public data (banks, business cards, factoring platforms) and Mercato's target model. Individual deal APR depends on risk, term, and milestones.",
+    "closingCta": "Start with your next PO",
+    "options": {
+      "mercato": {
+        "label": "Mercato",
+        "subtitle": "PO-backed escrow on Stellar",
+        "rate": "18–24% APR",
+        "requirements": "Live PO + verified supplier — no banking history",
+        "caveat": "100% of the production order financed"
+      },
+      "bank": {
+        "label": "Commercial bank (with history)",
+        "subtitle": "Tier-1 & regional banks",
+        "rate": "19–21% CAT",
+        "requirements": "2+ years operating, revenue floors, bureau record, collateral",
+        "source": "Regional bank disclosures 2025",
+        "caveat": "~15% of SMEs qualify for formal bank credit"
+      },
+      "fintech": {
+        "label": "Fintech factoring",
+        "subtitle": "e.g. Xepelin",
+        "rate": "18–36% annual",
+        "requirements": "~1 year invoicing history",
+        "source": "Xepelin simulator 2024",
+        "caveat": "Typically advances only ~80% of invoice value"
+      },
+      "card": {
+        "label": "SME business card",
+        "subtitle": "Formal revolving credit",
+        "rate": "18–22% CAT",
+        "requirements": "Multi-year operating history + collateral",
+        "source": "Major bank card disclosures 2025"
+      },
+      "informal": {
+        "label": "Informal lenders",
+        "subtitle": "Unregulated market",
+        "rate": "60–120%+",
+        "requirements": "No formal requirements — extreme cost",
+        "caveat": "No protections; effective cost compounds fast"
+      }
+    }
+  },
+  "flow": {
+    "stepLabel": "Step {n}",
+    "stepAria": "Go to step {n}",
+    "footnote": "Illustrative step · milestone escrow on Stellar",
+    "order": {
+      "short": "Create PO",
+      "title": "SME creates the order",
+      "body": "Pick a verified supplier, define shipment & delivery milestones, and publish the purchase order to the marketplace.",
+      "actor": "SME"
+    },
+    "fund": {
+      "short": "Fund escrow",
+      "title": "Investor funds it",
+      "body": "USDC locks in milestone escrow on Stellar. Capital stays protected until each release condition is met on-chain.",
+      "actor": "Investor"
+    },
+    "produce": {
+      "short": "Produce",
+      "title": "Supplier produces",
+      "body": "Production begins with payment secured. The first milestone can release when manufacturing or shipment starts.",
+      "actor": "Supplier"
+    },
+    "deliver": {
+      "short": "Deliver",
+      "title": "Goods deliver",
+      "body": "Delivery is confirmed with proof. Final milestone releases remaining funds to the supplier automatically.",
+      "actor": "SME confirms"
+    },
+    "complete": {
+      "short": "Repay",
+      "title": "Everyone wins",
+      "body": "The SME repays principal plus yield from sales. Investors earn, suppliers were paid, and the cycle can repeat.",
+      "actor": "All parties"
+    },
+    "visual": {
+      "purchaseOrder": "Purchase order",
+      "draftLive": "Draft → Live",
+      "verified": "Verified",
+      "milestone1": "On production · 50%",
+      "milestone2": "On delivery · 50%"
+    }
+  },
+  "page": {
+    "howItWorksEyebrow": "How it works",
+    "howItWorksTitleLine1": "From order to delivery,",
+    "howItWorksTitleLine2": "five clear steps.",
+    "partnersEyebrow": "Built with the Stellar ecosystem"
+  },
+  "cta": {
+    "badge": "Join Mercato",
+    "titlePrefix": "Turn your next PO into",
+    "titleAccent": "working capital.",
+    "description": "Whether you're buying inventory, funding trade, or supplying goods — start in minutes on Stellar-backed milestone escrow.",
+    "primaryCta": "Create free account",
+    "secondaryCta": "Explore live deals",
+    "sidebarEyebrow": "Built for every side of the deal",
+    "highlight1Label": "SMEs ship faster",
+    "highlight1Sub": "PO-funded in hours",
+    "highlight2Label": "Investors earn yield",
+    "highlight2Sub": "8–15% on real trade",
+    "highlight3Label": "Suppliers get paid",
+    "highlight3Sub": "Milestone by milestone",
+    "tagline": "No bank paperwork · Milestone escrow · LATAM supply chains"
+  },
+  "liveDeals": {
+    "badgeLive": "Live on Mercato",
+    "badgeActivity": "Platform activity",
+    "activeDealsOne": "{count} active deal",
+    "activeDealsOther": "{count} active deals",
+    "titlePrefix": "See capital moving",
+    "titleAccent": "right now.",
+    "description": "Fund open orders, follow milestones, or explore completed deals — all in one feed.",
+    "cta": "Browse marketplace",
+    "card": {
+      "example": "Example",
+      "amount": "Amount",
+      "apr": "APR",
+      "term": "Term",
+      "milestones": "Milestones",
+      "fundDeal": "Fund this deal",
+      "viewDeal": "View deal"
+    },
+    "events": {
+      "open": "Open for funding",
+      "funded": "Escrow funded",
+      "production": "In production",
+      "milestonePending": "Milestone pending",
+      "repaid": "Repaid · deal closed",
+      "released": "Funds released",
+      "underReview": "Under review",
+      "activeDeal": "Active deal",
+      "allMilestonesComplete": "All milestones complete",
+      "milestoneInProgress": "{name} in progress",
+      "milestoneReleased": "Milestone {completed} of {total} released"
+    },
+    "samples": {
+      "open": {
+        "flowStep": "Deal live · seeking capital",
+        "category": "Textiles",
+        "product": "Cotton yarn — 1,000 units",
+        "company": "Manufacturas del Norte"
+      },
+      "funded": {
+        "flowStep": "Escrow funded · supplier shipping",
+        "category": "Electronics",
+        "product": "LED panels — 400 units",
+        "company": "Andes Components SAS"
+      },
+      "complete": {
+        "flowStep": "Repaid · escrow closed",
+        "category": "Coffee",
+        "product": "Specialty beans — 20 pallets",
+        "company": "Sierra Verde Co-op"
+      }
+    }
+  },
+  "faq": {
+    "eyebrow": "FAQ",
+    "titlePrefix": "Questions before you",
+    "titleAccent": "join the flow.",
+    "description": "How funding works, who participates, and what keeps capital safe on Mercato.",
+    "walkthroughCta": "Full walkthrough",
+    "signUpCta": "Create free account",
+    "items": {
+      "whatIsMercato": {
+        "q": "What is Mercato?",
+        "a": "Mercato is a supply chain finance marketplace for Latin America. SMEs post real purchase orders, investors fund them through milestone escrow on Stellar, and suppliers get paid as goods move — all tied to one transparent deal."
+      },
+      "whoCanUse": {
+        "q": "Who can use the platform?",
+        "a": "SMEs (buyers) create and manage purchase orders. Investors browse open deals and fund escrow. Verified suppliers fulfill orders and receive milestone payments. Each role has a dedicated flow after signing up."
+      },
+      "howFunded": {
+        "q": "How are deals funded?",
+        "a": "Once an SME publishes a PO, investors commit USDC into a non-custodial escrow contract. Capital stays locked until predefined milestones — such as production start or delivery — are confirmed on-chain."
+      },
+      "milestones": {
+        "q": "What are payment milestones?",
+        "a": "Milestones split the deal into stages (for example 50% on shipment, 50% on delivery). Funds release to the supplier only when the agreed proof is submitted and approved, reducing risk for every party."
+      },
+      "investorRisk": {
+        "q": "How is investor capital protected?",
+        "a": "Your funds are held in escrow and tied to a specific purchase order — not a generic credit line. You see the product, supplier, terms, and APR upfront, and releases are gated by milestones rather than discretionary payouts."
+      },
+      "supplierPayment": {
+        "q": "When do suppliers get paid?",
+        "a": "After the deal is funded, payments release at each confirmed milestone. Suppliers know funds are secured before production starts, instead of waiting on long invoice cycles after delivery."
+      },
+      "stellar": {
+        "q": "Why Stellar?",
+        "a": "Stellar enables fast, low-cost USDC settlement and transparent on-chain escrow. Mercato integrates with the Stellar ecosystem — including partners like Trustless Work — for milestone-based trade finance."
+      },
+      "getStarted": {
+        "q": "How do I get started?",
+        "a": "Create a free account, choose your role (SME, investor, or supplier), and follow the guided flows. SMEs can create a deal in minutes; investors can browse open deals immediately after signing up."
+      }
+    }
+  },
+  "footer": {
+    "tagline": "Supply chain finance for Latin America — purchase orders, milestone escrow, and real-economy returns on Stellar.",
+    "builtOn": "Built on Stellar",
+    "exploreTitle": "Explore",
+    "getStartedTitle": "Get started",
+    "browseDeals": "Browse deals",
+    "createAccount": "Create account",
+    "signIn": "Sign in",
+    "copyright": "© 2026 MERCATO. Supply Chain Finance for Latin America."
+  },
+  "showcase": {
+    "status": "In Production",
+    "poTitle": "Steel rebar — construction batch",
+    "poId": "PO #MKT-2847",
+    "funded": "Funded",
+    "progressLabel": "Deal progress",
+    "milestoneReleased": "Milestone 1 released",
+    "viewDeal": "View deal",
+    "stageCreated": "Created",
+    "stageFunded": "Funded",
+    "stageProduction": "In Production",
+    "stageShipped": "Shipped",
+    "stageSettled": "Settled",
+    "metricOrderValue": "Order value",
+    "metricInvestorApr": "Investor APR",
+    "metricTimeline": "Timeline",
+    "metricAnnual": "annual",
+    "metricDayOf": "of {total}",
+    "participantsLine": "3 participants · Milestone 1 released",
+    "participantsPaid": "$24,250 paid to supplier",
+    "event0": "InverCap SA funded $48,500 USDC",
+    "event0Time": "2m ago",
+    "event1": "Milestone 1 released — $24,250 to supplier",
+    "event1Time": "18m ago",
+    "event2": "Acero del Pacífico confirmed production start",
+    "event2Time": "1d ago",
+    "pillSuppliers": "127 verified suppliers",
+    "pillReputation": "4.8 avg reputation",
+    "pillApr": "8–15% investor APR"
+  }
+}

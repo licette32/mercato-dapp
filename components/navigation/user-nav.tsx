@@ -6,96 +6,26 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import {
-  Package,
-  TrendingUp,
-  User,
-  UserPlus,
-  LogOut,
-  Settings,
-  LayoutDashboard,
-  Plus,
-  DollarSign,
-  CheckCircle2,
-  ShieldCheck,
-  Wallet,
-  Copy,
-  ExternalLink,
-  Unplug,
-} from 'lucide-react'
-import { toast } from 'sonner'
+import { User, UserPlus, ChevronDown } from 'lucide-react'
+import { UserAvatar } from '@/components/navigation/user-avatar'
+import { UserMenuContent, displayName } from '@/components/navigation/user-menu-content'
+import type { NavProfile, NavUser, WalletNavProps } from '@/components/navigation/user-nav-types'
 import { useI18n } from '@/lib/i18n/provider'
-
-const EXPLORER_NETWORK =
-  process.env.NEXT_PUBLIC_TRUSTLESS_NETWORK === 'mainnet' ? 'public' : 'testnet'
-
-export interface NavProfile {
-  full_name?: string
-  contact_name?: string
-  company_name?: string
-  user_type?: string
-}
-
-export interface NavUser {
-  id: string
-  email?: string
-}
-
-export interface WalletNavProps {
-  isConnected: boolean
-  address: string | undefined
-  truncatedAddress: string | null
-  onConnect: () => void
-  onConnectPollar: () => void
-  onDisconnect: () => void
-  provider?: 'stellar-wallets-kit' | 'pollar' | null
-  status?: 'pending' | 'active' | null
-  isEmbedded?: boolean
-}
+export type { NavProfile, NavUser, WalletNavProps } from '@/components/navigation/user-nav-types'
+export { localizedUserType } from '@/components/navigation/user-avatar'
 
 interface UserNavProps {
   user: NavUser | null
   profile: NavProfile | null
   onLogout: () => void | Promise<void>
-  /** Wallet state and handlers; when provided, wallet is shown inside the user menu */
   wallet?: WalletNavProps
-  /** Desktop: dropdown. Mobile: vertical links. */
   variant: 'desktop' | 'mobile'
-}
-
-const displayName = (profile: NavProfile | null, email?: string) =>
-  profile?.full_name || profile?.contact_name || profile?.company_name || email
-
-export function localizedUserType(userType: string, t: (key: string) => string) {
-  const label = t(`dashboard.roles.${userType}`)
-  return label === `dashboard.roles.${userType}` ? userType : label
 }
 
 export function UserNav({ user, profile, onLogout, wallet, variant }: UserNavProps) {
   const { t } = useI18n()
-
-  const copyAddress = () => {
-    if (wallet?.address) {
-      navigator.clipboard.writeText(wallet.address)
-      toast.success(t('wallet.addressCopied'))
-    }
-  }
-
-  const walletLabel =
-    wallet?.provider === 'pollar' || wallet?.isEmbedded
-      ? t('wallet.labelPollarEmbedded')
-      : t('wallet.labelStellar')
-
-  const walletStatusLabel =
-    wallet?.status === 'pending'
-      ? t('wallet.statusPending')
-      : wallet?.status === 'active'
-        ? t('wallet.statusActive')
-        : wallet?.status ?? ''
 
   if (!user) {
     if (variant === 'desktop') {
@@ -116,7 +46,7 @@ export function UserNav({ user, profile, onLogout, wallet, variant }: UserNavPro
             </DropdownMenuItem>
             <DropdownMenuItem asChild>
               <Link href="/auth/sign-up" className="cursor-pointer">
-              <UserPlus className="mr-2 h-4 w-4" aria-hidden />
+                <UserPlus className="mr-2 h-4 w-4" aria-hidden />
                 {t('nav.signUp')}
               </Link>
             </DropdownMenuItem>
@@ -137,295 +67,44 @@ export function UserNav({ user, profile, onLogout, wallet, variant }: UserNavPro
   }
 
   const name = displayName(profile, user.email)
-  const userType = profile?.user_type
+  const shortName = name.split(' ')[0] || name
 
   if (variant === 'desktop') {
     return (
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button variant="ghost" size="sm" className="gap-2">
-            <User className="h-4 w-4" aria-hidden />
-            {name}
+          <Button
+            variant="ghost"
+            size="sm"
+            className="h-10 gap-2 rounded-full pl-1 pr-2 hover:bg-muted/60"
+          >
+            <UserAvatar name={name || '?'} userType={profile?.user_type} size="sm" />
+            <span className="max-w-[7rem] truncate text-sm font-medium hidden sm:inline">
+              {shortName}
+            </span>
+            <ChevronDown className="h-3.5 w-3.5 text-muted-foreground opacity-70" aria-hidden />
           </Button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent align="end" className="w-56">
-          <DropdownMenuLabel>
-            <div className="flex flex-col space-y-1">
-              <p className="text-sm font-medium leading-none">
-                {profile?.full_name || profile?.contact_name || profile?.company_name}
-              </p>
-              <p className="text-xs leading-none text-muted-foreground">
-                {user.email}
-              </p>
-              {userType && (
-                <p className="text-xs leading-none text-muted-foreground">
-                  {localizedUserType(userType, t)}
-                </p>
-              )}
-            </div>
-          </DropdownMenuLabel>
-          {wallet && (
-            <>
-              <DropdownMenuSeparator />
-              {wallet.isConnected && wallet.address ? (
-                <>
-                  <DropdownMenuLabel>
-                    <p className="text-xs font-medium leading-none text-muted-foreground">
-                      {walletLabel}
-                    </p>
-                    <p className="mt-0.5 text-xs font-mono break-all">
-                      {wallet.address}
-                    </p>
-                    {wallet.status && (
-                      <p className="mt-1 text-[11px] uppercase tracking-wide text-muted-foreground">
-                        {t('wallet.statusLabel', { status: walletStatusLabel })}
-                      </p>
-                    )}
-                  </DropdownMenuLabel>
-                  <DropdownMenuItem onClick={copyAddress} className="cursor-pointer">
-                    <Copy className="mr-2 h-4 w-4" aria-hidden />
-                    {t('wallet.copyAddress')}
-                  </DropdownMenuItem>
-                  <DropdownMenuItem asChild>
-                    <a
-                      href={`https://stellar.expert/explorer/${EXPLORER_NETWORK}/account/${wallet.address}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="cursor-pointer"
-                    >
-                      <ExternalLink className="mr-2 h-4 w-4" aria-hidden />
-                      {t('wallet.viewExplorer')}
-                    </a>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem
-                    onClick={wallet.onDisconnect}
-                    className="cursor-pointer text-destructive focus:text-destructive"
-                  >
-                    <Unplug className="mr-2 h-4 w-4" aria-hidden />
-                    {t('wallet.disconnectWallet')}
-                  </DropdownMenuItem>
-                </>
-              ) : (
-                <>
-                  <DropdownMenuItem onClick={wallet.onConnect} className="cursor-pointer">
-                    <Wallet className="mr-2 h-4 w-4" aria-hidden />
-                    {t('wallet.connectStellarMenu')}
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={wallet.onConnectPollar} className="cursor-pointer">
-                    <Wallet className="mr-2 h-4 w-4" aria-hidden />
-                    {t('wallet.continuePollarEmbedded')}
-                  </DropdownMenuItem>
-                </>
-              )}
-            </>
-          )}
-          <DropdownMenuSeparator />
-          <DropdownMenuItem asChild>
-            <Link href="/dashboard" className="cursor-pointer">
-              <LayoutDashboard className="mr-2 h-4 w-4" aria-hidden />
-              {t('nav.dashboard')}
-            </Link>
-          </DropdownMenuItem>
-          {userType === 'admin' && (
-            <DropdownMenuItem asChild>
-              <Link href="/dashboard/admin" className="cursor-pointer">
-                <ShieldCheck className="mr-2 h-4 w-4" aria-hidden />
-                {t('nav.milestoneApprovals')}
-              </Link>
-            </DropdownMenuItem>
-          )}
-          {userType === 'pyme' && (
-            <>
-              <DropdownMenuItem asChild>
-                <Link href="/create-deal" className="cursor-pointer">
-                  <Plus className="mr-2 h-4 w-4" aria-hidden />
-                  {t('nav.createDeal')}
-                </Link>
-              </DropdownMenuItem>
-              <DropdownMenuItem asChild>
-                <Link href="/deals?filter=funded" className="cursor-pointer">
-                  <TrendingUp className="mr-2 h-4 w-4" aria-hidden />
-                  {t('nav.browseInvestors')}
-                </Link>
-              </DropdownMenuItem>
-            </>
-          )}
-          {userType === 'investor' && (
-            <>
-              <DropdownMenuItem asChild>
-                <Link href="/deals" className="cursor-pointer">
-                  <Package className="mr-2 h-4 w-4" aria-hidden />
-                  {t('nav.browseDeals')}
-                </Link>
-              </DropdownMenuItem>
-              <DropdownMenuItem asChild>
-                <Link href="/dashboard/investments" className="cursor-pointer">
-                  <DollarSign className="mr-2 h-4 w-4" aria-hidden />
-                  {t('nav.myInvestments')}
-                </Link>
-              </DropdownMenuItem>
-            </>
-          )}
-          {userType === 'supplier' && (
-            <>
-              <DropdownMenuItem asChild>
-                <Link href="/dashboard/supplier-profile" className="cursor-pointer">
-                  <Package className="mr-2 h-4 w-4" aria-hidden />
-                  {t('nav.productsCategories')}
-                </Link>
-              </DropdownMenuItem>
-              <DropdownMenuItem asChild>
-                <Link href="/dashboard/deals" className="cursor-pointer">
-                  <TrendingUp className="mr-2 h-4 w-4" aria-hidden />
-                  {t('nav.activeDeals')}
-                </Link>
-              </DropdownMenuItem>
-              <DropdownMenuItem asChild>
-                <Link href="/dashboard/deliveries" className="cursor-pointer">
-                  <CheckCircle2 className="mr-2 h-4 w-4" aria-hidden />
-                  {t('nav.deliveryProof')}
-                </Link>
-              </DropdownMenuItem>
-            </>
-          )}
-          <DropdownMenuSeparator />
-          <DropdownMenuItem asChild>
-            <Link href="/settings" className="cursor-pointer">
-              <Settings className="mr-2 h-4 w-4" aria-hidden />
-              {t('nav.settings')}
-            </Link>
-          </DropdownMenuItem>
-          <DropdownMenuSeparator />
-          <DropdownMenuItem
-            className="cursor-pointer"
-            onSelect={() => {
-              void onLogout()
-            }}
-          >
-            <LogOut className="mr-2 h-4 w-4" aria-hidden />
-            {t('nav.logout')}
-          </DropdownMenuItem>
+        <DropdownMenuContent align="end" className="w-80 p-0" sideOffset={8}>
+          <UserMenuContent
+            user={user}
+            profile={profile}
+            wallet={wallet}
+            onLogout={onLogout}
+            variant="dropdown"
+          />
         </DropdownMenuContent>
       </DropdownMenu>
     )
   }
 
-  // Mobile: vertical list
-  const linkClass = 'flex items-center gap-2 text-sm font-medium'
   return (
-    <>
-      <div className="my-2 border-t border-border" />
-      <div className="px-2 py-1.5">
-        <p className="text-sm font-medium">{displayName(profile, user.email)}</p>
-        <p className="text-xs text-muted-foreground">{user.email}</p>
-      </div>
-          {wallet && (
-            <>
-              <div className="my-2 border-t border-border" />
-              {wallet.isConnected && wallet.address ? (
-                <div className="flex flex-col gap-2 px-2">
-                  <p className="text-xs font-medium text-muted-foreground">{walletLabel}</p>
-                  <p className="text-xs font-mono break-all">{wallet.address}</p>
-                  {wallet.status && (
-                    <p className="text-[11px] uppercase tracking-wide text-muted-foreground">
-                      {t('wallet.statusLabel', { status: walletStatusLabel })}
-                    </p>
-                  )}
-                  <div className="flex gap-2">
-                    <Button variant="outline" size="sm" onClick={copyAddress}>
-                      <Copy className="mr-2 h-3 w-3" aria-hidden />
-                  {t('wallet.copy')}
-                </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="text-destructive hover:text-destructive"
-                  onClick={wallet.onDisconnect}
-                >
-                  <Unplug className="mr-2 h-3 w-3" aria-hidden />
-                  {t('wallet.disconnect')}
-                </Button>
-                  </div>
-                </div>
-              ) : (
-                <div className="flex flex-col gap-2 px-2">
-                  <Button variant="outline" size="sm" className="gap-2 justify-start w-full" onClick={wallet.onConnect}>
-                    <Wallet className="h-4 w-4" aria-hidden />
-                    {t('wallet.connectStellarMenu')}
-                  </Button>
-                  <Button variant="secondary" size="sm" className="gap-2 justify-start w-full" onClick={wallet.onConnectPollar}>
-                    <Wallet className="h-4 w-4" aria-hidden />
-                    {t('wallet.continuePollarEmbedded')}
-                  </Button>
-                </div>
-              )}
-            </>
-          )}
-      <Link href="/dashboard" className={linkClass}>
-        <LayoutDashboard className="h-4 w-4" aria-hidden />
-        {t('nav.dashboard')}
-      </Link>
-      {userType === 'admin' && (
-        <Link href="/dashboard/admin" className={linkClass}>
-          <ShieldCheck className="h-4 w-4" aria-hidden />
-          {t('nav.milestoneApprovals')}
-        </Link>
-      )}
-      {userType === 'pyme' && (
-        <>
-          <Link href="/create-deal" className={linkClass}>
-            <Plus className="h-4 w-4" aria-hidden />
-            {t('nav.createDeal')}
-          </Link>
-          <Link href="/deals?filter=funded" className={linkClass}>
-            <TrendingUp className="h-4 w-4" aria-hidden />
-            {t('nav.browseInvestors')}
-          </Link>
-        </>
-      )}
-      {userType === 'investor' && (
-        <>
-          <Link href="/deals" className={linkClass}>
-            <Package className="h-4 w-4" aria-hidden />
-            {t('nav.browseDeals')}
-          </Link>
-          <Link href="/dashboard/investments" className={linkClass}>
-            <DollarSign className="h-4 w-4" aria-hidden />
-            {t('nav.myInvestments')}
-          </Link>
-        </>
-      )}
-      {userType === 'supplier' && (
-        <>
-          <Link href="/dashboard/supplier-profile" className={linkClass}>
-            <Package className="h-4 w-4" aria-hidden />
-            {t('nav.productsCategories')}
-          </Link>
-          <Link href="/dashboard/deals" className={linkClass}>
-            <TrendingUp className="h-4 w-4" aria-hidden />
-            {t('nav.activeDeals')}
-          </Link>
-          <Link href="/dashboard/deliveries" className={linkClass}>
-            <CheckCircle2 className="h-4 w-4" aria-hidden />
-            {t('nav.deliveryProof')}
-          </Link>
-        </>
-      )}
-      <Link href="/settings" className={linkClass}>
-        <Settings className="h-4 w-4" aria-hidden />
-        {t('nav.settings')}
-      </Link>
-      <Button
-        type="button"
-        variant="ghost"
-        className="justify-start"
-        onClick={() => {
-          void onLogout()
-        }}
-      >
-        <LogOut className="mr-2 h-4 w-4" aria-hidden />
-        {t('nav.logout')}
-      </Button>
-    </>
+    <UserMenuContent
+      user={user}
+      profile={profile}
+      wallet={wallet}
+      onLogout={onLogout}
+      variant="mobile"
+    />
   )
 }
