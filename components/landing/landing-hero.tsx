@@ -37,8 +37,8 @@ export function LandingHero() {
         <div className="hero-grain absolute inset-0 opacity-[0.08] dark:opacity-[0.14]" />
       </div>
 
-      <div className="container relative z-10 mx-auto px-4 pb-6 pt-24 md:pb-8 md:pt-28">
-        <div className="mx-auto grid max-w-[90rem] items-center gap-10 lg:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)] lg:gap-8 xl:grid-cols-[minmax(0,0.82fr)_minmax(0,1fr)_auto] xl:gap-6">
+      <div className="container relative z-10 mx-auto px-4 pb-0 pt-24 md:pt-28">
+        <div className="mx-auto grid max-w-[90rem] items-start gap-10 lg:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)] lg:gap-8 xl:grid-cols-[minmax(0,0.82fr)_minmax(0,1fr)] xl:gap-6">
           <div className="relative z-10 lg:max-w-lg xl:max-w-none">
             <div className="hero-stagger-1 mb-5 flex items-center gap-2">
               <BadgeCheck className="h-4 w-4 text-brand-mid dark:text-brand-light" aria-hidden />
@@ -97,22 +97,30 @@ export function LandingHero() {
             </ul>
           </div>
 
-          <div className="hero-stagger-4 relative z-10 flex justify-center lg:justify-end xl:col-span-1">
+          <div className="hero-stagger-4 relative z-10 flex justify-center lg:justify-end">
             <HeroLiveDeal />
           </div>
-
-          <div className="hero-stagger-4 relative z-20 hidden shrink-0 xl:block">
-            <HeroComparisonCard className="sticky top-28" />
-          </div>
-        </div>
-
-        <div className="hero-stagger-4 relative z-10 mx-auto mt-8 flex justify-center xl:hidden">
-          <HeroComparisonCard />
         </div>
       </div>
 
-      <div className="relative z-10">
-        <HeroStatsBar />
+      <div className="hero-stats-band relative z-20 -mt-4 md:-mt-8">
+        <div className="hero-stats-bar border-y border-border/60 bg-white/70 backdrop-blur-md dark:border-white/[0.08] dark:bg-[hsl(0_0%_4%/0.92)]">
+          <div className="container relative mx-auto px-4 py-3 md:py-3">
+            <div className="relative mx-auto max-w-[90rem] md:pr-[11.5rem] lg:pr-[12.5rem]">
+              <HeroStatsBar />
+
+              <div className="hero-stagger-4 pointer-events-none absolute -right-7 -top-[6rem] z-30 hidden md:block lg:-right-9 lg:-top-[7.25rem]">
+                <div className="pointer-events-auto">
+                  <HeroComparisonCard className="shadow-[0_16px_48px_-12px_hsl(var(--brand-dark)/0.2)] dark:shadow-[0_20px_56px_-16px_hsl(0_0%_0%/0.65)]" />
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="hero-stagger-4 container relative z-30 mx-auto -mt-3 flex justify-center px-4 pb-2 md:hidden">
+          <HeroComparisonCard />
+        </div>
       </div>
 
       <div
