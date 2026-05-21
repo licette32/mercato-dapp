@@ -18,7 +18,7 @@
         "status": "En producción"
       },
       "sme": {
-        "label": "PyME verificada y referida",
+        "label": "PyME verificada",
         "name": "Textiles Rivera",
         "rating": "4.8",
         "location": "Monterrey, México"
@@ -50,7 +50,8 @@
       "smes": { "label": "PYMEs activas", "value": "127", "delta": "+18% este mes" },
       "suppliers": { "label": "Proveedores verificados", "value": "243", "delta": "En 5 países" },
       "capital": { "label": "Capital movilizado", "value": "$3.2M", "delta": "+31% este mes" },
-      "fulfillment": { "label": "Tasa de cumplimiento", "value": "96.7%", "delta": "Promedio histórico" }
+      "blockchain": { "label": "Registro blockchain 24/7", "value": "En cadena", "delta": "En Stellar" },
+      "mercato": { "label": "Mercato", "value": "18–24% APR", "delta": "APR" }
     }
   },
   "roles": {
