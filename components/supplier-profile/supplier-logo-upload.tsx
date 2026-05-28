@@ -44,7 +44,13 @@ export function SupplierLogoUpload({ value, onChange, companyId }: SupplierLogoU
       return
     }
 
-    if (!userId) {
+    let resolvedUserId = userId
+    if (!resolvedUserId) {
+      const { data: { user } } = await supabase.auth.getUser()
+      resolvedUserId = user?.id ?? null
+      if (resolvedUserId) setUserId(resolvedUserId)
+    }
+    if (!resolvedUserId) {
       toast.error(t('supplierProfile.logoUploadError'))
       return
     }
@@ -52,7 +58,7 @@ export function SupplierLogoUpload({ value, onChange, companyId }: SupplierLogoU
     setIsUploading(true)
     try {
       const fileExt = file.name.split('.').pop() || 'png'
-      const filePath = `${userId}/${companyId}/logo.${fileExt}`
+      const filePath = `${resolvedUserId}/${companyId}/logo.${fileExt}`
 
       const { error: uploadError } = await supabase.storage
         .from('company-logos')
