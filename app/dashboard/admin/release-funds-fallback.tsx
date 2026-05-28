@@ -14,6 +14,27 @@ import { Wallet, DollarSign, ExternalLink } from 'lucide-react'
 import type { ReleaseFallbackItem } from '@/lib/admin/types'
 import { useI18n } from '@/lib/i18n/provider'
 
+function SupplierLogoFallback({
+  logoUrl,
+  alt,
+  label
+}: {
+  logoUrl: string | null
+  alt: string
+  label: string
+}) {
+  const [imageError, setImageError] = useState(false)
+  if (!logoUrl || imageError) return null
+  return (
+    <div className="mt-2 flex items-center gap-2 text-xs text-muted-foreground">
+      <div className="flex h-5 w-5 shrink-0 items-center justify-center overflow-hidden rounded-md border border-border/50 bg-background shadow-sm">
+        <img src={logoUrl} alt={alt} className="h-full w-full object-cover" onError={() => setImageError(true)} />
+      </div>
+      <span>{label}</span>
+    </div>
+  )
+}
+
 interface ReleaseFundsFallbackProps {
   items: ReleaseFallbackItem[]
   /** When provided (from AdminEscrowsProvider), skip internal fetch to avoid duplicate API calls */
@@ -215,14 +236,11 @@ export function ReleaseFundsFallback({ items, escrowsByContractId: escrowsFromPa
             <p className="mt-1 text-sm text-muted-foreground">
               {item.milestoneTitle} — ${item.milestoneAmount.toLocaleString(numLocale, { minimumFractionDigits: 0, maximumFractionDigits: 0 })} ({item.milestonePercentage}%)
             </p>
-            {item.supplierLogoUrl && (
-              <div className="mt-2 flex items-center gap-2 text-xs text-muted-foreground">
-                <div className="flex h-5 w-5 shrink-0 items-center justify-center overflow-hidden rounded-md border border-border/50 bg-background shadow-sm">
-                  <img src={item.supplierLogoUrl} alt={t('adminPending.supplierLogoAlt')} className="h-full w-full object-cover" />
-                </div>
-                <span>{t('adminPending.supplierLogoLabel')}</span>
-              </div>
-            )}
+            <SupplierLogoFallback
+              logoUrl={item.supplierLogoUrl}
+              alt={t('adminPending.supplierLogoAlt')}
+              label={t('adminPending.supplierLogoLabel')}
+            />
           </div>
           <div className="flex shrink-0 flex-wrap items-center gap-2">
             {!isConnected ? (

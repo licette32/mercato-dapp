@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { createClient } from '@/lib/supabase/server'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
@@ -23,6 +24,31 @@ import {
 } from 'lucide-react'
 import { getCountryLabel, getSectorLabel } from '@/lib/constants'
 import { getServerDictionary, getServerLocale, tr, formatMoneyServer } from '@/lib/i18n/server'
+
+function SupplierLogo({
+  logoUrl,
+  companyName
+}: {
+  logoUrl: string | null
+  companyName: string
+}) {
+  'use client'
+  const [imageError, setImageError] = useState(false)
+  return (
+    <div className="flex h-16 w-16 items-center justify-center overflow-hidden rounded-2xl border border-border/50 bg-primary/5">
+      {logoUrl && !imageError ? (
+        <img
+          src={logoUrl}
+          alt={companyName}
+          className="h-full w-full object-cover"
+          onError={() => setImageError(true)}
+        />
+      ) : (
+        <Building2 className="h-8 w-8 text-primary" aria-hidden />
+      )}
+    </div>
+  )
+}
 
 type ProductRow = {
   id: string
@@ -121,17 +147,10 @@ export default async function SupplierDetailPage({
         <div className="mb-8">
           <div className="flex flex-wrap items-start justify-between gap-4">
             <div className="flex items-center gap-4">
-              <div className="flex h-16 w-16 items-center justify-center overflow-hidden rounded-2xl border border-border/50 bg-primary/5">
-                {company.logo_url ? (
-                  <img
-                    src={company.logo_url}
-                    alt={displayName}
-                    className="h-full w-full object-cover"
-                  />
-                ) : (
-                  <Building2 className="h-8 w-8 text-primary" aria-hidden />
-                )}
-              </div>
+              <SupplierLogo
+                logoUrl={company.logo_url}
+                companyName={displayName}
+              />
               <div>
                 <div className="mb-1 flex flex-wrap items-center gap-2">
                   {profile.verified && (

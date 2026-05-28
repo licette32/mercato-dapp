@@ -43,6 +43,32 @@ type Supplier = {
   logo_url: string | null
 }
 
+function SupplierLogo({
+  logoUrl,
+  companyName,
+  fallbackIcon: Icon = Building2
+}: {
+  logoUrl: string | null
+  companyName: string
+  fallbackIcon?: any
+}) {
+  const [imageError, setImageError] = useState(false)
+  return (
+    <div className="flex h-12 w-12 items-center justify-center overflow-hidden rounded-xl border border-border/50 bg-primary/5 group-hover:bg-primary/10">
+      {logoUrl && !imageError ? (
+        <img
+          src={logoUrl}
+          alt={companyName}
+          className="h-full w-full object-cover"
+          onError={() => setImageError(true)}
+        />
+      ) : (
+        <Icon className="h-6 w-6 text-primary" aria-hidden />
+      )}
+    </div>
+  )
+}
+
 const SUPPLIER_CATEGORY_VALUES = [
   'all',
   'electronics',
@@ -393,17 +419,10 @@ export default function SuppliersPage() {
                 {/* Card header */}
                 <div className="flex-1 p-5">
                   <div className="mb-3 flex items-start justify-between gap-2">
-                    <div className="flex h-12 w-12 items-center justify-center overflow-hidden rounded-xl border border-border/50 bg-primary/5 group-hover:bg-primary/10">
-                      {supplier.logo_url ? (
-                        <img
-                          src={supplier.logo_url}
-                          alt={supplier.company_name}
-                          className="h-full w-full object-cover"
-                        />
-                      ) : (
-                        <Building2 className="h-6 w-6 text-primary" aria-hidden />
-                      )}
-                    </div>
+                    <SupplierLogo
+                      logoUrl={supplier.logo_url}
+                      companyName={supplier.company_name}
+                    />
                     <div className="flex flex-wrap items-center justify-end gap-1.5">
                       {supplier.verified && (
                         <span className="inline-flex items-center gap-1 rounded-full bg-success/10 px-2 py-0.5 text-[11px] font-semibold text-success ring-1 ring-success/20">

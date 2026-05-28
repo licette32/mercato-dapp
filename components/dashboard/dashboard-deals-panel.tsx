@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import Link from 'next/link'
 import { AlertCircle, ArrowRight, Building2, Clock, ExternalLink, Plus, User } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
@@ -187,11 +188,17 @@ function PartyWithLogo({
   fallbackIcon?: any
 }) {
   const name = partyName(p)
+  const [imageError, setImageError] = useState(false)
   return (
     <div className="flex items-center gap-2">
       <div className="flex h-6 w-6 shrink-0 items-center justify-center overflow-hidden rounded-md border border-border/50 bg-muted/30">
-        {p?.logo_url ? (
-          <img src={p.logo_url} alt={name} className="h-full w-full object-cover" />
+        {p?.logo_url && !imageError ? (
+          <img
+            src={p.logo_url}
+            alt={name}
+            className="h-full w-full object-cover"
+            onError={() => setImageError(true)}
+          />
         ) : (
           <Icon className="h-3.5 w-3.5 text-muted-foreground/60" />
         )}
