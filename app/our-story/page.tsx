@@ -1,6 +1,5 @@
-import Script from 'next/script'
-
 import { LandingCta } from '@/components/landing/landing-cta'
+import { JsonLd } from '@/components/seo/json-ld'
 
 export async function generateMetadata() {
   return {
@@ -10,12 +9,12 @@ export async function generateMetadata() {
     openGraph: {
       title: 'Our Story | Mercato',
       description: 'Closing the supply chain financing gap for SMEs in Latin America.',
-      url: 'https://mercato-dapp.vercel.app/our-story',
+      url: 'https://mercato.app/our-story',
       type: 'article',
     },
     alternates: {
-      canonical: 'https://mercato-dapp.vercel.app/our-story',
-      languages: { es: '/es/our-story', en: '/en/our-story' },
+      canonical: '/our-story',
+      languages: { es: '/our-story?lang=es', en: '/our-story?lang=en' },
     },
   }
 }
@@ -77,19 +76,31 @@ const faqSchema = {
   ],
 }
 
+const breadcrumbSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'BreadcrumbList',
+  'itemListElement': [
+    {
+      '@type': 'ListItem',
+      'position': 1,
+      'name': 'Home',
+      'item': 'https://mercato.app',
+    },
+    {
+      '@type': 'ListItem',
+      'position': 2,
+      'name': 'Our Story',
+      'item': 'https://mercato.app/our-story',
+    },
+  ],
+}
+
 export default function OurStoryPage() {
   return (
     <>
-      <Script
-        id="article-schema"
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(articleSchema) }}
-      />
-      <Script
-        id="faq-schema"
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
-      />
+      <JsonLd data={articleSchema} />
+      <JsonLd data={faqSchema} />
+      <JsonLd data={breadcrumbSchema} />
 
       <main className="mx-auto max-w-3xl px-4 py-16 sm:px-6 lg:px-8">
 
@@ -124,8 +135,8 @@ export default function OurStoryPage() {
         {/* Section 3 */}
         <section className="mb-12">
           <h2 className="text-2xl font-semibold mb-4">Who does Mercato serve?</h2>
-          <p className="text-base leading-7 mb-4">
-            Mercato is built for three groups who each have a stake in making supply chains work:
+          <p className="text-base leading-7 mb-6">
+            Mercato serves three main groups in the Latin American supply chain ecosystem: small businesses (PyMEs) seeking working capital, suppliers wanting early payments, and investors looking for transparent, yield-bearing opportunities. By connecting these groups through a secure smart escrow, we address the financing needs of all participants in a unified platform.
           </p>
           <ul className="space-y-3 text-base leading-7 list-none pl-0">
             <li><strong>PyMEs (buyers)</strong> — Small and medium businesses that need short-term capital to pay suppliers while waiting for their own sales to close.</li>
@@ -137,6 +148,9 @@ export default function OurStoryPage() {
         {/* Section 4 */}
         <section className="mb-12">
           <h2 className="text-2xl font-semibold mb-4">How does Mercato work?</h2>
+          <p className="text-base leading-7 mb-6">
+            Mercato operates through a transparent on-chain deal cycle that coordinates buyers, suppliers, and investors via non-custodial smart escrows on Stellar. A PyME creates a milestone-based deal, investors lock USDC in escrow, the supplier delivers goods in stages to trigger milestone releases, and the PyME finally repays the investors with interest.
+          </p>
           <ol className="space-y-3 text-base leading-7 list-decimal pl-5">
             <li><strong>Deal setup</strong> — The PyME describes the purchase, sets the term, and splits supplier payment into milestones (e.g. 50% on shipment, 50% on delivery).</li>
             <li><strong>Escrow deployment</strong> — A non-custodial escrow contract is deployed on Stellar via Trustless Work. The PyME signs with their wallet.</li>

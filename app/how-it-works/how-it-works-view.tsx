@@ -384,16 +384,19 @@ export function HowItWorksView() {
         </div>
       </section>
 
-      <section className="border-t border-border bg-muted/20 py-10" aria-labelledby="hiw-powered-heading">
-        <div className="container mx-auto max-w-4xl px-4">
-          <p
+      <section className="border-t border-border bg-muted/20 py-16" aria-labelledby="hiw-powered-heading">
+        <div className="container mx-auto max-w-4xl px-4 text-center">
+          <h2
             id="hiw-powered-heading"
             className={cn(
-              'mb-6 text-center text-xs font-semibold uppercase tracking-widest text-muted-foreground',
+              'mb-3 text-2xl font-bold tracking-tight sm:text-3xl',
               hiwEnter,
             )}
           >
             {hiw.poweredBy}
+          </h2>
+          <p className={cn('mx-auto mb-8 max-w-2xl text-muted-foreground', hiwEnter, 'motion-safe:delay-100')}>
+            {hiw.poweredBySub}
           </p>
           <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
             {hiw.techStack.map((item, i) => (

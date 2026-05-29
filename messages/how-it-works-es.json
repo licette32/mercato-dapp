@@ -7,8 +7,8 @@
     "pillUsdc": "USDC en Stellar",
     "pillLatam": "Cadenas de suministro LATAM"
   },
-  "rolesHeading": "Tres roles, una plataforma",
-  "rolesSub": "Todos se benefician del mismo ciclo transparente de cada orden.",
+  "rolesHeading": "¿Quiénes participan en el ecosistema de Mercato?",
+  "rolesSub": "Mercato conecta a pequeñas empresas, inversionistas y proveedores en un ecosistema de financiamiento de cadena de suministro unificado y transparente. Las PyMEs obtienen capital de trabajo, los inversionistas obtienen rendimiento financiando facturas reales, y los proveedores cobran on-chain mediante hitos, creando un ciclo de beneficio mutuo.",
   "roles": {
     "smb": {
       "label": "PyME (comprador)",
@@ -42,8 +42,8 @@
     }
   },
   "flowBadge": "Flujo de la orden",
-  "flowTitle": "De la creación de la orden al reembolso",
-  "flowSub": "4 fases protegidas por contratos inteligentes en Stellar con Trustless Work.",
+  "flowTitle": "¿Cómo funciona el flujo de cada orden paso a paso?",
+  "flowSub": "El ciclo de cada orden consta de cuatro fases clave protegidas por contratos inteligentes: el comprador crea un depósito en garantía, el inversionista lo financia con USDC, el proveedor envía los bienes para liberar los fondos por hitos, y finalmente el comprador devuelve el capital con intereses.",
   "phases": [
     {
       "title": "PyME crea la orden y despliega el escrow",
@@ -94,8 +94,8 @@
       "tech": ["Verificado on-chain", "Puntuación de reputación"]
     }
   ],
-  "whyTitle": "¿Por qué MERCATO?",
-  "whySub": "Diseñado para un financiamiento de cadena de suministro justo y transparente.",
+  "whyTitle": "¿Por qué elegir a Mercato para el financiamiento de su cadena de suministro?",
+  "whySub": "Mercato está diseñado para cerrar la brecha de financiamiento de las PyMEs en América Latina mediante tecnología blockchain no custodial. Eliminamos intermediarios bancarios para ofrecer total visibilidad en las transacciones, seguimiento de reputación y rampas de dinero local a USDC para facilitar el acceso a mercados financieros.",
   "benefits": [
     {
       "title": "No custodial",
@@ -114,23 +114,24 @@
       "body": "Pensado para cadenas LATAM con rampas fiat vía Etherfuse, Alfred Pay y BlindPay para mover entre USDC y moneda local."
     }
   ],
-  "poweredBy": "Impulsado por",
+  "poweredBy": "¿Qué tecnología impulsa la plataforma de Mercato?",
+  "poweredBySub": "Mercato está construido sobre una infraestructura descentralizada moderna y segura. Utilizamos la red Stellar para transferencias rápidas y económicas, Trustless Work para el depósito en garantía por hitos, Freighter y Albedo para firmas de billeteras no custodiales, y Supabase para almacenar la información de forma rápida y eficiente.",
   "techStack": [
     { "label": "Red Stellar", "sub": "Contratos inteligentes y USDC" },
     { "label": "Trustless Work", "sub": "API de escrow multi-liberación" },
     { "label": "Freighter / Albedo", "sub": "Billeteras no custodiales" },
     { "label": "Supabase", "sub": "Autenticación y metadatos" }
   ],
-  "fiatTitle": "Convierte entre USDC y moneda local",
-  "fiatDescription": "Deposita o retira con proveedores de rampa integrados. Entra y sale del ecosistema Stellar sin salir de la plataforma.",
+  "fiatTitle": "¿Cómo gestiona Mercato la conversión entre moneda local y USDC?",
+  "fiatDescription": "Mercato se integra con proveedores de rampa digital que permiten convertir monedas locales directamente a USDC en la red de Stellar. Mediante transferencias bancarias SPEI vía Etherfuse o Alfred Pay, y transacciones globales vía BlindPay, los usuarios pueden depositar capital o retirar ganancias al instante sin depender de casas de cambio externas.",
   "addFunds": "Agregar fondos",
   "rampProviders": [
     { "name": "Etherfuse", "region": "México · SPEI" },
     { "name": "Alfred Pay", "region": "LATAM · SPEI" },
     { "name": "BlindPay", "region": "Global" }
   ],
-  "ctaTitle": "¿Listo para empezar?",
-  "ctaDescription": "Si buscas financiamiento como PyME, rendimiento como inversionista o cobros más rápidos como proveedor — MERCATO es para ti.",
+  "ctaTitle": "¿Cómo puede empezar a utilizar Mercato hoy mismo?",
+  "ctaDescription": "Comenzar en Mercato es un proceso sencillo de tres pasos diseñado para una incorporación inmediata. Simplemente cree su cuenta, seleccione su perfil (PyME, inversionista o proveedor), conecte su billetera digital compatible con Stellar e inicie transacciones, financiamientos o cargas de evidencia en un entorno completamente seguro y digital.",
   "ctaSignUp": "Crear cuenta",
   "ctaBrowse": "Explorar órdenes abiertas"
 }
