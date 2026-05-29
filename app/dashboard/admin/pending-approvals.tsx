@@ -22,6 +22,32 @@ interface PendingApprovalsProps {
   escrowsByContractId?: Map<string, GetEscrowsFromIndexerResponse>
 }
 
+function SupplierLogoPending({
+  logoUrl,
+  companyName,
+  fallbackIcon: Icon = User
+}: {
+  logoUrl: string | null
+  companyName: string
+  fallbackIcon?: any
+}) {
+  const [imageError, setImageError] = useState(false)
+  return (
+    <div className="flex h-5 w-5 shrink-0 items-center justify-center overflow-hidden rounded-md border border-border/50 bg-muted/30">
+      {logoUrl && !imageError ? (
+        <img
+          src={logoUrl}
+          alt={companyName}
+          className="h-full w-full object-cover"
+          onError={() => setImageError(true)}
+        />
+      ) : (
+        <Icon className="h-3 w-3" aria-hidden />
+      )}
+    </div>
+  )
+}
+
 function isMilestoneReleased(
   escrow: GetEscrowsFromIndexerResponse | undefined,
   milestoneIndex: number
@@ -233,7 +259,10 @@ export function PendingApprovals({ items, escrowsByContractId: escrowsFromParent
                   <span className="truncate">{item.pymeName}</span>
                 </div>
                 <div className="flex items-center gap-2 text-muted-foreground" title="Supplier">
-                  <User className="h-4 w-4 shrink-0" aria-hidden />
+                  <SupplierLogoPending
+                    logoUrl={item.supplierLogoUrl}
+                    companyName={item.supplierName}
+                  />
                   <span className="truncate">{item.supplierName}</span>
                 </div>
                 <div className="text-muted-foreground">

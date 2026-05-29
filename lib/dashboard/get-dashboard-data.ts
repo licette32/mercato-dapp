@@ -95,13 +95,13 @@ export async function getDashboardData(
           ? supabase
               .from('deals')
               .select(
-                'id, title, product_name, description, status, amount, term_days, interest_rate, created_at, funded_at, pyme:profiles!deals_pyme_id_fkey(company_name, full_name, contact_name), supplier:supplier_companies(company_name, full_name, contact_name), milestones(id, status)',
+                'id, title, product_name, description, status, amount, term_days, interest_rate, created_at, funded_at, pyme:profiles!deals_pyme_id_fkey(company_name, full_name, contact_name), supplier:supplier_companies(company_name, full_name, contact_name, logo_url), milestones(id, status)',
               )
               .eq('supplier_id', filterByCompany)
           : supabase
               .from('deals')
               .select(
-                'id, title, product_name, description, status, amount, term_days, interest_rate, created_at, funded_at, pyme:profiles!deals_pyme_id_fkey(company_name, full_name, contact_name), supplier:supplier_companies(company_name, full_name, contact_name), milestones(id, status)',
+                'id, title, product_name, description, status, amount, term_days, interest_rate, created_at, funded_at, pyme:profiles!deals_pyme_id_fkey(company_name, full_name, contact_name), supplier:supplier_companies(company_name, full_name, contact_name, logo_url), milestones(id, status)',
               )
               .in('supplier_id', companyIds)
         )
@@ -186,7 +186,7 @@ export async function getDashboardData(
       supabase
         .from('deals')
         .select(
-          'id, title, product_name, description, status, amount, term_days, interest_rate, created_at, funded_at, pyme:profiles!deals_pyme_id_fkey(company_name, full_name, contact_name), supplier:supplier_companies(company_name, full_name, contact_name), investor:profiles!deals_investor_id_fkey(company_name, full_name, contact_name), milestones(id, status)',
+          'id, title, product_name, description, status, amount, term_days, interest_rate, created_at, funded_at, pyme:profiles!deals_pyme_id_fkey(company_name, full_name, contact_name), supplier:supplier_companies(company_name, full_name, contact_name, logo_url), investor:profiles!deals_investor_id_fkey(company_name, full_name, contact_name), milestones(id, status)',
         )
         .order('created_at', { ascending: false })
         .limit(10),
@@ -200,7 +200,7 @@ export async function getDashboardData(
       supabase
         .from('deals')
         .select(
-          'id, title, amount, pyme:profiles!deals_pyme_id_fkey(company_name, full_name, contact_name), supplier:supplier_companies(company_name, full_name, contact_name)',
+          'id, title, amount, pyme:profiles!deals_pyme_id_fkey(company_name, full_name, contact_name), supplier:supplier_companies(company_name, full_name, contact_name, logo_url)',
         )
         .not('escrow_contract_address', 'is', null),
     ])
@@ -240,7 +240,7 @@ export async function getDashboardData(
             id: string
             title?: string
             pyme?: { company_name?: string; full_name?: string; contact_name?: string } | null
-            supplier?: { company_name?: string; full_name?: string; contact_name?: string } | null
+            supplier?: { company_name?: string; full_name?: string; contact_name?: string; logo_url?: string | null } | null
           },
         ]),
       )

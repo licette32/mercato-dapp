@@ -71,19 +71,11 @@ export default function CreateDealContent() {
         const productsResult = await supabase
           .from('supplier_products')
           .select(
-            'id, supplier_id, name, category, price_per_unit, description, supplier:supplier_companies(id, company_name, address, owner_id)'
+            'id, supplier_id, name, category, price_per_unit, description, supplier:supplier_companies(id, company_name, address, owner_id, logo_url)'
           )
           .order('category')
-        const raw = (productsResult.data ?? []) as Array<{
-          id: string
-          supplier_id: string
-          name: string
-          category: string
-          price_per_unit: number
-          description?: string | null
-          supplier?: { id: string; company_name?: string; address?: string; owner_id?: string } | null
-        }>
-        const ownerIds = [...new Set(raw.map((p) => p.supplier?.owner_id).filter(Boolean))] as string[]
+        const raw = (productsResult.data as any) || []
+        const ownerIds = [...new Set(raw.map((p: any) => p.supplier?.owner_id).filter(Boolean))] as string[]
         const { data: ownerProfiles } = await supabase
           .from('profiles')
           .select('id, email')
@@ -92,7 +84,7 @@ export default function CreateDealContent() {
         for (const p of ownerProfiles ?? []) {
           emailByOwner[p.id] = p.email ?? ''
         }
-        products = raw.map((p) => ({
+        products = raw.map((p: any) => ({
           ...p,
           supplier: p.supplier
             ? { ...p.supplier, email: emailByOwner[p.supplier.owner_id ?? ''] }
@@ -128,9 +120,9 @@ export default function CreateDealContent() {
     .map((sid) => {
       const product = supplierProducts.find((p) => p.supplier_id === sid)
       const sup = product?.supplier
-      return sup ? { id: sid, company_name: sup.company_name ?? '', email: sup.email, address: sup.address } : null
+      return sup ? { id: sid, company_name: sup.company_name ?? '', email: sup.email, address: sup.address, logo_url: sup.logo_url } : null
     })
-    .filter(Boolean) as { id: string; company_name: string; email?: string; address?: string }[]
+    .filter(Boolean) as { id: string; company_name: string; email?: string; address?: string; logo_url?: string | null }[]
 
   const productsForSupplier = formData.supplierId
     ? supplierProducts.filter(

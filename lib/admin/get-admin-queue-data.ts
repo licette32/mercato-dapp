@@ -12,7 +12,7 @@ type DealRow = {
   pyme_id?: string
   supplier_id?: string
   pyme?: { company_name?: string; full_name?: string; contact_name?: string } | null
-  supplier?: { company_name?: string; full_name?: string; contact_name?: string } | null
+  supplier?: { company_name?: string; full_name?: string; contact_name?: string; logo_url?: string | null } | null
 }
 
 export async function getAdminQueueData(
@@ -28,7 +28,7 @@ export async function getAdminQueueData(
     .select(
       `id, title, product_name, amount, escrow_contract_address, created_at, pyme_id, supplier_id,
       pyme:profiles!deals_pyme_id_fkey(company_name, full_name, contact_name),
-      supplier:supplier_companies(company_name, full_name, contact_name)`,
+      supplier:supplier_companies(company_name, full_name, contact_name, logo_url)`,
     )
     .not('escrow_contract_address', 'is', null)
 
@@ -105,6 +105,7 @@ export async function getAdminQueueData(
             deal?.supplier?.full_name ||
             deal?.supplier?.contact_name ||
             '—',
+          supplierLogoUrl: deal?.supplier?.logo_url ?? null,
         }
       })
     items.sort(sortByDealDate)
@@ -126,6 +127,7 @@ export async function getAdminQueueData(
           milestoneAmount: Number(row.amount ?? 0),
           milestonePercentage: Number(row.percentage ?? 0),
           completedAt: row.completed_at ?? null,
+          supplierLogoUrl: deal?.supplier?.logo_url ?? null,
         }
       })
     releaseFallbackItems.sort(sortByDealDate)

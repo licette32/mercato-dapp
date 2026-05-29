@@ -43,6 +43,7 @@ export type DashboardViewModel = {
     tableCompany: string
     tableCreated: string
     tableMilestones: string
+    tableFunded: string
     tableView: string
     tableAct: string
     tableApprove: string
@@ -287,7 +288,14 @@ export function getDashboardStatTiles(
 
   if (!roleStats) return []
 
-  const tiles = [
+  const tiles: Array<{
+    label: string
+    value: number
+    icon: LucideIcon
+    iconClassName?: string
+    highlight?: boolean
+    footer?: string
+  }> = [
     {
       label: t.dashboard.totalDeals,
       value: roleStats.total,

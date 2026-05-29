@@ -32,6 +32,7 @@ export function useSupplierProfile() {
     country: '',
     sector: '',
     phone: '',
+    logo_url: '',
   })
 
   const [activeTab, setActiveTab] = useState<'profile' | 'catalog'>('catalog')
@@ -95,7 +96,7 @@ export function useSupplierProfile() {
 
       const { data: companiesData } = await supabase
         .from('supplier_companies')
-        .select('id, company_name, bio, country, sector, phone')
+        .select('id, company_name, bio, country, sector, phone, logo_url')
         .eq('owner_id', u.id)
         .order('company_name')
 
@@ -127,6 +128,7 @@ export function useSupplierProfile() {
       country: company?.country ?? '',
       sector: company?.sector ?? '',
       phone: company?.phone ?? '',
+      logo_url: company?.logo_url ?? '',
     })
   }, [selectedCompanyId, user, companies, supabase])
 
@@ -197,6 +199,7 @@ export function useSupplierProfile() {
           country: companyForm.country || null,
           sector: companyForm.sector || null,
           phone: companyForm.phone.trim() || null,
+          logo_url: companyForm.logo_url || null,
           updated_at: new Date().toISOString(),
         })
         .eq('id', selectedCompanyId)
@@ -211,6 +214,7 @@ export function useSupplierProfile() {
                 country: companyForm.country || null,
                 sector: companyForm.sector || null,
                 phone: companyForm.phone.trim() || null,
+                logo_url: companyForm.logo_url || null,
               }
             : c,
         ),
@@ -241,7 +245,7 @@ export function useSupplierProfile() {
         phone: payload.phone.trim() || null,
         updated_at: new Date().toISOString(),
       })
-      .select('id, company_name, bio, country, sector, phone')
+      .select('id, company_name, bio, country, sector, phone, logo_url')
       .single()
     if (error) throw error
     const company = data as SupplierCompany
@@ -250,6 +254,25 @@ export function useSupplierProfile() {
     setProductCounts((prev) => ({ ...prev, [company.id]: 0 }))
     return true
   }
+
+  const getPathFromUrl = useCallback((url: string) => {
+    const marker = '/storage/v1/object/public/products/'
+    const index = url.indexOf(marker)
+    if (index !== -1) {
+      return decodeURIComponent(url.substring(index + marker.length))
+    }
+    return null
+  }, [])
+
+  const deleteStorageFile = useCallback(async (url: string) => {
+    const path = getPathFromUrl(url)
+    if (path) {
+      const { error } = await supabase.storage.from('products').remove([path])
+      if (error) {
+        console.error('Error deleting file from storage:', error)
+      }
+    }
+  }, [supabase, getPathFromUrl])
 
   const openAddDialog = () => {
     setFormProduct(EMPTY_PRODUCT_FORM)
@@ -265,6 +288,8 @@ export function useSupplierProfile() {
       description: p.description ?? '',
       minimum_order: p.minimum_order != null ? String(p.minimum_order) : '',
       delivery_time: p.delivery_time ?? '',
+      imageFile: null,
+      imagePreview: p.image_url ?? null,
     })
     setEditingProduct(p)
   }
@@ -302,7 +327,32 @@ export function useSupplierProfile() {
         .select()
         .single()
       if (error) throw error
-      setProducts((prev) => [...prev, data as SupplierProduct])
+
+      let finalProduct = { ...data } as SupplierProduct
+
+      if (formProduct.imageFile) {
+        const filePath = `${user.id}/${selectedCompanyId}/${data.id}/${formProduct.imageFile.name}`
+        const { error: uploadError } = await supabase.storage
+          .from('products')
+          .upload(filePath, formProduct.imageFile)
+        if (uploadError) throw uploadError
+
+        const { data: urlData } = supabase.storage
+          .from('products')
+          .getPublicUrl(filePath)
+
+        const publicUrl = urlData.publicUrl
+
+        const { error: updateError } = await supabase
+          .from('supplier_products')
+          .update({ image_url: publicUrl })
+          .eq('id', data.id)
+        if (updateError) throw updateError
+
+        finalProduct.image_url = publicUrl
+      }
+
+      setProducts((prev) => [...prev, finalProduct])
       setProductCounts((prev) => ({ ...prev, [selectedCompanyId]: (prev[selectedCompanyId] ?? 0) + 1 }))
       setAddDialogOpen(false)
       setFormProduct(EMPTY_PRODUCT_FORM)
@@ -317,7 +367,7 @@ export function useSupplierProfile() {
 
   const handleUpdateProduct = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!editingProduct) return
+    if (!editingProduct || !user || !selectedCompanyId) return
     const { name, category, price, minOrder, deliveryTime } = parseProductForm()
     if (!name || !category || Number.isNaN(price) || price <= 0) {
       toast.error(t('supplierProfile.toastProductFields'))
@@ -325,6 +375,29 @@ export function useSupplierProfile() {
     }
     setFormSaving(true)
     try {
+      let imageUrlToSave: string | null = editingProduct.image_url
+
+      if (formProduct.imageFile) {
+        if (editingProduct.image_url) {
+          await deleteStorageFile(editingProduct.image_url)
+        }
+        const filePath = `${user.id}/${selectedCompanyId}/${editingProduct.id}/${formProduct.imageFile.name}`
+        const { error: uploadError } = await supabase.storage
+          .from('products')
+          .upload(filePath, formProduct.imageFile, { upsert: true })
+        if (uploadError) throw uploadError
+
+        const { data: urlData } = supabase.storage
+          .from('products')
+          .getPublicUrl(filePath)
+        imageUrlToSave = urlData.publicUrl
+      } else if (!formProduct.imagePreview) {
+        if (editingProduct.image_url) {
+          await deleteStorageFile(editingProduct.image_url)
+        }
+        imageUrlToSave = null
+      }
+
       const { error } = await supabase
         .from('supplier_products')
         .update({
@@ -334,10 +407,12 @@ export function useSupplierProfile() {
           description: formProduct.description.trim() || null,
           minimum_order: minOrder != null && !Number.isNaN(minOrder) && minOrder >= 0 ? minOrder : null,
           delivery_time: deliveryTime,
+          image_url: imageUrlToSave,
           updated_at: new Date().toISOString(),
         })
         .eq('id', editingProduct.id)
       if (error) throw error
+
       setProducts((prev) =>
         prev.map((p) =>
           p.id === editingProduct.id
@@ -349,6 +424,7 @@ export function useSupplierProfile() {
                 description: formProduct.description.trim() || null,
                 minimum_order: minOrder != null && !Number.isNaN(minOrder) && minOrder >= 0 ? minOrder : null,
                 delivery_time: deliveryTime,
+                image_url: imageUrlToSave,
               }
             : p,
         ),
@@ -367,6 +443,9 @@ export function useSupplierProfile() {
   const handleDeleteProduct = async () => {
     if (!deleteProduct || !selectedCompanyId) return
     try {
+      if (deleteProduct.image_url) {
+        await deleteStorageFile(deleteProduct.image_url)
+      }
       const { error } = await supabase.from('supplier_products').delete().eq('id', deleteProduct.id)
       if (error) throw error
       setProducts((prev) => prev.filter((p) => p.id !== deleteProduct.id))

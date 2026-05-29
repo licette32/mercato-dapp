@@ -19,6 +19,7 @@ export interface SupplierProductRow {
     company_name?: string
     email?: string
     address?: string
+    logo_url?: string | null
   } | null
 }
 

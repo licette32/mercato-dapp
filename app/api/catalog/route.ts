@@ -16,6 +16,7 @@ export type CatalogProduct = {
     address?: string
     owner_id?: string
     email?: string
+    logo_url?: string | null
   } | null
 }
 
@@ -29,7 +30,7 @@ export async function GET() {
     const { data: products, error } = await supabase
       .from('supplier_products')
       .select(
-        'id, supplier_id, name, category, price_per_unit, description, supplier:supplier_companies(id, company_name, address, owner_id)'
+        'id, supplier_id, name, category, price_per_unit, description, supplier:supplier_companies(id, company_name, address, owner_id, logo_url)'
       )
       .order('category')
 
@@ -38,14 +39,14 @@ export async function GET() {
       return NextResponse.json({ error: error.message }, { status: 500 })
     }
 
-    const rows = (products ?? []) as Array<{
+    const rows = (products as unknown) as Array<{
       id: string
       supplier_id: string
       name: string
       category: string
       price_per_unit: number
       description?: string | null
-      supplier?: { id: string; company_name?: string; address?: string; owner_id?: string } | null
+      supplier?: { id: string; company_name?: string; address?: string; owner_id?: string; logo_url?: string | null } | null
     }>
 
     const ownerIds = [...new Set(rows.map((p) => p.supplier?.owner_id).filter(Boolean))] as string[]

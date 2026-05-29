@@ -641,7 +641,9 @@
     "releaseSignFail": "No se pudo firmar la liberación",
     "approveSuccessShort": "Hito \"{title}\" aprobado on-chain.",
     "fallbackEmpty": "No hay hitos completados. Aparecerán aquí para poder liberar fondos si hace falta.",
-    "releasePreviousTooltip": "Libera primero el hito anterior (Envío → Entrega)"
+    "releasePreviousTooltip": "Libera primero el hito anterior (Envío → Entrega)",
+    "supplierLogoAlt": "Logo del proveedor",
+    "supplierLogoLabel": "Logo del proveedor"
   },
   "reputationCard": {
     "title": "Reputación",
@@ -734,6 +736,17 @@
     "addCompany": "Agregar empresa",
     "companyDetailsTitle": "Datos de la empresa",
     "companyDetailsDescription": "País, sector, teléfono y bio. Se muestra a las PyMEs al explorar proveedores.",
+    "logoLabel": "Logo de la empresa",
+    "uploadLogo": "Subir logo",
+    "changeLogo": "Cambiar logo",
+    "removeLogo": "Quitar logo",
+    "logoHint": "PNG, JPEG o WebP, máx. 2MB. Relación de aspecto cuadrada recomendada.",
+    "logoInvalidFileType": "Tipo de archivo no válido. Sube una imagen PNG, JPEG o WebP.",
+    "logoTooLarge": "Archivo demasiado grande. Máx. 2MB permitido.",
+    "logoUploadError": "No se pudo subir el logo. Asegúrate de que el bucket \"company-logos\" exista.",
+    "logoCurrentAlt": "Logo de la empresa",
+    "logoRemoved": "Logo eliminado correctamente",
+    "logoUploaded": "Logo subido correctamente",
     "bio": "Bio",
     "savingDetails": "Guardando…",
     "saveDetails": "Guardar datos",
@@ -804,7 +817,14 @@
     "formDescriptionPh": "ej. Harina de trigo industrial (sacos 25 y 50 kg)",
     "placeholderCompanyPh": "ej. Suministros Acme",
     "placeholderPhonePh": "ej. +595 21 123 456",
-    "placeholderBioPh": "ej. Suministramos ingredientes mayoristas a panaderías y restaurantes…"
+    "placeholderBioPh": "ej. Suministramos ingredientes mayoristas a panaderías y restaurantes…",
+    "formProductImage": "Imagen del producto",
+    "formProductImageSelect": "Arrastra y suelta una imagen aquí, o haz clic para seleccionar",
+    "formProductImageSelectMobile": "Haz clic para seleccionar la imagen del producto",
+    "formProductImageHint": "PNG, JPG o WEBP. Máx. 5MB.",
+    "formProductImageRemove": "Eliminar imagen",
+    "toastImageSizeError": "El archivo es demasiado grande. El tamaño máximo es 5MB.",
+    "toastImageTypeError": "Formato de archivo no soportado. Por favor sube una imagen JPEG, PNG o WEBP."
   },
   "reputationTooltip": {
     "ariaLabel": "¿Cómo se calcula la reputación?",

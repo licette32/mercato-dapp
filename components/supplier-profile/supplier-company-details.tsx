@@ -15,6 +15,7 @@ import { Input } from '@/components/ui/input'
 import { LATAM_COUNTRIES, SECTORS } from '@/lib/constants'
 import type { CompanyFormState, SupplierCompany } from '@/lib/supplier-profile/types'
 import { useI18n } from '@/lib/i18n/provider'
+import { SupplierLogoUpload } from './supplier-logo-upload'
 
 type SupplierCompanyDetailsProps = {
   company: SupplierCompany
@@ -43,6 +44,15 @@ export function SupplierCompanyDetails({
         <p className="mt-2 inline-flex items-center rounded-full border border-amber-500/20 bg-amber-500/10 px-2.5 py-0.5 text-xs text-amber-900 dark:text-amber-200">
           {t('supplierProfile.visibleToPymes')}
         </p>
+      </div>
+
+      <div className="space-y-2">
+        <Label>{t('supplierProfile.logoLabel')}</Label>
+        <SupplierLogoUpload
+          companyId={company.id}
+          value={form.logo_url}
+          onChange={(url) => onChange({ logo_url: url || '' })}
+        />
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2">

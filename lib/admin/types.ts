@@ -14,6 +14,7 @@ export type PendingApprovalItem = {
   proofDocumentUrl: string | null
   pymeName: string
   supplierName: string
+  supplierLogoUrl: string | null
 }
 
 /** Completed milestone: admin can trigger release only */
@@ -28,6 +29,7 @@ export type ReleaseFallbackItem = {
   milestoneAmount: number
   milestonePercentage: number
   completedAt: string | null
+  supplierLogoUrl: string | null
 }
 
 export type AdminQueueFilters = {

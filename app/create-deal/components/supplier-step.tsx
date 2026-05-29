@@ -1,5 +1,6 @@
 'use client'
 
+import { useState } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Label } from '@/components/ui/label'
 import {
@@ -15,11 +16,64 @@ import { Input } from '@/components/ui/input'
 import type { CreateDealFormData } from '../types'
 import { useI18n } from '@/lib/i18n/provider'
 
+function SupplierLogoSelect({
+  logoUrl,
+  companyName,
+  fallbackIcon: Icon = Building2
+}: {
+  logoUrl: string | null | undefined
+  companyName: string
+  fallbackIcon?: any
+}) {
+  const [imageError, setImageError] = useState(false)
+  return (
+    <div className="flex h-5 w-5 shrink-0 items-center justify-center overflow-hidden rounded border border-border/50 bg-muted/30">
+      {logoUrl && !imageError ? (
+        <img
+          src={logoUrl}
+          alt={companyName}
+          className="h-full w-full object-cover"
+          onError={() => setImageError(true)}
+        />
+      ) : (
+        <Icon className="h-3 w-3 text-muted-foreground/60" />
+      )}
+    </div>
+  )
+}
+
+function SupplierLogoPreview({
+  logoUrl,
+  companyName,
+  fallbackIcon: Icon = Building2
+}: {
+  logoUrl: string | null | undefined
+  companyName: string
+  fallbackIcon?: any
+}) {
+  const [imageError, setImageError] = useState(false)
+  return (
+    <div className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-lg border border-border/50 bg-background shadow-sm">
+      {logoUrl && !imageError ? (
+        <img
+          src={logoUrl}
+          alt={companyName}
+          className="h-full w-full object-cover"
+          onError={() => setImageError(true)}
+        />
+      ) : (
+        <Icon className="h-5 w-5 text-muted-foreground/40" />
+      )}
+    </div>
+  )
+}
+
 interface SupplierOption {
   id: string
   company_name: string
   email?: string
   address?: string
+  logo_url?: string | null
 }
 
 interface SupplierStepProps {
@@ -66,6 +120,7 @@ export function SupplierStep({
   const isCustomFundingWindow =
     formData.fundingWindowDays !== '' &&
     !PRESET_FUNDING_WINDOWS.includes(formData.fundingWindowDays)
+  const selectedSupplier = filteredSuppliers.find(s => s.id === formData.supplierId)
 
   return (
     <Card>
@@ -102,7 +157,13 @@ export function SupplierStep({
               ) : (
                 filteredSuppliers.map((supplier) => (
                   <SelectItem key={supplier.id} value={supplier.id}>
-                    {supplier.company_name}
+                    <div className="flex items-center gap-2">
+                      <SupplierLogoSelect
+                        logoUrl={supplier.logo_url}
+                        companyName={supplier.company_name}
+                      />
+                      {supplier.company_name}
+                    </div>
                   </SelectItem>
                 ))
               )}
@@ -118,15 +179,21 @@ export function SupplierStep({
 
         {formData.supplierName && (
           <div className="rounded-lg border border-border bg-muted/30 p-3">
-            <p className="mb-1 text-sm font-medium">{t('createDeal.selectedSupplier')}</p>
-            <p className="text-sm text-muted-foreground">
-              {formData.supplierName}
-            </p>
-            {formData.supplierContact && (
-              <p className="mt-1 text-xs text-muted-foreground">
-                {t('createDeal.contact', { contact: formData.supplierContact })}
-              </p>
-            )}
+            <p className="mb-2 text-sm font-medium">{t('createDeal.selectedSupplier')}</p>
+            <div className="flex items-center gap-3">
+              <SupplierLogoPreview
+                logoUrl={selectedSupplier?.logo_url}
+                companyName={formData.supplierName}
+              />
+              <div>
+                <p className="text-sm font-semibold">{formData.supplierName}</p>
+                {formData.supplierContact && (
+                  <p className="text-xs text-muted-foreground">
+                    {t('createDeal.contact', { contact: formData.supplierContact })}
+                  </p>
+                )}
+              </div>
+            </div>
           </div>
         )}
 
