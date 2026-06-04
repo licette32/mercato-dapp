@@ -77,10 +77,12 @@ export function SettingsPageContent({
           bio: formData.bio,
           country: formData.country || null,
           sector: formData.sector || null,
+          avatar_url: formData.avatar_url.trim() || null,
           updated_at: new Date().toISOString(),
         })
         .eq('id', userId)
       if (error) throw error
+      window.dispatchEvent(new CustomEvent('mercato:profile-updated'))
       toast.success(t('settings.profileSuccess'))
     } catch (error) {
       console.error(error)
@@ -97,6 +99,7 @@ export function SettingsPageContent({
         email={email}
         userType={userType}
         companyName={formData.company_name || null}
+        avatarUrl={formData.avatar_url || null}
       />
 
       <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_320px]">
@@ -108,6 +111,8 @@ export function SettingsPageContent({
             </div>
             <div className="px-5 py-5 sm:px-6">
               <SettingsProfileForm
+                userId={userId}
+                displayName={displayName}
                 userType={userType}
                 formData={formData}
                 onChange={(patch) => setFormData((prev) => ({ ...prev, ...patch }))}

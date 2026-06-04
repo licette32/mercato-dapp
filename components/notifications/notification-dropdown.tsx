@@ -16,6 +16,7 @@ import {
   formatNotificationTime,
   type Notification,
 } from '@/lib/notifications'
+import { useMounted } from '@/hooks/use-mounted'
 import { useI18n } from '@/lib/i18n/provider'
 
 interface NotificationDropdownProps {
@@ -26,6 +27,7 @@ interface NotificationDropdownProps {
 
 export function NotificationDropdown({ userId, variant = 'desktop' }: NotificationDropdownProps) {
   const { t } = useI18n()
+  const mounted = useMounted()
   const [notifications, setNotifications] = useState<Notification[]>([])
   const [unreadCount, setUnreadCount] = useState(0)
   const [isLoading, setIsLoading] = useState(true)
@@ -103,21 +105,33 @@ export function NotificationDropdown({ userId, variant = 'desktop' }: Notificati
     fetchNotifications()
   }
 
+  const trigger = (
+    <Button
+      variant="ghost"
+      size="icon"
+      aria-label={t('notifications.ariaLabel')}
+      className="relative"
+      type="button"
+    >
+      <Bell className="h-5 w-5" aria-hidden />
+      {unreadCount > 0 && (
+        <span
+          className="absolute -right-1 -top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-primary px-1 text-[10px] font-medium text-primary-foreground"
+          aria-label={t('notifications.unreadCount', { count: unreadCount })}
+        >
+          {unreadCount > 99 ? '99+' : unreadCount}
+        </span>
+      )}
+    </Button>
+  )
+
+  if (!mounted) {
+    return trigger
+  }
+
   return (
     <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
-      <DropdownMenuTrigger asChild>
-        <Button variant="ghost" size="icon" aria-label={t('notifications.ariaLabel')} className="relative">
-          <Bell className="h-5 w-5" aria-hidden />
-          {unreadCount > 0 && (
-            <span
-              className="absolute -right-1 -top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-primary px-1 text-[10px] font-medium text-primary-foreground"
-              aria-label={t('notifications.unreadCount', { count: unreadCount })}
-            >
-              {unreadCount > 99 ? '99+' : unreadCount}
-            </span>
-          )}
-        </Button>
-      </DropdownMenuTrigger>
+      <DropdownMenuTrigger asChild>{trigger}</DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-[340px] p-0" sideOffset={8}>
         <div className="flex items-center justify-between border-b px-3 py-2">
           <span className="text-sm font-semibold">{t('notifications.title')}</span>

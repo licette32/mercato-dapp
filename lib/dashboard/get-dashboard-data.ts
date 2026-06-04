@@ -78,9 +78,13 @@ export async function getDashboardData(
   } else if (userType === 'supplier') {
     const { data: myCompanies } = await supabase
       .from('supplier_companies')
-      .select('id, company_name')
+      .select('id, company_name, logo_url')
       .eq('owner_id', userId)
-    supplierCompanies = myCompanies ?? []
+    supplierCompanies = (myCompanies ?? []).map((c) => ({
+      id: c.id,
+      company_name: c.company_name,
+      logo_url: (c as { logo_url?: string | null }).logo_url ?? null,
+    }))
     const companyIds = supplierCompanies.map((c) => c.id)
 
     if (companyIds.length > 0) {
@@ -145,14 +149,22 @@ export async function getDashboardData(
       if (companyForCard) {
         const { data: products } = await supabase
           .from('supplier_products')
-          .select('name, category')
+          .select('id, name, category, image_url')
           .eq('supplier_id', companyForCard)
         const productList = products ?? []
         const categories = [
           ...new Set(productList.map((p) => (p as { category: string }).category).filter(Boolean)),
         ]
         const productNames = productList.map((p) => (p as { name: string }).name).filter(Boolean)
-        supplierProductsForCard = { categories, products: productNames }
+        const items = productList.map((p) => {
+          const row = p as { id: string; name: string; image_url?: string | null }
+          return {
+            id: row.id,
+            name: row.name,
+            image_url: row.image_url ?? null,
+          }
+        })
+        supplierProductsForCard = { categories, products: productNames, items }
       }
     }
   } else if (userType === 'admin') {

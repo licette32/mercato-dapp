@@ -46,12 +46,28 @@
       "informal": "Informal lenders"
     },
     "stats": {
-      "orders": { "label": "Orders funded", "value": "1,248", "delta": "+24% this month" },
-      "smes": { "label": "Active SMEs", "value": "127", "delta": "+18% this month" },
-      "suppliers": { "label": "Verified suppliers", "value": "243", "delta": "Across 5 countries" },
-      "capital": { "label": "Capital mobilized", "value": "$3.2M", "delta": "+31% this month" },
-      "blockchain": { "label": "24/7 blockchain record", "value": "On-chain", "delta": "On Stellar" },
-      "mercato": { "label": "Mercato", "value": "18–24% APR", "delta": "APR" }
+      "orders": {
+        "label": "Orders funded",
+        "deltaOpen": "{count} open for funding",
+        "deltaNone": "No deals open right now"
+      },
+      "smes": {
+        "label": "Active SMEs",
+        "deltaActive": "{count} with live deals",
+        "deltaOnPlatform": "On Mercato"
+      },
+      "suppliers": {
+        "label": "Verified suppliers",
+        "deltaCountries": "Across {count} countries",
+        "deltaOneCountry": "In 1 country",
+        "deltaOnPlatform": "On Mercato"
+      },
+      "capital": {
+        "label": "Capital mobilized",
+        "deltaGrowth": "+{percent}% funded vs last month",
+        "deltaMonth": "{amount} funded this month",
+        "deltaLive": "Live from platform deals"
+      }
     }
   },
   "roles": {

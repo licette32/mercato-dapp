@@ -46,12 +46,28 @@
       "informal": "Prestamistas informales"
     },
     "stats": {
-      "orders": { "label": "Órdenes financiadas", "value": "1,248", "delta": "+24% este mes" },
-      "smes": { "label": "PYMEs activas", "value": "127", "delta": "+18% este mes" },
-      "suppliers": { "label": "Proveedores verificados", "value": "243", "delta": "En 5 países" },
-      "capital": { "label": "Capital movilizado", "value": "$3.2M", "delta": "+31% este mes" },
-      "blockchain": { "label": "Registro blockchain 24/7", "value": "En cadena", "delta": "En Stellar" },
-      "mercato": { "label": "Mercato", "value": "18–24% APR", "delta": "APR" }
+      "orders": {
+        "label": "Órdenes financiadas",
+        "deltaOpen": "{count} abiertas a financiar",
+        "deltaNone": "Sin negocios abiertos ahora"
+      },
+      "smes": {
+        "label": "PYMEs activas",
+        "deltaActive": "{count} con negocios activos",
+        "deltaOnPlatform": "En Mercato"
+      },
+      "suppliers": {
+        "label": "Proveedores verificados",
+        "deltaCountries": "En {count} países",
+        "deltaOneCountry": "En 1 país",
+        "deltaOnPlatform": "En Mercato"
+      },
+      "capital": {
+        "label": "Capital movilizado",
+        "deltaGrowth": "+{percent}% financiado vs mes anterior",
+        "deltaMonth": "{amount} financiados este mes",
+        "deltaLive": "Datos en vivo de la plataforma"
+      }
     }
   },
   "roles": {

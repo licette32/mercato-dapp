@@ -25,3 +25,18 @@ export function getCategoryLabel(value: string): string {
   const found = PRODUCT_CATEGORIES.find((c) => c.value === value)
   return found ? found.label : value
 }
+
+/** Messages slice with optional `productCategories` map (see extended-*.json). */
+export type ProductCategoryMessages = {
+  productCategories?: Record<string, string>
+}
+
+export function getLocalizedCategoryLabel(
+  value: string,
+  messages: ProductCategoryMessages,
+): string {
+  const normalized = value.trim().toLowerCase()
+  const translated = messages.productCategories?.[normalized]
+  if (translated) return translated
+  return getCategoryLabel(normalized)
+}

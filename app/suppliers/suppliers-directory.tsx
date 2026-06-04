@@ -26,7 +26,9 @@ import {
   X,
 } from 'lucide-react'
 import { LATAM_COUNTRIES, SECTORS, getCountryLabel, getSectorLabel } from '@/lib/constants'
+import { PRODUCT_CATEGORIES, getLocalizedCategoryLabel } from '@/lib/categories'
 import { useI18n } from '@/lib/i18n/provider'
+import { SupplierLogo } from '@/components/suppliers/supplier-logo'
 
 type Supplier = {
   id: string
@@ -43,42 +45,7 @@ type Supplier = {
   logo_url: string | null
 }
 
-function SupplierLogo({
-  logoUrl,
-  companyName,
-  fallbackIcon: Icon = Building2
-}: {
-  logoUrl: string | null
-  companyName: string
-  fallbackIcon?: any
-}) {
-  const [imageError, setImageError] = useState(false)
-  return (
-    <div className="flex h-12 w-12 items-center justify-center overflow-hidden rounded-xl border border-border/50 bg-primary/5 group-hover:bg-primary/10">
-      {logoUrl && !imageError ? (
-        <img
-          src={logoUrl}
-          alt={companyName}
-          className="h-full w-full object-cover"
-          onError={() => setImageError(true)}
-        />
-      ) : (
-        <Icon className="h-6 w-6 text-primary" aria-hidden />
-      )}
-    </div>
-  )
-}
-
-const SUPPLIER_CATEGORY_VALUES = [
-  'all',
-  'electronics',
-  'textiles',
-  'food',
-  'manufacturing',
-  'agriculture',
-  'construction',
-  'other',
-] as const
+const FILTER_CATEGORY_VALUES = ['all', ...PRODUCT_CATEGORIES.map((c) => c.value)] as const
 
 export default function SuppliersPage() {
   const { t, messages } = useI18n()
@@ -86,6 +53,7 @@ export default function SuppliersPage() {
     messages.geo.countries[code as keyof typeof messages.geo.countries] ?? getCountryLabel(code)
   const sectorLabel = (code: string) =>
     messages.geo.sectors[code as keyof typeof messages.geo.sectors] ?? getSectorLabel(code)
+  const categoryLabel = (value: string) => getLocalizedCategoryLabel(value, messages)
 
   const supabase = createClient()
   const [suppliers, setSuppliers] = useState<Supplier[]>([])
@@ -155,7 +123,12 @@ export default function SuppliersPage() {
           }) as Supplier[]
         )
       } catch (err) {
-        console.error('Error loading suppliers:', err)
+        const e = err as { message?: string; details?: string; hint?: string; code?: string }
+        console.error('Error loading suppliers:', e?.message ?? err, {
+          code: e?.code,
+          details: e?.details,
+          hint: e?.hint,
+        })
       } finally {
         setIsLoading(false)
       }
@@ -255,7 +228,7 @@ export default function SuppliersPage() {
         <div className="mb-6 space-y-4">
           {/* Category pills */}
           <div className="flex flex-wrap gap-2">
-            {SUPPLIER_CATEGORY_VALUES.map((cat) => (
+            {FILTER_CATEGORY_VALUES.map((cat) => (
               <button
                 key={cat}
                 type="button"
@@ -266,7 +239,7 @@ export default function SuppliersPage() {
                     : 'border border-border bg-card text-muted-foreground hover:border-foreground/30 hover:text-foreground'
                 }`}
               >
-                {t(`suppliersPage.categories.${cat}`)}
+                {cat === 'all' ? t('suppliersPage.categories.all') : categoryLabel(cat)}
               </button>
             ))}
           </div>
@@ -320,7 +293,9 @@ export default function SuppliersPage() {
             <span className="text-xs text-muted-foreground">{t('suppliersPage.filtersLabel')}</span>
             {selectedCategory !== 'all' && (
               <span className="inline-flex items-center gap-1 rounded-full border border-border bg-muted/50 px-2.5 py-0.5 text-xs font-medium capitalize">
-                {t(`suppliersPage.categories.${selectedCategory as (typeof SUPPLIER_CATEGORY_VALUES)[number]}`)}
+                {selectedCategory === 'all'
+                  ? t('suppliersPage.categories.all')
+                  : categoryLabel(selectedCategory)}
                 <button
                   type="button"
                   aria-label={t('suppliersPage.removeCategoryFilter')}
@@ -422,6 +397,8 @@ export default function SuppliersPage() {
                     <SupplierLogo
                       logoUrl={supplier.logo_url}
                       companyName={supplier.company_name}
+                      size="md"
+                      className="group-hover:bg-primary/10"
                     />
                     <div className="flex flex-wrap items-center justify-end gap-1.5">
                       {supplier.verified && (
@@ -431,10 +408,8 @@ export default function SuppliersPage() {
                         </span>
                       )}
                       {supplier.categories?.[0] && (
-                        <Badge variant="outline" className="text-xs capitalize">
-                          {t(
-                            `suppliersPage.categories.${supplier.categories[0] as (typeof SUPPLIER_CATEGORY_VALUES)[number]}`,
-                          )}
+                        <Badge variant="outline" className="text-xs">
+                          {categoryLabel(supplier.categories[0])}
                         </Badge>
                       )}
                     </div>

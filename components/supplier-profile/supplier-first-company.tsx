@@ -44,7 +44,12 @@ export function SupplierFirstCompany({ onCreate }: SupplierFirstCompanyProps) {
         toast.success(t('supplierProfile.toastCompanyCreated'))
       }
     } catch (err) {
-      console.error(err)
+      const e = err as { message?: string; code?: string; details?: string; hint?: string }
+      console.error('Error creating supplier company:', e?.message ?? err, {
+        code: e?.code,
+        details: e?.details,
+        hint: e?.hint,
+      })
       toast.error(t('supplierProfile.toastCompanyCreateFail'))
     } finally {
       setSaving(false)

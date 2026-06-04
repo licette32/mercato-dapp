@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { Building2, Loader2, Package } from 'lucide-react'
+import { Building2, ClipboardList, Loader2 } from 'lucide-react'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { useSupplierProfile } from '@/hooks/use-supplier-profile'
 import { useI18n } from '@/lib/i18n/provider'
@@ -34,7 +34,12 @@ export function SupplierProfilePage() {
         phone: fields.phone,
       })
     } catch (err) {
-      console.error(err)
+      const e = err as { message?: string; code?: string; details?: string; hint?: string }
+      console.error('Error in handleCreateCompany:', e?.message ?? err, {
+        code: e?.code,
+        details: e?.details,
+        hint: e?.hint,
+      })
       throw err
     }
   }
@@ -72,8 +77,8 @@ export function SupplierProfilePage() {
                 <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border/60 px-4 py-3 sm:px-6">
                   <TabsList className="h-9 rounded-full bg-muted/60 p-1">
                     <TabsTrigger value="catalog" className="gap-1.5 rounded-full px-3 text-xs sm:text-sm">
-                      <Package className="h-3.5 w-3.5" aria-hidden />
-                      {t('supplierProfile.tabCatalog')}
+                      <ClipboardList className="h-3.5 w-3.5" aria-hidden />
+                      {t('supplierProfile.tabInventory')}
                     </TabsTrigger>
                     <TabsTrigger value="profile" className="gap-1.5 rounded-full px-3 text-xs sm:text-sm">
                       <Building2 className="h-3.5 w-3.5" aria-hidden />
@@ -97,6 +102,7 @@ export function SupplierProfilePage() {
                     companyName={sp.selectedCompany.company_name}
                     products={sp.paginatedProducts}
                     filteredCount={sp.filteredAndSorted.length}
+                    inventoryStats={sp.inventoryStats}
                     search={sp.search}
                     onSearchChange={(v) => {
                       sp.setSearch(v)
@@ -107,6 +113,11 @@ export function SupplierProfilePage() {
                       sp.setCategoryFilter(v)
                       sp.setPage(0)
                     }}
+                    stockFilter={sp.stockFilter}
+                    onStockFilterChange={(v) => {
+                      sp.setStockFilter(v)
+                      sp.setPage(0)
+                    }}
                     categoriesFromProducts={sp.categoriesFromProducts}
                     sort={sp.sort}
                     onSortChange={sp.setSort}
@@ -114,6 +125,8 @@ export function SupplierProfilePage() {
                     currentPage={sp.currentPage}
                     totalPages={sp.totalPages}
                     onPageChange={sp.setPage}
+                    stockAdjustingId={sp.stockAdjustingId}
+                    onAdjustStock={sp.adjustStock}
                     onAddProduct={sp.openAddDialog}
                     onEditProduct={sp.openEditDialog}
                     onDeleteProduct={sp.setDeleteProduct}

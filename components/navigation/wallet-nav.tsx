@@ -11,6 +11,7 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { Wallet, Copy, ExternalLink, Unplug } from 'lucide-react'
 import { toast } from 'sonner'
+import { useMounted } from '@/hooks/use-mounted'
 
 const EXPLORER_NETWORK =
   process.env.NEXT_PUBLIC_TRUSTLESS_NETWORK === 'mainnet' ? 'public' : 'testnet'
@@ -33,6 +34,8 @@ export function WalletNav({
   onDisconnect,
   variant,
 }: WalletNavProps) {
+  const mounted = useMounted()
+
   const copyAddress = () => {
     if (address) {
       navigator.clipboard.writeText(address)
@@ -42,18 +45,23 @@ export function WalletNav({
 
   if (variant === 'desktop') {
     if (isConnected && address) {
+      const walletTrigger = (
+        <Button
+          variant="outline"
+          size="sm"
+          type="button"
+          className="gap-2 font-mono tabular-nums"
+        >
+          <Wallet className="h-4 w-4" aria-hidden />
+          {truncatedAddress}
+        </Button>
+      )
+      if (!mounted) {
+        return walletTrigger
+      }
       return (
         <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button
-              variant="outline"
-              size="sm"
-              className="gap-2 font-mono tabular-nums"
-            >
-              <Wallet className="h-4 w-4" aria-hidden />
-              {truncatedAddress}
-            </Button>
-          </DropdownMenuTrigger>
+          <DropdownMenuTrigger asChild>{walletTrigger}</DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-56">
             <DropdownMenuLabel>
               <div className="flex flex-col space-y-1">

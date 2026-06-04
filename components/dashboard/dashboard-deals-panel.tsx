@@ -1,7 +1,7 @@
 'use client'
 
-import { useState } from 'react'
 import Link from 'next/link'
+import { SupplierLogo } from '@/components/suppliers/supplier-logo'
 import { AlertCircle, ArrowRight, Building2, Clock, ExternalLink, Plus, User } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -182,29 +182,17 @@ function partyName(p?: { company_name?: string; full_name?: string; contact_name
   return p?.company_name || p?.full_name || p?.contact_name || '—'
 }
 
-function PartyWithLogo({ 
-  p, 
-  fallbackIcon: Icon = Building2 
-}: { 
+function PartyWithLogo({
+  p,
+  fallbackIcon: Icon = Building2,
+}: {
   p?: { company_name?: string; full_name?: string; contact_name?: string; logo_url?: string | null } | null
-  fallbackIcon?: any
+  fallbackIcon?: typeof Building2
 }) {
   const name = partyName(p)
-  const [imageError, setImageError] = useState(false)
   return (
     <div className="flex items-center gap-2">
-      <div className="flex h-6 w-6 shrink-0 items-center justify-center overflow-hidden rounded-md border border-border/50 bg-muted/30">
-        {p?.logo_url && !imageError ? (
-          <img
-            src={p.logo_url}
-            alt={name}
-            className="h-full w-full object-cover"
-            onError={() => setImageError(true)}
-          />
-        ) : (
-          <Icon className="h-3.5 w-3.5 text-muted-foreground/60" />
-        )}
-      </div>
+      <SupplierLogo logoUrl={p?.logo_url} companyName={name} size="xs" fallbackIcon={Icon} />
       <span className="truncate">{name}</span>
     </div>
   )

@@ -14,6 +14,12 @@ export interface SupplierProductRow {
   category: string
   price_per_unit: number
   description?: string | null
+  image_url?: string | null
+  sku?: string | null
+  unit?: string
+  stock_quantity?: number
+  reserved_quantity?: number
+  reorder_point?: number
   supplier?: {
     id: string
     company_name?: string

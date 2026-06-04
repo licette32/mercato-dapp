@@ -21,7 +21,13 @@ import {
 } from 'lucide-react'
 import { getCountryLabel, getSectorLabel } from '@/lib/constants'
 import { getDictionary } from '@/lib/i18n/dictionaries'
-import { getServerLocale, getServerDictionary, tr, formatMoneyServer } from '@/lib/i18n/server'
+import {
+  dealStatusLabel,
+  getServerLocale,
+  getServerDictionary,
+  tr,
+  formatMoneyServer,
+} from '@/lib/i18n/server'
 import { getReputation } from '@/lib/reputation'
 import { InvestorReputationCard } from '@/components/investor-reputation-card'
 
@@ -50,12 +56,6 @@ function getInitials(name: string): string {
       .map((w) => w[0]?.toUpperCase() ?? '')
       .join('') || '?'
   )
-}
-
-function dealStatusLabel(m: Awaited<ReturnType<typeof getServerDictionary>>, status: string): string {
-  const label = tr(m, `deals.${status}`)
-  if (label === `deals.${status}`) return status
-  return label
 }
 
 export async function generateMetadata({

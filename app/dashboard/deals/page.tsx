@@ -3,7 +3,7 @@ import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import { DashboardDealsView } from '@/components/dashboard/dashboard-deals-view'
 import { getDashboardData } from '@/lib/dashboard/get-dashboard-data'
-import { getServerDictionary } from '@/lib/i18n/server'
+import { dealStatusLabel, getServerDictionary } from '@/lib/i18n/server'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -18,14 +18,6 @@ import {
   ShieldCheck,
 } from 'lucide-react'
 import { formatDate } from '@/lib/date-utils'
-
-const STATUS_LABELS: Record<string, string> = {
-  seeking_funding: 'Open for funding',
-  funded: 'Funded',
-  in_progress: 'In progress',
-  completed: 'Completed',
-  cancelled: 'Cancelled',
-}
 
 type MilestoneRow = {
   id: string
@@ -120,6 +112,7 @@ export default async function DashboardDealsPage({
     : { data: null }
 
   const list = (deals ?? []) as DealRow[]
+  const m = await getServerDictionary()
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -198,7 +191,7 @@ export default async function DashboardDealsPage({
 
             {list.map((deal) => {
               const title = deal.product_name || deal.title
-              const statusLabel = STATUS_LABELS[deal.status] ?? deal.status
+              const statusLabel = dealStatusLabel(m, deal.status)
               const amount = Number(deal.amount)
               const pymeName =
                 deal.pyme?.company_name || deal.pyme?.full_name || deal.pyme?.contact_name || 'PyME'

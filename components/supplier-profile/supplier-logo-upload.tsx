@@ -66,14 +66,13 @@ export function SupplierLogoUpload({ value, onChange, companyId }: SupplierLogoU
 
       if (uploadError) throw uploadError
 
-      const { data: { publicUrl } } = supabase.storage
-        .from('company-logos')
-        .getPublicUrl(filePath)
+      const { data: urlData } = supabase.storage.from('company-logos').getPublicUrl(filePath)
 
-      onChange(publicUrl)
+      onChange(urlData.publicUrl)
       toast.success(t('supplierProfile.logoUploaded'))
     } catch (error) {
-      console.error('Error uploading logo:', error)
+      const e = error as { message?: string; statusCode?: string }
+      console.error('Error uploading logo:', e?.message ?? error, e)
       toast.error(t('supplierProfile.logoUploadError'))
     } finally {
       setIsUploading(false)

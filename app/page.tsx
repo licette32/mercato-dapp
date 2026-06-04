@@ -8,6 +8,9 @@ import { LandingFaq } from '@/components/landing/landing-faq'
 import { LandingFooter } from '@/components/landing/landing-footer'
 import { LandingHashScroll } from '@/components/landing/landing-hash-scroll'
 import { JsonLd } from '@/components/seo/json-ld'
+import { getLandingPlatformStats } from '@/lib/landing/get-platform-stats'
+
+export const dynamic = 'force-dynamic'
 
 export async function generateMetadata() {
   return {
@@ -37,13 +40,15 @@ const breadcrumbSchema = {
 }
 
 export default async function HomePage() {
+  const platformStats = await getLandingPlatformStats()
+
   return (
     <div className="flex min-h-screen flex-col overflow-x-hidden bg-background">
       <JsonLd data={breadcrumbSchema} />
-      <Navigation />
+      <Navigation overHero />
       <LandingHashScroll />
 
-      <LandingHero />
+      <LandingHero stats={platformStats} />
 
       <LandingRoles />
 

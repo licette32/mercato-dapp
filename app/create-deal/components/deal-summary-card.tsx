@@ -2,11 +2,15 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { formatCurrency } from '@/lib/format'
+import { ProductImage } from '@/components/media/product-image'
+import { SupplierLogo } from '@/components/suppliers/supplier-logo'
 import type { CreateDealFormData } from '../types'
 
 interface DealSummaryCardProps {
   formData: Pick<CreateDealFormData, 'supplierName' | 'term' | 'fundingWindowDays'>
   productName: string
+  productImageUrl?: string | null
+  supplierLogoUrl?: string | null
   totalAmount: number
   baseAPR?: number
   effectiveAPR?: number
@@ -16,6 +20,8 @@ interface DealSummaryCardProps {
 export function DealSummaryCard({
   formData,
   productName,
+  productImageUrl,
+  supplierLogoUrl,
   totalAmount,
   baseAPR,
   effectiveAPR,
@@ -27,9 +33,14 @@ export function DealSummaryCard({
         <CardTitle>Deal Summary</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
-        <div>
-          <p className="text-sm text-muted-foreground">Product</p>
-          <p className="font-medium">{productName || 'Not set'}</p>
+        <div className="flex items-start gap-3">
+          {productImageUrl ? (
+            <ProductImage imageUrl={productImageUrl} alt={productName || 'Product'} size="sm" />
+          ) : null}
+          <div className="min-w-0 flex-1">
+            <p className="text-sm text-muted-foreground">Product</p>
+            <p className="font-medium">{productName || 'Not set'}</p>
+          </div>
         </div>
         <div>
           <p className="text-sm text-muted-foreground">Total Amount</p>
@@ -38,9 +49,16 @@ export function DealSummaryCard({
           </p>
           <p className="text-xs text-muted-foreground">USDC</p>
         </div>
-        <div>
-          <p className="text-sm text-muted-foreground">Supplier</p>
-          <p className="font-medium">{formData.supplierName || 'Not set'}</p>
+        <div className="flex items-start gap-3">
+          <SupplierLogo
+            logoUrl={supplierLogoUrl}
+            companyName={formData.supplierName || 'Supplier'}
+            size="sm"
+          />
+          <div className="min-w-0 flex-1">
+            <p className="text-sm text-muted-foreground">Supplier</p>
+            <p className="font-medium">{formData.supplierName || 'Not set'}</p>
+          </div>
         </div>
         <div>
           <p className="text-sm text-muted-foreground">Term</p>

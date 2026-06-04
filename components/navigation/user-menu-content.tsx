@@ -60,7 +60,12 @@ export function UserMenuHeader({
   return (
     <div className={cn('px-3 py-3', className)}>
       <div className="flex items-start gap-3">
-        <UserAvatar name={name || user.email || '?'} userType={userType} size="md" />
+        <UserAvatar
+          name={name || user.email || '?'}
+          userType={userType}
+          avatarUrl={profile?.avatar_url}
+          size="md"
+        />
         <div className="min-w-0 flex-1">
           <p className="truncate text-sm font-semibold leading-tight">{name || user.email}</p>
           <p className="truncate text-xs text-muted-foreground">{user.email}</p>

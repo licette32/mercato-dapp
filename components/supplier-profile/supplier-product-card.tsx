@@ -2,7 +2,8 @@
 
 import { Pencil, Trash2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import { getCategoryLabel } from '@/lib/categories'
+import { ProductImage } from '@/components/media/product-image'
+import { getLocalizedCategoryLabel } from '@/lib/categories'
 import { formatCurrency } from '@/lib/format'
 import type { SupplierProduct } from '@/lib/supplier-profile/types'
 import { useI18n } from '@/lib/i18n/provider'
@@ -14,25 +15,26 @@ type SupplierProductCardProps = {
 }
 
 export function SupplierProductCard({ product, onEdit, onDelete }: SupplierProductCardProps) {
-  const { t } = useI18n()
+  const { t, messages } = useI18n()
 
   return (
     <article className="flex flex-col rounded-2xl border border-border/70 bg-card shadow-sm transition-shadow hover:shadow-md overflow-hidden">
-      {product.image_url && (
-        <div className="relative h-40 w-full shrink-0 border-b border-border/60 bg-muted/20">
-          <img
-            src={product.image_url}
-            alt={product.name}
-            className="h-full w-full object-cover"
-          />
-        </div>
-      )}
+      {product.image_url ? (
+        <ProductImage
+          imageUrl={product.image_url}
+          alt={product.name}
+          size="cover"
+          className="border-b border-border/60 border-x-0 border-t-0"
+        />
+      ) : null}
 
       <div className="flex flex-col flex-1 p-4">
         <div className="flex items-start justify-between gap-2">
           <div className="min-w-0 flex-1">
             <h3 className="truncate font-medium leading-snug">{product.name}</h3>
-            <p className="mt-0.5 text-xs text-muted-foreground">{getCategoryLabel(product.category)}</p>
+            <p className="mt-0.5 text-xs text-muted-foreground">
+              {getLocalizedCategoryLabel(product.category, messages)}
+            </p>
           </div>
           <div className="flex shrink-0 gap-0.5">
             <Button

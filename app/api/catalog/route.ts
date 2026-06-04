@@ -10,6 +10,7 @@ export type CatalogProduct = {
   category: string
   price_per_unit: number
   description?: string | null
+  image_url?: string | null
   supplier?: {
     id: string
     company_name?: string
@@ -30,7 +31,7 @@ export async function GET() {
     const { data: products, error } = await supabase
       .from('supplier_products')
       .select(
-        'id, supplier_id, name, category, price_per_unit, description, supplier:supplier_companies(id, company_name, address, owner_id, logo_url)'
+        'id, supplier_id, name, category, price_per_unit, description, image_url, sku, unit, stock_quantity, reserved_quantity, reorder_point, supplier:supplier_companies(id, company_name, address, owner_id, logo_url)'
       )
       .order('category')
 

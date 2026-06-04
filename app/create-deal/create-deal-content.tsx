@@ -71,7 +71,7 @@ export default function CreateDealContent() {
         const productsResult = await supabase
           .from('supplier_products')
           .select(
-            'id, supplier_id, name, category, price_per_unit, description, supplier:supplier_companies(id, company_name, address, owner_id, logo_url)'
+            'id, supplier_id, name, category, price_per_unit, description, image_url, sku, unit, stock_quantity, reserved_quantity, reorder_point, supplier:supplier_companies(id, company_name, address, owner_id, logo_url)'
           )
           .order('category')
         const raw = (productsResult.data as any) || []
@@ -527,6 +527,11 @@ export default function CreateDealContent() {
             <DealSummaryCard
               formData={formData}
               productName={selectedProduct?.name ?? ''}
+              productImageUrl={selectedProduct?.image_url}
+              supplierLogoUrl={
+                filteredSuppliers.find((s) => s.id === formData.supplierId)?.logo_url ??
+                selectedProduct?.supplier?.logo_url
+              }
               totalAmount={totalAmount}
               baseAPR={totalAmount > 0 ? baseAPR : undefined}
               effectiveAPR={totalAmount > 0 ? effectiveAPR : undefined}

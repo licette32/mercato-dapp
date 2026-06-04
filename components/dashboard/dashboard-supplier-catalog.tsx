@@ -1,7 +1,12 @@
+'use client'
+
 import Link from 'next/link'
 import { ArrowRight, Package } from 'lucide-react'
+import { getLocalizedCategoryLabel } from '@/lib/categories'
+import { useI18n } from '@/lib/i18n/provider'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
+import { ProductImage } from '@/components/media/product-image'
 import type { SupplierProductsCard } from '@/lib/dashboard/types'
 import { getRoleTheme } from '@/lib/dashboard/role-theme'
 import { cn } from '@/lib/utils'
@@ -30,6 +35,7 @@ export function DashboardSupplierCatalog({
   showCatalog,
   labels,
 }: DashboardSupplierCatalogProps) {
+  const { messages } = useI18n()
   const theme = getRoleTheme('supplier')
 
   return (
@@ -55,33 +61,37 @@ export function DashboardSupplierCatalog({
               </p>
               <div className="flex flex-wrap gap-1.5">
                 {products.categories.map((cat) => (
-                  <Badge key={cat} variant="secondary" className="capitalize text-xs">
-                    {cat}
+                  <Badge key={cat} variant="secondary" className="text-xs">
+                    {getLocalizedCategoryLabel(cat, messages)}
                   </Badge>
                 ))}
               </div>
             </div>
           )}
-          {products.products.length > 0 && (
+          {products.items.length > 0 && (
             <div>
               <p className="mb-2 text-[11px] font-bold uppercase tracking-[0.16em] text-muted-foreground">
                 {labels.products}
               </p>
-              <div className="flex flex-wrap gap-1.5">
-                {products.products.slice(0, 8).map((product) => (
-                  <Badge key={product} variant="outline" className="text-xs">
-                    {product}
-                  </Badge>
+              <ul className="grid gap-2 sm:grid-cols-2">
+                {products.items.slice(0, 6).map((item) => (
+                  <li
+                    key={item.id}
+                    className="flex items-center gap-2.5 rounded-xl border border-border/60 bg-muted/20 px-2.5 py-2"
+                  >
+                    <ProductImage imageUrl={item.image_url} alt={item.name} size="xs" />
+                    <span className="min-w-0 truncate text-sm font-medium">{item.name}</span>
+                  </li>
                 ))}
-                {products.products.length > 8 && (
-                  <Badge variant="outline" className="text-xs text-muted-foreground">
-                    {labels.moreProducts.replace('{count}', String(products.products.length - 8))}
-                  </Badge>
-                )}
-              </div>
+              </ul>
+              {products.items.length > 6 && (
+                <p className="mt-2 text-xs text-muted-foreground">
+                  {labels.moreProducts.replace('{count}', String(products.items.length - 6))}
+                </p>
+              )}
             </div>
           )}
-          {products.categories.length === 0 && products.products.length === 0 && (
+          {products.categories.length === 0 && products.items.length === 0 && (
             <p className="text-sm text-muted-foreground">{labels.noProductsCompany}</p>
           )}
         </div>

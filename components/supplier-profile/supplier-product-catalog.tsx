@@ -1,6 +1,6 @@
 'use client'
 
-import { ChevronLeft, ChevronRight, Package, Plus, Search } from 'lucide-react'
+import { ChevronLeft, ChevronRight, ClipboardList, Plus, Search } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import {
@@ -10,21 +10,29 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { getCategoryLabel } from '@/lib/categories'
+import { getLocalizedCategoryLabel } from '@/lib/categories'
+import type { computeInventoryStats } from '@/lib/supplier-profile/inventory'
+import type { StockFilter } from '@/lib/supplier-profile/inventory'
 import { PAGE_SIZE, type SupplierProduct } from '@/lib/supplier-profile/types'
 import { useI18n } from '@/lib/i18n/provider'
-import { SupplierProductCard } from './supplier-product-card'
+import { SupplierInventorySummary } from './supplier-inventory-summary'
+import { SupplierInventoryTable } from './supplier-inventory-table'
 
 type SortOption = { value: string; label: string }
+
+type InventoryStats = ReturnType<typeof computeInventoryStats>
 
 type SupplierProductCatalogProps = {
   companyName: string | null
   products: SupplierProduct[]
   filteredCount: number
+  inventoryStats: InventoryStats
   search: string
   onSearchChange: (v: string) => void
   categoryFilter: string
   onCategoryFilterChange: (v: string) => void
+  stockFilter: StockFilter
+  onStockFilterChange: (v: StockFilter) => void
   categoriesFromProducts: string[]
   sort: string
   onSortChange: (v: string) => void
@@ -32,20 +40,27 @@ type SupplierProductCatalogProps = {
   currentPage: number
   totalPages: number
   onPageChange: (page: number) => void
+  stockAdjustingId: string | null
+  onAdjustStock: (product: SupplierProduct, delta: number) => void
   onAddProduct: () => void
   onEditProduct: (p: SupplierProduct) => void
   onDeleteProduct: (p: SupplierProduct) => void
   onClearFilters: () => void
 }
 
+const STOCK_FILTER_OPTIONS: StockFilter[] = ['all', 'in_stock', 'low_stock', 'out_of_stock']
+
 export function SupplierProductCatalog({
   companyName,
   products,
   filteredCount,
+  inventoryStats,
   search,
   onSearchChange,
   categoryFilter,
   onCategoryFilterChange,
+  stockFilter,
+  onStockFilterChange,
   categoriesFromProducts,
   sort,
   onSortChange,
@@ -53,25 +68,35 @@ export function SupplierProductCatalog({
   currentPage,
   totalPages,
   onPageChange,
+  stockAdjustingId,
+  onAdjustStock,
   onAddProduct,
   onEditProduct,
   onDeleteProduct,
   onClearFilters,
 }: SupplierProductCatalogProps) {
-  const { t } = useI18n()
-  const hasFilters = search.trim() !== '' || categoryFilter !== 'all'
+  const { t, messages } = useI18n()
+  const hasFilters =
+    search.trim() !== '' || categoryFilter !== 'all' || stockFilter !== 'all'
   const from = filteredCount === 0 ? 0 : currentPage * PAGE_SIZE + 1
   const to = Math.min((currentPage + 1) * PAGE_SIZE, filteredCount)
+
+  const stockFilterLabel = (value: StockFilter) => {
+    if (value === 'all') return t('supplierProfile.stockFilterAll')
+    if (value === 'in_stock') return t('supplierProfile.stockFilterInStock')
+    if (value === 'low_stock') return t('supplierProfile.stockFilterLow')
+    return t('supplierProfile.stockFilterOut')
+  }
 
   return (
     <div className="space-y-5">
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
-          <h2 className="text-lg font-semibold tracking-tight">{t('supplierProfile.catalogTitle')}</h2>
+          <h2 className="text-lg font-semibold tracking-tight">{t('supplierProfile.inventoryTitle')}</h2>
           <p className="mt-1 text-sm text-muted-foreground">
             {companyName
-              ? t('supplierProfile.catalogForCompany', { name: companyName })
-              : t('supplierProfile.catalogDescription')}
+              ? t('supplierProfile.inventoryForCompany', { name: companyName })
+              : t('supplierProfile.inventoryDescription')}
           </p>
         </div>
         <Button onClick={onAddProduct} className="rounded-full">
@@ -79,6 +104,8 @@ export function SupplierProductCatalog({
           {t('supplierProfile.addProduct')}
         </Button>
       </div>
+
+      <SupplierInventorySummary stats={inventoryStats} />
 
       <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
         <div className="relative min-w-[200px] flex-1">
@@ -89,20 +116,35 @@ export function SupplierProductCatalog({
           <Input
             value={search}
             onChange={(e) => onSearchChange(e.target.value)}
-            placeholder={t('supplierProfile.searchProducts')}
+            placeholder={t('supplierProfile.searchInventory')}
             className="pl-9"
-            aria-label={t('supplierProfile.searchProductsAria')}
+            aria-label={t('supplierProfile.searchInventoryAria')}
           />
         </div>
         <Select value={categoryFilter} onValueChange={onCategoryFilterChange}>
-          <SelectTrigger className="w-full sm:w-[180px]" aria-label={t('supplierProfile.categoryPlaceholder')}>
+          <SelectTrigger className="w-full sm:w-[160px]" aria-label={t('supplierProfile.categoryPlaceholder')}>
             <SelectValue placeholder={t('supplierProfile.categoryPlaceholder')} />
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">{t('supplierProfile.allCategories')}</SelectItem>
             {categoriesFromProducts.map((cat) => (
               <SelectItem key={cat} value={cat}>
-                {getCategoryLabel(cat)}
+                {getLocalizedCategoryLabel(cat, messages)}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        <Select
+          value={stockFilter}
+          onValueChange={(v) => onStockFilterChange(v as StockFilter)}
+        >
+          <SelectTrigger className="w-full sm:w-[160px]" aria-label={t('supplierProfile.stockFilterAria')}>
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            {STOCK_FILTER_OPTIONS.map((value) => (
+              <SelectItem key={value} value={value}>
+                {stockFilterLabel(value)}
               </SelectItem>
             ))}
           </SelectContent>
@@ -128,11 +170,13 @@ export function SupplierProductCatalog({
 
       {products.length === 0 ? (
         <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-border/80 bg-muted/20 px-6 py-16 text-center">
-          <Package className="mb-3 h-10 w-10 text-muted-foreground/60" aria-hidden />
+          <ClipboardList className="mb-3 h-10 w-10 text-muted-foreground/60" aria-hidden />
           {filteredCount === 0 && !hasFilters ? (
             <>
               <p className="font-medium">{t('supplierProfile.noProductsYet')}</p>
-              <p className="mt-1 max-w-sm text-sm text-muted-foreground">{t('supplierProfile.noProductsHint')}</p>
+              <p className="mt-1 max-w-sm text-sm text-muted-foreground">
+                {t('supplierProfile.noInventoryHint')}
+              </p>
               <Button onClick={onAddProduct} className="mt-4 rounded-full">
                 <Plus className="mr-2 h-4 w-4" aria-hidden />
                 {t('supplierProfile.addProduct')}
@@ -150,16 +194,13 @@ export function SupplierProductCatalog({
         </div>
       ) : (
         <>
-          <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-            {products.map((p) => (
-              <SupplierProductCard
-                key={p.id}
-                product={p}
-                onEdit={() => onEditProduct(p)}
-                onDelete={() => onDeleteProduct(p)}
-              />
-            ))}
-          </div>
+          <SupplierInventoryTable
+            products={products}
+            stockAdjustingId={stockAdjustingId}
+            onAdjustStock={onAdjustStock}
+            onEdit={onEditProduct}
+            onDelete={onDeleteProduct}
+          />
           {filteredCount > PAGE_SIZE && (
             <div className="flex flex-wrap items-center justify-between gap-3 border-t border-border/60 pt-4 text-sm">
               <p className="text-muted-foreground">

@@ -22,7 +22,7 @@ import { getCountryLabel, getSectorLabel } from '@/lib/constants'
 import { getReputation } from '@/lib/reputation'
 import { formatCurrency } from '@/lib/format'
 import { ReputationSummaryCard } from '@/components/reputation-summary-card'
-import { getServerDictionary, tr } from '@/lib/i18n/server'
+import { dealStatusLabel, getServerDictionary, tr } from '@/lib/i18n/server'
 import { aggregateDealsToStats, computePymeReputation } from '@/lib/pyme-reputation'
 import { ReputationTooltip } from '@/components/reputation-tooltip'
 
@@ -50,12 +50,6 @@ function getInitials(name: string): string {
     .slice(0, 2)
     .map((w) => w[0]?.toUpperCase() ?? '')
     .join('') || '?'
-}
-
-function dealStatusLabel(m: Awaited<ReturnType<typeof getServerDictionary>>, status: string): string {
-  const label = tr(m, `deals.${status}`)
-  if (label === `deals.${status}`) return status
-  return label
 }
 
 export default async function SmbDetailPage({

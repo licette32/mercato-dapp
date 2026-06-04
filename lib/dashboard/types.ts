@@ -62,9 +62,18 @@ export type AdminApprovalPreview = {
   amount: number
 }
 
+export type SupplierProductPreview = {
+  id: string
+  name: string
+  image_url: string | null
+}
+
 export type SupplierProductsCard = {
   categories: string[]
+  /** Product names for compact badge lists */
   products: string[]
+  /** Rich previews with images for dashboard catalog card */
+  items: SupplierProductPreview[]
 }
 
 export type DashboardProfile = {
@@ -77,7 +86,7 @@ export type DashboardPayload = {
   profile: DashboardProfile
   deals: DashboardDealRow[]
   companyFilterId: string | null
-  supplierCompanies: { id: string; company_name: string | null }[]
+  supplierCompanies: { id: string; company_name: string | null; logo_url: string | null }[]
   supplierProductsForCard: SupplierProductsCard | null
   roleStats: RoleStats | null
   adminStats: AdminStats | null

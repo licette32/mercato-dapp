@@ -4,12 +4,8 @@ import { GeistSans } from 'geist/font/sans'
 import { GeistMono } from 'geist/font/mono'
 import { DM_Serif_Display } from 'next/font/google'
 import '@pollar/react/styles.css'
-import { ThemeProvider } from '@/components/theme-provider'
-import { TrustlessWorkProvider } from '@/lib/trustless/config'
-import { PollarProvider } from '@/providers/pollar-provider'
-import { WalletProvider } from '@/providers/wallet-provider'
+import { AppProviders } from '@/components/providers/app-providers'
 import { Toaster } from '@/components/ui/sonner'
-import { I18nProvider } from '@/lib/i18n/provider'
 import { getDictionary } from '@/lib/i18n/dictionaries'
 import { getServerLocale } from '@/lib/i18n/server'
 import { UserTypeGate } from '@/components/user-type-gate'
@@ -88,24 +84,11 @@ export default async function RootLayout({
       <body className="font-sans antialiased" suppressHydrationWarning>
         <JsonLd data={organizationSchema} />
         <JsonLd data={websiteSchema} />
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="system"
-          enableSystem
-          disableTransitionOnChange
-        >
-          <PollarProvider>
-            <TrustlessWorkProvider>
-              <WalletProvider>
-                <I18nProvider locale={locale} messages={messages}>
-                  <UserTypeGate />
-                  {children}
-                  <Toaster />
-                </I18nProvider>
-              </WalletProvider>
-            </TrustlessWorkProvider>
-          </PollarProvider>
-        </ThemeProvider>
+        <AppProviders locale={locale} messages={messages}>
+          <UserTypeGate />
+          {children}
+          <Toaster />
+        </AppProviders>
       </body>
     </html>
   )

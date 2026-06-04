@@ -44,3 +44,11 @@ export async function getServerDictionary() {
   const locale = await getServerLocale()
   return getDictionary(locale)
 }
+
+/** DB deal `status` → localized label (`dealStatus.*`). */
+export function dealStatusLabel(messages: Messages, status: string): string {
+  const key = `dealStatus.${status}`
+  const label = tr(messages, key)
+  if (label === key) return status.replace(/_/g, ' ')
+  return label
+}

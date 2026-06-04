@@ -1,8 +1,9 @@
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
+import { SupplierLogo } from '@/components/suppliers/supplier-logo'
 
 type DashboardSupplierFilterProps = {
-  companies: { id: string; company_name: string | null }[]
+  companies: { id: string; company_name: string | null; logo_url?: string | null }[]
   activeCompanyId: string | null
   labels: {
     company: string
@@ -33,7 +34,12 @@ export function DashboardSupplierFilter({
             size="sm"
             className="rounded-full"
           >
-            <Link href={`/dashboard?company=${c.id}`}>
+            <Link href={`/dashboard?company=${c.id}`} className="flex items-center gap-2">
+              <SupplierLogo
+                logoUrl={c.logo_url ?? null}
+                companyName={c.company_name || labels.unnamedCompany}
+                size="xs"
+              />
               {c.company_name || labels.unnamedCompany}
             </Link>
           </Button>

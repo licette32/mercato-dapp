@@ -1,12 +1,9 @@
 'use client'
 
 import * as React from 'react'
-import Link from 'next/link'
-import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 import { useReveal } from '@/lib/landing/use-scroll-motion'
 import {
-  ArrowRight,
   BadgeCheck,
   Building2,
   CreditCard,
@@ -332,15 +329,6 @@ export function LandingRateComparison() {
                 />
               ))}
             </div>
-          </div>
-
-          <div className="mt-12 text-center">
-            <Button asChild size="lg" className="rounded-full bg-brand-mid px-8 text-white hover:bg-brand-dark dark:bg-brand-light dark:text-brand-dark dark:hover:bg-brand-light/90">
-              <Link href="/auth/sign-up">
-                {t('landing.rates.cta')}
-                <ArrowRight className="ml-2 h-5 w-5" />
-              </Link>
-            </Button>
           </div>
         </div>
       </div>

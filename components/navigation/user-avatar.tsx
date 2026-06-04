@@ -1,4 +1,4 @@
-import { Avatar, AvatarFallback } from '@/components/ui/avatar'
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { getRoleTheme } from '@/lib/dashboard/role-theme'
 import { cn } from '@/lib/utils'
 
@@ -17,6 +17,7 @@ export function getInitials(name: string): string {
 type UserAvatarProps = {
   name: string
   userType?: string
+  avatarUrl?: string | null
   size?: 'sm' | 'md'
   className?: string
 }
@@ -26,11 +27,14 @@ const sizeClasses = {
   md: 'h-10 w-10 text-sm',
 }
 
-export function UserAvatar({ name, userType, size = 'md', className }: UserAvatarProps) {
+export function UserAvatar({ name, userType, avatarUrl, size = 'md', className }: UserAvatarProps) {
   const theme = userType ? getRoleTheme(userType) : null
 
   return (
     <Avatar className={cn(sizeClasses[size], className)}>
+      {avatarUrl ? (
+        <AvatarImage src={avatarUrl} alt={name} className="object-cover" />
+      ) : null}
       <AvatarFallback
         className={cn(
           'font-semibold',

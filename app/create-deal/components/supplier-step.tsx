@@ -1,6 +1,5 @@
 'use client'
 
-import { useState } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Label } from '@/components/ui/label'
 import {
@@ -13,60 +12,9 @@ import {
 import { Building2 } from 'lucide-react'
 import { formatCurrency, formatPercent } from '@/lib/format'
 import { Input } from '@/components/ui/input'
+import { SupplierLogo } from '@/components/suppliers/supplier-logo'
 import type { CreateDealFormData } from '../types'
 import { useI18n } from '@/lib/i18n/provider'
-
-function SupplierLogoSelect({
-  logoUrl,
-  companyName,
-  fallbackIcon: Icon = Building2
-}: {
-  logoUrl: string | null | undefined
-  companyName: string
-  fallbackIcon?: any
-}) {
-  const [imageError, setImageError] = useState(false)
-  return (
-    <div className="flex h-5 w-5 shrink-0 items-center justify-center overflow-hidden rounded border border-border/50 bg-muted/30">
-      {logoUrl && !imageError ? (
-        <img
-          src={logoUrl}
-          alt={companyName}
-          className="h-full w-full object-cover"
-          onError={() => setImageError(true)}
-        />
-      ) : (
-        <Icon className="h-3 w-3 text-muted-foreground/60" />
-      )}
-    </div>
-  )
-}
-
-function SupplierLogoPreview({
-  logoUrl,
-  companyName,
-  fallbackIcon: Icon = Building2
-}: {
-  logoUrl: string | null | undefined
-  companyName: string
-  fallbackIcon?: any
-}) {
-  const [imageError, setImageError] = useState(false)
-  return (
-    <div className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-lg border border-border/50 bg-background shadow-sm">
-      {logoUrl && !imageError ? (
-        <img
-          src={logoUrl}
-          alt={companyName}
-          className="h-full w-full object-cover"
-          onError={() => setImageError(true)}
-        />
-      ) : (
-        <Icon className="h-5 w-5 text-muted-foreground/40" />
-      )}
-    </div>
-  )
-}
 
 interface SupplierOption {
   id: string
@@ -158,9 +106,10 @@ export function SupplierStep({
                 filteredSuppliers.map((supplier) => (
                   <SelectItem key={supplier.id} value={supplier.id}>
                     <div className="flex items-center gap-2">
-                      <SupplierLogoSelect
+                      <SupplierLogo
                         logoUrl={supplier.logo_url}
                         companyName={supplier.company_name}
+                        size="xs"
                       />
                       {supplier.company_name}
                     </div>
@@ -181,9 +130,10 @@ export function SupplierStep({
           <div className="rounded-lg border border-border bg-muted/30 p-3">
             <p className="mb-2 text-sm font-medium">{t('createDeal.selectedSupplier')}</p>
             <div className="flex items-center gap-3">
-              <SupplierLogoPreview
+              <SupplierLogo
                 logoUrl={selectedSupplier?.logo_url}
                 companyName={formData.supplierName}
+                size="sm"
               />
               <div>
                 <p className="text-sm font-semibold">{formData.supplierName}</p>

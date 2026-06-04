@@ -1,5 +1,8 @@
-import { Building2, Plus } from 'lucide-react'
+'use client'
+
+import { Plus } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { SupplierLogo } from '@/components/suppliers/supplier-logo'
 import type { SupplierCompany } from '@/lib/supplier-profile/types'
 import { cn } from '@/lib/utils'
 import { useI18n } from '@/lib/i18n/provider'
@@ -48,14 +51,15 @@ export function SupplierCompanyList({
                     : 'hover:bg-muted/50',
                 )}
               >
-                <div
+                <SupplierLogo
+                  logoUrl={company.logo_url}
+                  companyName={company.company_name || t('supplierProfile.unnamedCompany')}
+                  size="xs"
                   className={cn(
-                    'flex h-9 w-9 shrink-0 items-center justify-center rounded-lg',
-                    active ? 'bg-amber-500/20 text-amber-800 dark:text-amber-300' : 'bg-muted',
+                    'h-9 w-9 rounded-lg',
+                    active && 'ring-1 ring-amber-500/40',
                   )}
-                >
-                  <Building2 className="h-4 w-4" aria-hidden />
-                </div>
+                />
                 <div className="min-w-0 flex-1">
                   <p className="truncate font-medium leading-snug">
                     {company.company_name || t('supplierProfile.unnamedCompany')}

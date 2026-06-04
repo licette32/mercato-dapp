@@ -3,6 +3,7 @@ export interface NavProfile {
   contact_name?: string
   company_name?: string
   user_type?: string
+  avatar_url?: string | null
 }
 
 export interface NavUser {

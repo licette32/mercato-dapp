@@ -14,9 +14,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { PRODUCT_CATEGORIES } from '@/lib/categories'
+import { getLocalizedCategoryLabel, PRODUCT_CATEGORIES } from '@/lib/categories'
 import type { ProductFormState } from '@/lib/supplier-profile/types'
 import { useI18n } from '@/lib/i18n/provider'
+
+const UNIT_VALUES = ['unit', 'kg', 'lb', 'box', 'case', 'pallet', 'liter', 'm'] as const
 
 type SupplierProductFormProps = {
   formProduct: ProductFormState
@@ -24,7 +26,13 @@ type SupplierProductFormProps = {
 }
 
 export function SupplierProductForm({ formProduct, onChange }: SupplierProductFormProps) {
-  const { t } = useI18n()
+  const { t, messages } = useI18n()
+
+  const unitLabel = (unit: string) => {
+    const key = `supplierProfile.unit.${unit}`
+    const label = t(key)
+    return label === key ? unit : label
+  }
   const [isDragging, setIsDragging] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
@@ -108,7 +116,34 @@ export function SupplierProductForm({ formProduct, onChange }: SupplierProductFo
             <SelectContent>
               {PRODUCT_CATEGORIES.map((c) => (
                 <SelectItem key={c.value} value={c.value}>
-                  {c.label}
+                  {getLocalizedCategoryLabel(c.value, messages)}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
+      <div className="grid gap-4 sm:grid-cols-2">
+        <div className="space-y-2">
+          <Label htmlFor="form-sku">{t('supplierProfile.formSku')}</Label>
+          <Input
+            id="form-sku"
+            value={formProduct.sku}
+            onChange={(e) => onChange({ sku: e.target.value })}
+            placeholder={t('supplierProfile.formSkuPh')}
+            autoComplete="off"
+          />
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="form-unit">{t('supplierProfile.formUnit')}</Label>
+          <Select value={formProduct.unit} onValueChange={(v) => onChange({ unit: v })}>
+            <SelectTrigger id="form-unit">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {UNIT_VALUES.map((u) => (
+                <SelectItem key={u} value={u}>
+                  {unitLabel(u)}
                 </SelectItem>
               ))}
             </SelectContent>
@@ -127,6 +162,40 @@ export function SupplierProductForm({ formProduct, onChange }: SupplierProductFo
           onChange={(e) => onChange({ price_per_unit: e.target.value })}
           placeholder={t('supplierProfile.formPricePh')}
         />
+      </div>
+      <div className="rounded-xl border border-border/60 bg-muted/15 p-4 space-y-4">
+        <div>
+          <p className="text-sm font-medium">{t('supplierProfile.formInventorySection')}</p>
+          <p className="text-xs text-muted-foreground mt-0.5">{t('supplierProfile.formInventoryHint')}</p>
+        </div>
+        <div className="grid gap-4 sm:grid-cols-2">
+          <div className="space-y-2">
+            <Label htmlFor="form-stock">{t('supplierProfile.formStockOnHand')}</Label>
+            <Input
+              id="form-stock"
+              type="number"
+              inputMode="numeric"
+              min="0"
+              step="1"
+              value={formProduct.stock_quantity}
+              onChange={(e) => onChange({ stock_quantity: e.target.value })}
+              placeholder="0"
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="form-reorder">{t('supplierProfile.formReorderPoint')}</Label>
+            <Input
+              id="form-reorder"
+              type="number"
+              inputMode="numeric"
+              min="0"
+              step="1"
+              value={formProduct.reorder_point}
+              onChange={(e) => onChange({ reorder_point: e.target.value })}
+              placeholder="0"
+            />
+          </div>
+        </div>
       </div>
       <div className="grid gap-4 sm:grid-cols-2">
         <div className="space-y-2">

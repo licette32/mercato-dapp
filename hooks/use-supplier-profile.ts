@@ -5,8 +5,15 @@ import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { PRODUCT_CATEGORIES } from '@/lib/categories'
 import {
+  computeInventoryStats,
+  getAvailableQuantity,
+  productMatchesStockFilter,
+  type StockFilter,
+} from '@/lib/supplier-profile/inventory'
+import {
   EMPTY_PRODUCT_FORM,
   PAGE_SIZE,
+  PRODUCT_SELECT,
   type CompanyFormState,
   type ProductFormState,
   type SupplierCompany,
@@ -14,6 +21,18 @@ import {
 } from '@/lib/supplier-profile/types'
 import { useI18n } from '@/lib/i18n/provider'
 import { toast } from 'sonner'
+
+const SUPPLIER_COMPANY_SELECT =
+  'id, company_name, bio, country, sector, phone, logo_url' as const
+
+function logSupabaseError(label: string, err: unknown) {
+  const e = err as { message?: string; details?: string; hint?: string; code?: string }
+  console.error(label, e?.message ?? err, {
+    code: e?.code,
+    details: e?.details,
+    hint: e?.hint,
+  })
+}
 
 export function useSupplierProfile() {
   const router = useRouter()
@@ -38,8 +57,10 @@ export function useSupplierProfile() {
   const [activeTab, setActiveTab] = useState<'profile' | 'catalog'>('catalog')
   const [search, setSearch] = useState('')
   const [categoryFilter, setCategoryFilter] = useState('all')
+  const [stockFilter, setStockFilter] = useState<StockFilter>('all')
   const [sort, setSort] = useState('name_asc')
   const [page, setPage] = useState(0)
+  const [stockAdjustingId, setStockAdjustingId] = useState<string | null>(null)
 
   const [addDialogOpen, setAddDialogOpen] = useState(false)
   const [editingProduct, setEditingProduct] = useState<SupplierProduct | null>(null)
@@ -56,6 +77,8 @@ export function useSupplierProfile() {
         { value: 'category_asc', label: t('supplierProfile.sortCategory') },
         { value: 'price_asc', label: t('supplierProfile.sortPriceLow') },
         { value: 'price_desc', label: t('supplierProfile.sortPriceHigh') },
+        { value: 'stock_asc', label: t('supplierProfile.sortStockLow') },
+        { value: 'stock_desc', label: t('supplierProfile.sortStockHigh') },
       ] as const,
     [t],
   )
@@ -94,11 +117,16 @@ export function useSupplierProfile() {
         return
       }
 
-      const { data: companiesData } = await supabase
+      const { data: companiesData, error: companiesError } = await supabase
         .from('supplier_companies')
-        .select('id, company_name, bio, country, sector, phone, logo_url')
+        .select(SUPPLIER_COMPANY_SELECT)
         .eq('owner_id', u.id)
         .order('company_name')
+
+      if (companiesError) {
+        logSupabaseError('Error loading supplier companies:', companiesError)
+        toast.error(t('supplierProfile.toastLoadCompaniesFail'))
+      }
 
       const companiesList = (companiesData ?? []) as SupplierCompany[]
       setCompanies(companiesList)
@@ -116,7 +144,7 @@ export function useSupplierProfile() {
     const loadProducts = async () => {
       const { data: productsData } = await supabase
         .from('supplier_products')
-        .select('*')
+        .select(PRODUCT_SELECT)
         .eq('supplier_id', selectedCompanyId)
         .order('name')
       setProducts((productsData as SupplierProduct[]) ?? [])
@@ -142,6 +170,8 @@ export function useSupplierProfile() {
     [products],
   )
 
+  const inventoryStats = useMemo(() => computeInventoryStats(products), [products])
+
   const filteredAndSorted = useMemo(() => {
     let list = [...products]
     const q = search.trim().toLowerCase()
@@ -149,12 +179,16 @@ export function useSupplierProfile() {
       list = list.filter(
         (p) =>
           p.name.toLowerCase().includes(q) ||
+          (p.sku?.toLowerCase().includes(q) ?? false) ||
           (p.description?.toLowerCase().includes(q) ?? false) ||
           p.category.toLowerCase().includes(q),
       )
     }
     if (categoryFilter !== 'all') {
       list = list.filter((p) => p.category === categoryFilter)
+    }
+    if (stockFilter !== 'all') {
+      list = list.filter((p) => productMatchesStockFilter(p, stockFilter))
     }
     const [field, dir] = sort.includes('_') ? sort.split('_') : ['name', 'asc']
     list.sort((a, b) => {
@@ -170,10 +204,14 @@ export function useSupplierProfile() {
         const cmp = Number(a.price_per_unit) - Number(b.price_per_unit)
         return dir === 'asc' ? cmp : -cmp
       }
+      if (field === 'stock') {
+        const cmp = getAvailableQuantity(a) - getAvailableQuantity(b)
+        return dir === 'asc' ? cmp : -cmp
+      }
       return 0
     })
     return list
-  }, [products, search, categoryFilter, sort])
+  }, [products, search, categoryFilter, stockFilter, sort])
 
   const totalPages = Math.max(1, Math.ceil(filteredAndSorted.length / PAGE_SIZE))
   const currentPage = Math.min(page, totalPages - 1)
@@ -221,7 +259,7 @@ export function useSupplierProfile() {
       )
       toast.success(t('supplierProfile.toastDetailsSaved'))
     } catch (err) {
-      console.error(err)
+      logSupabaseError('Error saving supplier company:', err)
       toast.error(t('supplierProfile.toastSaveBioFail'))
     } finally {
       setIsSavingBio(false)
@@ -245,9 +283,12 @@ export function useSupplierProfile() {
         phone: payload.phone.trim() || null,
         updated_at: new Date().toISOString(),
       })
-      .select('id, company_name, bio, country, sector, phone, logo_url')
+      .select(SUPPLIER_COMPANY_SELECT)
       .single()
-    if (error) throw error
+    if (error) {
+      logSupabaseError('Error creating supplier company:', error)
+      throw error
+    }
     const company = data as SupplierCompany
     setCompanies((prev) => [...prev, company])
     setSelectedCompanyId(company.id)
@@ -288,6 +329,10 @@ export function useSupplierProfile() {
       description: p.description ?? '',
       minimum_order: p.minimum_order != null ? String(p.minimum_order) : '',
       delivery_time: p.delivery_time ?? '',
+      sku: p.sku ?? '',
+      unit: p.unit || 'unit',
+      stock_quantity: String(p.stock_quantity ?? 0),
+      reorder_point: String(p.reorder_point ?? 0),
       imageFile: null,
       imagePreview: p.image_url ?? null,
     })
@@ -300,13 +345,43 @@ export function useSupplierProfile() {
     const price = Number.parseFloat(formProduct.price_per_unit)
     const minOrder = formProduct.minimum_order.trim() ? Number.parseFloat(formProduct.minimum_order) : null
     const deliveryTime = formProduct.delivery_time.trim() || null
-    return { name, category, price, minOrder, deliveryTime }
+    const sku = formProduct.sku.trim() || null
+    const unit = formProduct.unit.trim() || 'unit'
+    const stockQty = Math.max(0, Math.floor(Number.parseInt(formProduct.stock_quantity, 10) || 0))
+    const reorderPoint = Math.max(0, Math.floor(Number.parseInt(formProduct.reorder_point, 10) || 0))
+    return { name, category, price, minOrder, deliveryTime, sku, unit, stockQty, reorderPoint }
+  }
+
+  const adjustStock = async (product: SupplierProduct, delta: number) => {
+    if (!selectedCompanyId) return
+    const next = Math.max(0, Math.floor(Number(product.stock_quantity) || 0) + delta)
+    if (next < Math.max(0, Math.floor(Number(product.reserved_quantity) || 0))) {
+      toast.error(t('supplierProfile.toastStockBelowReserved'))
+      return
+    }
+    setStockAdjustingId(product.id)
+    try {
+      const { error } = await supabase
+        .from('supplier_products')
+        .update({ stock_quantity: next, updated_at: new Date().toISOString() })
+        .eq('id', product.id)
+      if (error) throw error
+      setProducts((prev) =>
+        prev.map((p) => (p.id === product.id ? { ...p, stock_quantity: next } : p)),
+      )
+    } catch (err) {
+      console.error(err)
+      toast.error(t('supplierProfile.toastStockAdjustFail'))
+    } finally {
+      setStockAdjustingId(null)
+    }
   }
 
   const handleAddProduct = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!user || !selectedCompanyId) return
-    const { name, category, price, minOrder, deliveryTime } = parseProductForm()
+    const { name, category, price, minOrder, deliveryTime, sku, unit, stockQty, reorderPoint } =
+      parseProductForm()
     if (!name || !category || Number.isNaN(price) || price <= 0) {
       toast.error(t('supplierProfile.toastProductFields'))
       return
@@ -323,6 +398,10 @@ export function useSupplierProfile() {
           description: formProduct.description.trim() || null,
           minimum_order: minOrder != null && !Number.isNaN(minOrder) && minOrder >= 0 ? minOrder : null,
           delivery_time: deliveryTime,
+          sku,
+          unit,
+          stock_quantity: stockQty,
+          reorder_point: reorderPoint,
         })
         .select()
         .single()
@@ -368,7 +447,8 @@ export function useSupplierProfile() {
   const handleUpdateProduct = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!editingProduct || !user || !selectedCompanyId) return
-    const { name, category, price, minOrder, deliveryTime } = parseProductForm()
+    const { name, category, price, minOrder, deliveryTime, sku, unit, stockQty, reorderPoint } =
+      parseProductForm()
     if (!name || !category || Number.isNaN(price) || price <= 0) {
       toast.error(t('supplierProfile.toastProductFields'))
       return
@@ -408,6 +488,10 @@ export function useSupplierProfile() {
           minimum_order: minOrder != null && !Number.isNaN(minOrder) && minOrder >= 0 ? minOrder : null,
           delivery_time: deliveryTime,
           image_url: imageUrlToSave,
+          sku,
+          unit,
+          stock_quantity: stockQty,
+          reorder_point: reorderPoint,
           updated_at: new Date().toISOString(),
         })
         .eq('id', editingProduct.id)
@@ -425,6 +509,10 @@ export function useSupplierProfile() {
                 minimum_order: minOrder != null && !Number.isNaN(minOrder) && minOrder >= 0 ? minOrder : null,
                 delivery_time: deliveryTime,
                 image_url: imageUrlToSave,
+                sku,
+                unit,
+                stock_quantity: stockQty,
+                reorder_point: reorderPoint,
               }
             : p,
         ),
@@ -464,6 +552,7 @@ export function useSupplierProfile() {
   const clearFilters = () => {
     setSearch('')
     setCategoryFilter('all')
+    setStockFilter('all')
     setPage(0)
   }
 
@@ -484,6 +573,11 @@ export function useSupplierProfile() {
     setSearch,
     categoryFilter,
     setCategoryFilter,
+    stockFilter,
+    setStockFilter,
+    inventoryStats,
+    stockAdjustingId,
+    adjustStock,
     sort,
     setSort,
     page,

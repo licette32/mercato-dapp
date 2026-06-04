@@ -12,6 +12,7 @@ import { User, UserPlus, ChevronDown } from 'lucide-react'
 import { UserAvatar } from '@/components/navigation/user-avatar'
 import { UserMenuContent, displayName } from '@/components/navigation/user-menu-content'
 import type { NavProfile, NavUser, WalletNavProps } from '@/components/navigation/user-nav-types'
+import { useMounted } from '@/hooks/use-mounted'
 import { useI18n } from '@/lib/i18n/provider'
 export type { NavProfile, NavUser, WalletNavProps } from '@/components/navigation/user-nav-types'
 export { localizedUserType } from '@/components/navigation/user-avatar'
@@ -26,17 +27,22 @@ interface UserNavProps {
 
 export function UserNav({ user, profile, onLogout, wallet, variant }: UserNavProps) {
   const { t } = useI18n()
+  const mounted = useMounted()
 
   if (!user) {
     if (variant === 'desktop') {
+      const accountTrigger = (
+        <Button variant="ghost" size="sm" className="gap-2" type="button">
+          <User className="h-4 w-4" aria-hidden />
+          {t('nav.account')}
+        </Button>
+      )
+      if (!mounted) {
+        return accountTrigger
+      }
       return (
         <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="sm" className="gap-2">
-              <User className="h-4 w-4" aria-hidden />
-              {t('nav.account')}
-            </Button>
-          </DropdownMenuTrigger>
+          <DropdownMenuTrigger asChild>{accountTrigger}</DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-56">
             <DropdownMenuItem asChild>
               <Link href="/auth/login" className="cursor-pointer">
@@ -70,21 +76,31 @@ export function UserNav({ user, profile, onLogout, wallet, variant }: UserNavPro
   const shortName = name.split(' ')[0] || name
 
   if (variant === 'desktop') {
+    const userTrigger = (
+      <Button
+        variant="ghost"
+        size="sm"
+        type="button"
+        className="h-10 gap-2 rounded-full pl-1 pr-2 hover:bg-muted/60"
+      >
+        <UserAvatar
+          name={name || '?'}
+          userType={profile?.user_type}
+          avatarUrl={profile?.avatar_url}
+          size="sm"
+        />
+        <span className="max-w-[7rem] truncate text-sm font-medium hidden sm:inline">
+          {shortName}
+        </span>
+        <ChevronDown className="h-3.5 w-3.5 text-muted-foreground opacity-70" aria-hidden />
+      </Button>
+    )
+    if (!mounted) {
+      return userTrigger
+    }
     return (
       <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button
-            variant="ghost"
-            size="sm"
-            className="h-10 gap-2 rounded-full pl-1 pr-2 hover:bg-muted/60"
-          >
-            <UserAvatar name={name || '?'} userType={profile?.user_type} size="sm" />
-            <span className="max-w-[7rem] truncate text-sm font-medium hidden sm:inline">
-              {shortName}
-            </span>
-            <ChevronDown className="h-3.5 w-3.5 text-muted-foreground opacity-70" aria-hidden />
-          </Button>
-        </DropdownMenuTrigger>
+        <DropdownMenuTrigger asChild>{userTrigger}</DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="w-80 p-0" sideOffset={8}>
           <UserMenuContent
             user={user}

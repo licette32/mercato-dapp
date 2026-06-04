@@ -27,7 +27,11 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { ReputationSummaryCard } from '@/components/reputation-summary-card'
-import { VaultToDealAllocator } from '@/components/vault-to-deal-allocator'
+import { DealFundDialog } from '@/components/deals/deal-fund-dialog'
+import { DealInvestorDetails } from '@/components/deals/deal-investor-details'
+import { DealInvestorHero } from '@/components/deals/deal-investor-hero'
+import { DealDetailsPanel } from '@/components/deals/deal-details-panel'
+import { DealOnChainPanel } from '@/components/deals/deal-on-chain-panel'
 import { formatDate } from '@/lib/date-utils'
 import { formatCurrency } from '@/lib/format'
 import {
@@ -39,8 +43,6 @@ import {
   CheckCircle2,
   Clock,
   FileText,
-  ExternalLink,
-  AlertCircle,
   ChevronRight,
   Sparkles,
   Lock,
@@ -97,6 +99,8 @@ export default function DealDetailPage() {
   const [confirmingDeliveryMilestoneId, setConfirmingDeliveryMilestoneId] = useState<string | null>(null)
   const [indexerEscrow, setIndexerEscrow] = useState<GetEscrowsFromIndexerResponse | null>(null)
   const [pymeReputation, setPymeReputation] = useState<Reputation | null>(null)
+  const [supplierReputation, setSupplierReputation] = useState<Reputation | null>(null)
+  const [partyReputationsLoading, setPartyReputationsLoading] = useState(false)
   const [extendFundingDialogOpen, setExtendFundingDialogOpen] = useState(false)
   const [extendFundingDays, setExtendFundingDays] = useState('7')
   const [isExtendingFundingWindow, setIsExtendingFundingWindow] = useState(false)
@@ -190,24 +194,41 @@ export default function DealDetailPage() {
   }, [dealId, fetchDeal])
 
   useEffect(() => {
-    if (!deal?.pymeId) {
+    const pymeId = deal?.pymeId
+    const supplierOwnerId = deal?.supplierOwnerId
+    if (!pymeId && !supplierOwnerId) {
       setPymeReputation(null)
+      setSupplierReputation(null)
+      setPartyReputationsLoading(false)
       return
     }
 
     let cancelled = false
-    getReputation(supabase, deal.pymeId)
-      .then((reputation) => {
-        if (!cancelled) setPymeReputation(reputation)
+    setPartyReputationsLoading(true)
+
+    Promise.all([
+      pymeId ? getReputation(supabase, pymeId) : Promise.resolve(null),
+      supplierOwnerId ? getReputation(supabase, supplierOwnerId) : Promise.resolve(null),
+    ])
+      .then(([pyme, supplier]) => {
+        if (cancelled) return
+        setPymeReputation(pyme)
+        setSupplierReputation(supplier)
       })
       .catch(() => {
-        if (!cancelled) setPymeReputation(null)
+        if (!cancelled) {
+          setPymeReputation(null)
+          setSupplierReputation(null)
+        }
+      })
+      .finally(() => {
+        if (!cancelled) setPartyReputationsLoading(false)
       })
 
     return () => {
       cancelled = true
     }
-  }, [deal?.pymeId, supabase])
+  }, [deal?.pymeId, deal?.supplierOwnerId, supabase])
 
   // Fetch on-chain escrow state from indexer when deal has escrow
   const escrowAddress = deal?.escrowAddress ?? ''
@@ -330,6 +351,10 @@ export default function DealDetailPage() {
   const fundingRemainingMs = getFundingTimeRemainingMs(deal.fundingExpiresAt)
   const completedMilestones = deal.milestones.filter(m => m.status === 'completed').length
   const progressPercentage = (completedMilestones / deal.milestones.length) * 100
+  const showInvestorPitch =
+    deal.status === 'awaiting_funding' && isFundingOpen && !isPyme && !isSupplier
+  const canFund =
+    userType === 'investor' && Boolean(deal.escrowAddress) && isFundingOpen
 
   const handleFundDeal = async () => {
     if (!deal || !walletInfo?.address || !deal.escrowAddress) return
@@ -572,11 +597,26 @@ export default function DealDetailPage() {
     }
   }
 
+  const fundDealDialog = (
+    <DealFundDialog
+      deal={deal}
+      open={isFundingDialogOpen}
+      onOpenChange={setIsFundingDialogOpen}
+      isFunding={isFunding}
+      isConnected={isConnected}
+      walletAddress={walletInfo?.address}
+      onConnect={handleConnect}
+      onConfirmFund={handleFundDeal}
+    />
+  )
+
   return (
     <div className="flex min-h-screen flex-col">
       <Navigation />
 
-      <div className="container mx-auto px-4 py-10">
+      <div
+        className={`container mx-auto px-4 py-10${showInvestorPitch && canFund ? ' pb-24 lg:pb-10' : ''}`}
+      >
         {/* Breadcrumb */}
         <div className="mb-6 flex items-center gap-1.5 text-sm text-muted-foreground">
           <Link href="/deals" className="flex items-center gap-1 hover:text-foreground">
@@ -587,7 +627,21 @@ export default function DealDetailPage() {
           <span className="truncate text-foreground/70">{deal.productName || t('deals.viewDeal')}</span>
         </div>
 
-        {/* Header */}
+        {showInvestorPitch ? (
+          <DealInvestorHero
+            deal={deal}
+            fundingRemainingMs={fundingRemainingMs}
+            isFundingOpen={isFundingOpen}
+            canFund={canFund}
+            userType={userType}
+            pymeReputation={pymeReputation}
+            supplierReputation={supplierReputation}
+            reputationsLoading={partyReputationsLoading}
+            fundDialog={fundDealDialog}
+            onConnectWallet={handleConnect}
+          />
+        ) : (
+        /* Header */
         <div className="mb-8">
           <div className="mb-6 flex flex-wrap items-start justify-between gap-4">
             <div className="flex-1">
@@ -618,81 +672,7 @@ export default function DealDetailPage() {
               isFundingOpen ? (
                 deal.escrowAddress ? (
                 userType === 'investor' ? (
-                  <Dialog open={isFundingDialogOpen} onOpenChange={setIsFundingDialogOpen}>
-                    <DialogTrigger asChild>
-                      <Button size="lg" className="gap-2 shadow-sm">
-                        <Wallet className="h-5 w-5" aria-hidden />
-                        {t('deals.fundThisDeal')} {formatCurrency(deal.priceUSDC)}
-                      </Button>
-                    </DialogTrigger>
-                    <DialogContent className="sm:max-w-md">
-                      <DialogHeader>
-                        <DialogTitle>{t('dealDetail.fundDialogTitle')}</DialogTitle>
-                        <DialogDescription>
-                          {t('dealDetail.fundDialogDescription')}
-                        </DialogDescription>
-                      </DialogHeader>
-                      <div className="space-y-4">
-                        <div className="space-y-2">
-                          <Label>{t('dealDetail.dealAmount')}</Label>
-                          <div className="rounded-lg border border-border bg-muted/50 p-3">
-                            <p className="text-2xl font-bold">${deal.priceUSDC.toLocaleString()}</p>
-                            <p className="text-sm text-muted-foreground">{t('dealDetail.usdcOnStellar')}</p>
-                          </div>
-                        </div>
-
-                        <div className="space-y-2">
-                          <Label>{t('dealDetail.expectedReturn')}</Label>
-                          <div className="rounded-lg border border-success bg-success/5 p-3">
-                            <p className="text-2xl font-bold text-success">
-                              {deal.yieldAPR ?? 0}% APR
-                            </p>
-                            <p className="text-sm text-muted-foreground">
-                              {t('dealDetail.profitInDays', {
-                                profit: `$${((deal.priceUSDC * ((deal.yieldAPR ?? 0) / 100) * (deal.term / 365))).toFixed(2)}`,
-                                days: deal.term,
-                              })}
-                            </p>
-                          </div>
-                        </div>
-
-                        {isConnected && (
-                          <VaultToDealAllocator
-                            dealAmount={deal.priceUSDC}
-                            isFundingOpen={isFundingOpen}
-                            disabled={isFunding}
-                            className="border-emerald-200/60 dark:border-emerald-800/40"
-                          />
-                        )}
-
-                        {!isConnected ? (
-                          <Button type="button" onClick={handleConnect} className="w-full">
-                            <Wallet className="mr-2 h-4 w-4" aria-hidden />
-                            {t('dealDetail.connectStellarWallet')}
-                          </Button>
-                        ) : (
-                          <>
-                            <div className="space-y-2">
-                              <Label>{t('dealDetail.fundingFrom')}</Label>
-                              <Input
-                                value={walletInfo?.address ?? ''}
-                                disabled
-                                className="font-mono text-xs"
-                              />
-                            </div>
-                            <Button
-                              type="button"
-                              onClick={handleFundDeal}
-                              className="w-full"
-                              disabled={isFunding}
-                            >
-                              {isFunding ? t('dealDetail.funding') : t('dealDetail.confirmFundDeal')}
-                            </Button>
-                          </>
-                        )}
-                      </div>
-                    </DialogContent>
-                  </Dialog>
+                  fundDealDialog
                 ) : (
                   <div className="rounded-xl border border-border bg-muted/40 px-4 py-3 text-sm text-muted-foreground">
                     {userType
@@ -799,6 +779,7 @@ export default function DealDetailPage() {
             </div>
           </div>
         </div>
+        )}
 
         {/* PyME: Confirm delivery dialog (second milestone only) */}
         <Dialog open={proofDialogOpen} onOpenChange={setProofDialogOpen}>
@@ -849,9 +830,9 @@ export default function DealDetailPage() {
           </DialogContent>
         </Dialog>
 
-        <div className="grid gap-8 lg:grid-cols-3">
+        <div className={`grid gap-8 ${showInvestorPitch ? '' : 'lg:grid-cols-3'}`}>
           {/* Main Content */}
-          <div className="space-y-6 lg:col-span-2">
+          <div className={`space-y-6 ${showInvestorPitch ? '' : 'lg:col-span-2'}`}>
             {/* Milestones */}
             <Card>
               <CardHeader>
@@ -997,197 +978,60 @@ export default function DealDetailPage() {
               </CardContent>
             </Card>
 
-            {/* Tabs: Details, On-Chain, Documents */}
-            <Tabs defaultValue="details" className="w-full">
-              <TabsList className="grid w-full grid-cols-3">
-                <TabsTrigger value="details">{t('dealDetail.tabDetails')}</TabsTrigger>
-                <TabsTrigger value="onchain">{t('dealDetail.tabOnchain')}</TabsTrigger>
-                <TabsTrigger value="documents">{t('dealDetail.tabDocuments')}</TabsTrigger>
-              </TabsList>
+            {showInvestorPitch ? (
+              <DealInvestorDetails deal={deal} indexerEscrow={indexerEscrow} />
+            ) : (
+              <Tabs defaultValue="details" className="w-full">
+                <TabsList className="grid w-full grid-cols-3">
+                  <TabsTrigger value="details">{t('dealDetail.tabDetails')}</TabsTrigger>
+                  <TabsTrigger value="onchain">{t('dealDetail.tabOnchain')}</TabsTrigger>
+                  <TabsTrigger value="documents">{t('dealDetail.tabDocuments')}</TabsTrigger>
+                </TabsList>
 
-              <TabsContent value="details" className="space-y-4">
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="text-base">{t('dealDetail.dealInformation')}</CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div className="grid gap-4 sm:grid-cols-2">
-                      <div>
-                        <p className="mb-1 text-sm font-medium">{t('dealDetail.labelPymeBuyer')}</p>
-                        {deal.pymeId ? (
-                          <Link
-                            href={`/pymes/${deal.pymeId}`}
-                            className="text-sm text-muted-foreground hover:text-foreground hover:underline"
-                          >
-                            {deal.pymeName}
-                          </Link>
-                        ) : (
-                          <p className="text-sm text-muted-foreground">{deal.pymeName}</p>
-                        )}
-                      </div>
-                      <div>
-                        <p className="mb-1 text-sm font-medium">{t('dealDetail.stakeholderLabelSupplier')}</p>
-                        {deal.supplierId ? (
-                          <Link
-                            href={`/suppliers/${deal.supplierId}`}
-                            className="text-sm text-muted-foreground hover:text-foreground hover:underline"
-                          >
-                            {deal.supplier}
-                          </Link>
-                        ) : (
-                          <p className="text-sm text-muted-foreground">{deal.supplier}</p>
-                        )}
-                      </div>
-                      <div>
-                        <p className="mb-1 text-sm font-medium">{t('dealDetail.labelCreatedShort')}</p>
+                <TabsContent value="details" className="space-y-4">
+                  <DealDetailsPanel deal={deal} />
+                </TabsContent>
+
+                <TabsContent value="onchain" className="space-y-4">
+                  <Card>
+                    <CardHeader className="pb-2">
+                      <CardTitle className="text-base">{t('dealDetail.blockchainInfo')}</CardTitle>
+                    </CardHeader>
+                    <CardContent className="pt-0">
+                      <DealOnChainPanel
+                        escrowAddress={deal.escrowAddress}
+                        investorAddress={deal.investorAddress}
+                        supplierAddress={deal.supplierAddress}
+                        indexerEscrow={indexerEscrow}
+                      />
+                    </CardContent>
+                  </Card>
+                </TabsContent>
+
+                <TabsContent value="documents" className="space-y-4">
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="text-base">{t('dealDetail.dealDocuments')}</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="flex flex-col items-center justify-center py-8 text-center">
+                        <FileText className="mb-3 h-12 w-12 text-muted-foreground" />
                         <p className="text-sm text-muted-foreground">
-                          {formatDate(deal.createdAt)}
+                          {t('dealDetail.documentsEmpty')}
                         </p>
                       </div>
-                      {deal.fundedAt && (
-                        <div>
-                          <p className="mb-1 text-sm font-medium">{t('dealDetail.labelFundedShort')}</p>
-                          <p className="text-sm text-muted-foreground">
-                            {formatDate(deal.fundedAt)}
-                          </p>
-                        </div>
-                      )}
-                      {deal.fundingExpiresAt && (
-                        <div>
-                          <p className="mb-1 text-sm font-medium">{t('dealDetail.fundingDeadlineLabel')}</p>
-                          <p className="text-sm text-muted-foreground">
-                            {formatDate(deal.fundingExpiresAt)}
-                          </p>
-                        </div>
-                      )}
-                      <div>
-                        <p className="mb-1 text-sm font-medium">{t('dealDetail.fundingWindowLabel')}</p>
-                        <p className="text-sm text-muted-foreground">
-                          {t('dealDetail.fundingWindowWithExtensions', {
-                            days: deal.fundingWindowDays ?? '—',
-                            ext:
-                              deal.extensionCount > 0
-                                ? ` ${t('dealDetail.extensionsCount', { count: deal.extensionCount })}`
-                                : '',
-                          })}
-                        </p>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              </TabsContent>
-
-              <TabsContent value="onchain" className="space-y-4">
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="text-base">{t('dealDetail.blockchainInfo')}</CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    {deal.escrowAddress ? (
-                      <>
-                        <div>
-                          <p className="mb-1 text-sm font-medium">{t('dealDetail.escrowContract')}</p>
-                          <div className="flex items-center gap-2">
-                            <code className="flex-1 rounded bg-muted px-2 py-1 text-xs">
-                              {deal.escrowAddress}
-                            </code>
-                            <Button size="sm" variant="ghost" asChild>
-                              <a
-                                href={`https://viewer.trustlesswork.com/${deal.escrowAddress}`}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                title={t('dealDetail.titleTrustlessWork')}
-                              >
-                                <ExternalLink className="h-4 w-4" />
-                              </a>
-                            </Button>
-                            <Button size="sm" variant="ghost" asChild>
-                              <a
-                                href={`https://stellar.expert/explorer/public/contract/${deal.escrowAddress}`}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                title={t('dealDetail.titleStellarExpert')}
-                              >
-                                <ExternalLink className="h-4 w-4" />
-                              </a>
-                            </Button>
-                          </div>
-                        </div>
-                        {deal.investorAddress && (
-                          <div>
-                            <p className="mb-1 text-sm font-medium">{t('dealDetail.investorAddress')}</p>
-                            <code className="block rounded bg-muted px-2 py-1 text-xs">
-                              {deal.investorAddress}
-                            </code>
-                          </div>
-                        )}
-                        {deal.supplierAddress && (
-                          <div>
-                            <p className="mb-1 text-sm font-medium">{t('dealDetail.supplierWalletAddress')}</p>
-                            <code className="block rounded bg-muted px-2 py-1 text-xs">
-                              {deal.supplierAddress}
-                            </code>
-                          </div>
-                        )}
-                        {indexerEscrow && (
-                          <>
-                            <Separator className="my-4" />
-                            <div>
-                              <p className="mb-2 text-sm font-medium">{t('dealDetail.fromIndexer')}</p>
-                              {indexerEscrow.balance != null && (
-                                <p className="text-sm text-muted-foreground">
-                                  {t('dealDetail.balanceLine', { bal: indexerEscrow.balance.toLocaleString() })}
-                                </p>
-                              )}
-                              {indexerEscrow.milestones?.length ? (
-                                <div className="mt-2 space-y-1">
-                                  {indexerEscrow.milestones.map((m: { status?: string; amount?: number; description?: string }, i: number) => (
-                                    <p key={`indexer-milestone-${i}-${m.status ?? ''}`} className="text-xs text-muted-foreground">
-                                      {t('dealDetail.indexerMilestoneLine', {
-                                        i,
-                                        status: m.status ?? '—',
-                                        amt: m.amount != null ? ` (${m.amount})` : '',
-                                      })}
-                                    </p>
-                                  ))}
-                                </div>
-                              ) : null}
-                            </div>
-                          </>
-                        )}
-                      </>
-                    ) : (
-                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                        <AlertCircle className="h-4 w-4" />
-                        <span>{t('dealDetail.escrowPendingDeploy')}</span>
-                      </div>
-                    )}
-                  </CardContent>
-                </Card>
-              </TabsContent>
-
-              <TabsContent value="documents" className="space-y-4">
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="text-base">{t('dealDetail.dealDocuments')}</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="flex flex-col items-center justify-center py-8 text-center">
-                      <FileText className="mb-3 h-12 w-12 text-muted-foreground" />
-                      <p className="text-sm text-muted-foreground">
-                        {t('dealDetail.documentsEmpty')}
-                      </p>
-                    </div>
-                  </CardContent>
-                </Card>
-              </TabsContent>
-            </Tabs>
+                    </CardContent>
+                  </Card>
+                </TabsContent>
+              </Tabs>
+            )}
           </div>
 
           {/* Sidebar */}
+          {!showInvestorPitch && (
           <div className="space-y-5">
             {/* Return calculator — only for open deals */}
-            {isFundingOpen && deal.yieldAPR != null && (
+            {isFundingOpen && deal.yieldAPR != null && !showInvestorPitch && (
               <Card className="border-success/30 bg-success/5">
                 <CardHeader className="pb-3">
                   <CardTitle className="flex items-center gap-2 text-base text-success">
@@ -1227,9 +1071,10 @@ export default function DealDetailPage() {
               </Card>
             )}
 
-            <ReputationSummaryCard reputation={pymeReputation} />
+            {!showInvestorPitch && <ReputationSummaryCard reputation={pymeReputation} />}
 
             {/* Stakeholders */}
+            {!showInvestorPitch && (
             <Card>
               <CardHeader className="pb-3">
                 <CardTitle className="text-base">{t('dealDetail.stakeholders')}</CardTitle>
@@ -1288,8 +1133,10 @@ export default function DealDetailPage() {
                 ))}
               </CardContent>
             </Card>
+            )}
 
             {/* Timeline */}
+            {!showInvestorPitch && (
             <Card>
               <CardHeader className="pb-3">
                 <CardTitle className="flex items-center gap-2 text-base">
@@ -1331,8 +1178,10 @@ export default function DealDetailPage() {
                 </ol>
               </CardContent>
             </Card>
+            )}
 
             {/* Security */}
+            {!showInvestorPitch && (
             <Card className="border-border">
               <CardHeader className="pb-3">
                 <CardTitle className="flex items-center gap-2 text-base">
@@ -1349,8 +1198,31 @@ export default function DealDetailPage() {
                 ))}
               </CardContent>
             </Card>
+            )}
           </div>
+          )}
         </div>
+
+        {showInvestorPitch && canFund && (
+          <div className="fixed inset-x-0 bottom-0 z-40 border-t border-border bg-background/95 p-3 shadow-lg backdrop-blur lg:hidden">
+            <DealFundDialog
+              deal={deal}
+              open={isFundingDialogOpen}
+              onOpenChange={setIsFundingDialogOpen}
+              isFunding={isFunding}
+              isConnected={isConnected}
+              walletAddress={walletInfo?.address}
+              onConnect={handleConnect}
+              onConfirmFund={handleFundDeal}
+              trigger={
+                <Button size="lg" className="w-full gap-2 shadow-sm">
+                  <Wallet className="h-5 w-5" aria-hidden />
+                  {t('deals.fundThisDeal')} · {formatCurrency(deal.priceUSDC)}
+                </Button>
+              }
+            />
+          </div>
+        )}
       </div>
     </div>
   )

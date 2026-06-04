@@ -14,9 +14,10 @@ type SettingsHeroProps = {
   email: string
   userType: string
   companyName?: string | null
+  avatarUrl?: string | null
 }
 
-export function SettingsHero({ displayName, email, userType, companyName }: SettingsHeroProps) {
+export function SettingsHero({ displayName, email, userType, companyName, avatarUrl }: SettingsHeroProps) {
   const { t } = useI18n()
   const theme = getRoleTheme(userType)
   const roleLabel = localizedUserType(userType, t)
@@ -34,7 +35,13 @@ export function SettingsHero({ displayName, email, userType, companyName }: Sett
       />
       <div className="relative flex flex-wrap items-start justify-between gap-5">
         <div className="flex min-w-0 items-start gap-4">
-          <UserAvatar name={displayName} userType={userType} size="md" className="h-14 w-14 text-base" />
+          <UserAvatar
+            name={displayName}
+            userType={userType}
+            avatarUrl={avatarUrl}
+            size="md"
+            className="h-14 w-14 text-base"
+          />
           <div className="min-w-0">
             <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-muted-foreground">
               {t('settings.hubLabel')}

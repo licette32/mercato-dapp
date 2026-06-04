@@ -18,6 +18,7 @@ const EMPTY_FORM: ProfileFormState = {
   bio: '',
   country: '',
   sector: '',
+  avatar_url: '',
 }
 
 function SettingsPageInner() {
@@ -56,6 +57,7 @@ function SettingsPageInner() {
           bio: (row.bio as string) || '',
           country: (row.country as string) || '',
           sector: (row.sector as string) || '',
+          avatar_url: (row.avatar_url as string) || '',
         })
       }
       setIsLoading(false)

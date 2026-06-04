@@ -15,6 +15,7 @@ import {
 } from '@/components/ui/select'
 import { LATAM_COUNTRIES, SECTORS } from '@/lib/constants'
 import { useI18n } from '@/lib/i18n/provider'
+import { SettingsAvatarUpload } from './settings-avatar-upload'
 
 export type ProfileFormState = {
   full_name: string
@@ -24,9 +25,12 @@ export type ProfileFormState = {
   bio: string
   country: string
   sector: string
+  avatar_url: string
 }
 
 type SettingsProfileFormProps = {
+  userId: string
+  displayName: string
   userType: string
   formData: ProfileFormState
   onChange: (patch: Partial<ProfileFormState>) => void
@@ -36,6 +40,8 @@ type SettingsProfileFormProps = {
 }
 
 export function SettingsProfileForm({
+  userId,
+  displayName,
   userType,
   formData,
   onChange,
@@ -48,6 +54,17 @@ export function SettingsProfileForm({
 
   return (
     <form onSubmit={onSubmit} className="space-y-6">
+      <div className="space-y-2">
+        <Label>{t('settings.avatarLabel')}</Label>
+        <SettingsAvatarUpload
+          userId={userId}
+          displayName={displayName}
+          userType={userType}
+          value={formData.avatar_url || null}
+          onChange={(url) => onChange({ avatar_url: url ?? '' })}
+        />
+      </div>
+
       <div className="grid gap-4 sm:grid-cols-2">
         <div className="space-y-2 sm:col-span-2">
           <Label htmlFor="full_name">{t('settings.fullNameLabel')}</Label>

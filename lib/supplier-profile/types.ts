@@ -18,7 +18,15 @@ export type SupplierProduct = {
   minimum_order: number | null
   delivery_time: string | null
   image_url: string | null
+  sku: string | null
+  unit: string
+  stock_quantity: number
+  reserved_quantity: number
+  reorder_point: number
 }
+
+export const PRODUCT_SELECT =
+  'id, supplier_id, name, category, price_per_unit, description, minimum_order, delivery_time, image_url, sku, unit, stock_quantity, reserved_quantity, reorder_point' as const
 
 export type ProductFormState = {
   name: string
@@ -27,6 +35,10 @@ export type ProductFormState = {
   description: string
   minimum_order: string
   delivery_time: string
+  sku: string
+  unit: string
+  stock_quantity: string
+  reorder_point: string
   imageFile: File | null
   imagePreview: string | null
 }
@@ -38,6 +50,10 @@ export const EMPTY_PRODUCT_FORM: ProductFormState = {
   description: '',
   minimum_order: '',
   delivery_time: '',
+  sku: '',
+  unit: 'unit',
+  stock_quantity: '0',
+  reorder_point: '0',
   imageFile: null,
   imagePreview: null,
 }

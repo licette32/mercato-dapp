@@ -1,6 +1,5 @@
 'use client'
 
-import { useState } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -12,37 +11,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { Package, Building2 } from 'lucide-react'
+import { Package } from 'lucide-react'
 import { formatCurrency } from '@/lib/format'
-import { getCategoryLabel } from '@/lib/categories'
+import { getLocalizedCategoryLabel } from '@/lib/categories'
+import { ProductImage } from '@/components/media/product-image'
+import { SupplierLogo } from '@/components/suppliers/supplier-logo'
+import { getAvailableQuantity } from '@/lib/supplier-profile/inventory'
 import type { CreateDealFormData } from '../types'
 import { useI18n } from '@/lib/i18n/provider'
-
-function SupplierLogoSelect({
-  logoUrl,
-  companyName,
-  fallbackIcon: Icon = Building2
-}: {
-  logoUrl: string | null | undefined
-  companyName: string
-  fallbackIcon?: any
-}) {
-  const [imageError, setImageError] = useState(false)
-  return (
-    <div className="flex h-5 w-5 shrink-0 items-center justify-center overflow-hidden rounded border border-border/50 bg-muted/30">
-      {logoUrl && !imageError ? (
-        <img
-          src={logoUrl}
-          alt={companyName}
-          className="h-full w-full object-cover"
-          onError={() => setImageError(true)}
-        />
-      ) : (
-        <Icon className="h-3 w-3 text-muted-foreground/60" />
-      )}
-    </div>
-  )
-}
 
 interface SupplierOption {
   id: string
@@ -58,6 +34,10 @@ interface ProductOption {
   category: string
   price_per_unit: number
   description?: string | null
+  image_url?: string | null
+  unit?: string
+  stock_quantity?: number
+  reserved_quantity?: number
 }
 
 interface DealBasicsStepProps {
@@ -82,7 +62,20 @@ export function DealBasicsStep({
   onUpdate,
   onSupplierSelect,
 }: DealBasicsStepProps) {
-  const { t } = useI18n()
+  const { t, messages } = useI18n()
+  const selectedProduct = productsForSupplier.find((p) => p.id === formData.productId)
+  const selectedAvailable = selectedProduct
+    ? getAvailableQuantity({
+        stock_quantity: selectedProduct.stock_quantity ?? 0,
+        reserved_quantity: selectedProduct.reserved_quantity ?? 0,
+      })
+    : null
+  const requestedQty = Number.parseInt(formData.quantity, 10)
+  const quantityExceedsStock =
+    selectedAvailable != null &&
+    selectedAvailable > 0 &&
+    !Number.isNaN(requestedQty) &&
+    requestedQty > selectedAvailable
 
   return (
     <Card>
@@ -119,7 +112,7 @@ export function DealBasicsStep({
               ) : (
                 availableCategories.map((cat) => (
                   <SelectItem key={cat} value={cat}>
-                    {getCategoryLabel(cat)}
+                    {getLocalizedCategoryLabel(cat, messages)}
                   </SelectItem>
                 ))
               )}
@@ -153,10 +146,7 @@ export function DealBasicsStep({
                 filteredSuppliers.map((s) => (
                   <SelectItem key={s.id} value={s.id}>
                     <div className="flex items-center gap-2">
-                      <SupplierLogoSelect
-                        logoUrl={s.logo_url}
-                        companyName={s.company_name}
-                      />
+                      <SupplierLogo logoUrl={s.logo_url} companyName={s.company_name} size="xs" />
                       {s.company_name}
                     </div>
                   </SelectItem>
@@ -187,11 +177,26 @@ export function DealBasicsStep({
                   {t('createDeal.noProductsSupplier')}
                 </div>
               ) : (
-                productsForSupplier.map((p) => (
-                  <SelectItem key={p.id} value={p.id}>
-                    {p.name} — {formatCurrency(p.price_per_unit)} USDC/{t('createDeal.unit')}
-                  </SelectItem>
-                ))
+                productsForSupplier.map((p) => {
+                  const available = getAvailableQuantity({
+                    stock_quantity: p.stock_quantity ?? 0,
+                    reserved_quantity: p.reserved_quantity ?? 0,
+                  })
+                  const unit = p.unit || t('createDeal.unit')
+                  return (
+                    <SelectItem key={p.id} value={p.id}>
+                      <div className="flex items-center gap-2">
+                        <ProductImage imageUrl={p.image_url} alt={p.name} size="xs" />
+                        <span>
+                          {p.name} — {formatCurrency(p.price_per_unit)} USDC/{unit}
+                          {available > 0
+                            ? ` · ${t('createDeal.unitsAvailable', { count: available })}`
+                            : ` · ${t('createDeal.outOfStock')}`}
+                        </span>
+                      </div>
+                    </SelectItem>
+                  )
+                })
               )}
             </SelectContent>
           </Select>
@@ -210,6 +215,19 @@ export function DealBasicsStep({
             onChange={(e) => onUpdate('quantity', e.target.value)}
             aria-required
           />
+          {selectedAvailable != null && selectedAvailable > 0 && (
+            <p className="text-xs text-muted-foreground">
+              {t('createDeal.unitsAvailable', { count: selectedAvailable })}
+            </p>
+          )}
+          {selectedAvailable === 0 && formData.productId && (
+            <p className="text-xs text-destructive">{t('createDeal.outOfStock')}</p>
+          )}
+          {quantityExceedsStock && selectedAvailable != null && (
+            <p className="text-xs text-destructive">
+              {t('createDeal.quantityExceedsStock', { count: selectedAvailable })}
+            </p>
+          )}
         </div>
 
         <div className="space-y-2">

@@ -90,7 +90,12 @@ export function SupplierProfileDialogs({
         resetCompanyForm()
       }
     } catch (err) {
-      console.error(err)
+      const e = err as { message?: string; code?: string; details?: string; hint?: string }
+      console.error('Error adding supplier company:', e?.message ?? err, {
+        code: e?.code,
+        details: e?.details,
+        hint: e?.hint,
+      })
       toast.error(t('supplierProfile.toastCompanyAddFail'))
     } finally {
       setCompanySaving(false)

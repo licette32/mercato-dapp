@@ -22,9 +22,17 @@ import {
   Clock,
   DollarSign,
 } from 'lucide-react'
+import { getLocalizedCategoryLabel } from '@/lib/categories'
 import { getCountryLabel, getSectorLabel } from '@/lib/constants'
-import { getServerDictionary, getServerLocale, tr, formatMoneyServer } from '@/lib/i18n/server'
+import {
+  dealStatusLabel,
+  getServerDictionary,
+  getServerLocale,
+  tr,
+  formatMoneyServer,
+} from '@/lib/i18n/server'
 import { SupplierLogo } from '@/components/suppliers/supplier-logo'
+import { ProductImage } from '@/components/media/product-image'
 
 type ProductRow = {
   id: string
@@ -52,12 +60,6 @@ const DEAL_STATUS_CLASS: Record<string, string> = {
   in_progress: 'bg-primary/10 text-primary',
   completed: 'bg-muted text-muted-foreground',
   cancelled: 'bg-muted text-muted-foreground',
-}
-
-function dealStatusLabel(m: Awaited<ReturnType<typeof getServerDictionary>>, status: string): string {
-  const label = tr(m, `deals.${status}`)
-  if (label === `deals.${status}`) return status
-  return label
 }
 
 export async function generateMetadata({
@@ -141,7 +143,10 @@ export default async function SupplierDetailPage({
   const productList = (products ?? []) as ProductRow[]
   const dealsList = (recentDeals ?? []) as DealRow[]
   const totalDeals = dealsCount ?? 0
-  const profile = { ...company, email: ownerProfile?.email ?? null }
+  const catalogCategories = [
+    ...new Set(productList.map((p) => p.category).filter(Boolean)),
+  ] as string[]
+  const profile = { ...company, email: ownerProfile?.email ?? null, categories: catalogCategories }
   const displayName =
     company.company_name || company.full_name || company.contact_name || tr(m, 'supplierDetail.fallbackSupplier')
 
@@ -274,8 +279,8 @@ export default async function SupplierDetailPage({
             {profile.categories?.length ? (
               <div className="mt-1.5 flex flex-wrap gap-1">
                 {profile.categories.slice(0, 4).map((cat: string) => (
-                  <Badge key={cat} variant="secondary" className="text-xs capitalize">
-                    {cat}
+                  <Badge key={cat} variant="secondary" className="text-xs">
+                    {getLocalizedCategoryLabel(cat, m)}
                   </Badge>
                 ))}
                 {profile.categories.length > 4 && (
@@ -316,18 +321,14 @@ export default async function SupplierDetailPage({
                         key={p.id}
                         className="flex flex-wrap items-start justify-between gap-3 rounded-xl border border-border bg-card px-4 py-3 transition-colors hover:bg-muted/40"
                       >
-                        {p.image_url && (
-                          <img
-                            src={p.image_url}
-                            alt={p.name}
-                            className="h-16 w-16 shrink-0 rounded-lg object-cover"
-                          />
-                        )}
+                        {p.image_url ? (
+                          <ProductImage imageUrl={p.image_url} alt={p.name} size="sm" />
+                        ) : null}
                         <div className="min-w-0 flex-1">
                           <div className="flex flex-wrap items-center gap-2">
                             <p className="font-medium">{p.name}</p>
-                            <Badge variant="outline" className="text-xs capitalize">
-                              {p.category}
+                            <Badge variant="outline" className="text-xs">
+                              {getLocalizedCategoryLabel(p.category, m)}
                             </Badge>
                           </div>
                           {p.description && (
