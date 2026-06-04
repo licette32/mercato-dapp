@@ -68,9 +68,32 @@ export function useAdminVaultTransactions() {
     async (unsignedXdr: string) => {
       const address = walletInfo?.address?.trim()
       if (!address) throw new Error('Connect your admin wallet first.')
-      return signAndSubmit(unsignedXdr, address)
+
+      if (provider === 'pollar') {
+        const txHash = await pollar.signAndSubmitTx(unsignedXdr)
+        return { success: true, txHash } as SendTransactionResponse
+      }
+
+      const signedXdr = await signTransaction({
+        unsignedTransaction: unsignedXdr,
+        address,
+      })
+
+      const submitResponse = await fetch('/api/stellar/submit', {
+        method: 'POST',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ xdr: signedXdr }),
+      })
+      if (!submitResponse.ok) throw new Error(await readErrorMessage(submitResponse))
+
+      const result = (await submitResponse.json()) as { success?: boolean; txHash?: string }
+      return {
+        success: result.success !== false,
+        txHash: result.txHash,
+      } as SendTransactionResponse
     },
-    [signAndSubmit, walletInfo?.address],
+    [pollar, provider, walletInfo?.address],
   )
 
   return {

@@ -1,4 +1,4 @@
-import { LandingCta } from '@/components/landing/landing-cta'
+import { OurStoryView } from '@/components/our-story/our-story-view'
 import { JsonLd } from '@/components/seo/json-ld'
 
 export async function generateMetadata() {
@@ -79,19 +79,9 @@ const faqSchema = {
 const breadcrumbSchema = {
   '@context': 'https://schema.org',
   '@type': 'BreadcrumbList',
-  'itemListElement': [
-    {
-      '@type': 'ListItem',
-      'position': 1,
-      'name': 'Home',
-      'item': 'https://mercato.app',
-    },
-    {
-      '@type': 'ListItem',
-      'position': 2,
-      'name': 'Our Story',
-      'item': 'https://mercato.app/our-story',
-    },
+  itemListElement: [
+    { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://mercato.app' },
+    { '@type': 'ListItem', position: 2, name: 'Our Story', item: 'https://mercato.app/our-story' },
   ],
 }
 
@@ -101,81 +91,7 @@ export default function OurStoryPage() {
       <JsonLd data={articleSchema} />
       <JsonLd data={faqSchema} />
       <JsonLd data={breadcrumbSchema} />
-
-      <main className="mx-auto max-w-3xl px-4 py-16 sm:px-6 lg:px-8">
-
-        <h1 className="text-4xl font-bold tracking-tight mb-4">Our Story</h1>
-        <p className="text-lg text-muted-foreground mb-16">
-          Why we built Mercato, who it serves, and how it works.
-        </p>
-
-        {/* Section 1 */}
-        <section className="mb-12">
-          <h2 className="text-2xl font-semibold mb-4">What is Mercato?</h2>
-          <p className="text-base leading-7">
-            Mercato is a supply chain finance platform that helps small and medium businesses
-            (PyMEs) in Latin America access working capital through blockchain-secured escrow.
-            Investors fund deals, suppliers receive milestone payments, and every transaction
-            settles in USDC on the Stellar network — transparently and without a bank in the middle.
-          </p>
-        </section>
-
-        {/* Section 2 */}
-        <section className="mb-12">
-          <h2 className="text-2xl font-semibold mb-4">Why was Mercato created?</h2>
-          <p className="text-base leading-7">
-            Tens of millions of small businesses across Latin America cannot access short-term
-            working capital from traditional banks. Without credit, they cannot pay suppliers
-            upfront — which means suppliers wait months for payment, buyers miss sales cycles,
-            and growth stalls. Mercato was built to break that cycle by connecting PyMEs directly
-            with investors through transparent, rules-based escrow.
-          </p>
-        </section>
-
-        {/* Section 3 */}
-        <section className="mb-12">
-          <h2 className="text-2xl font-semibold mb-4">Who does Mercato serve?</h2>
-          <p className="text-base leading-7 mb-6">
-            Mercato serves three main groups in the Latin American supply chain ecosystem: small businesses (PyMEs) seeking working capital, suppliers wanting early payments, and investors looking for transparent, yield-bearing opportunities. By connecting these groups through a secure smart escrow, we address the financing needs of all participants in a unified platform.
-          </p>
-          <ul className="space-y-3 text-base leading-7 list-none pl-0">
-            <li><strong>PyMEs (buyers)</strong> — Small and medium businesses that need short-term capital to pay suppliers while waiting for their own sales to close.</li>
-            <li><strong>Suppliers</strong> — Businesses that deliver goods or services and need partial payment upfront rather than waiting 60–90 days.</li>
-            <li><strong>Investors</strong> — Individuals or institutions that want to allocate capital to specific, disclosed deals with transparent, contractual returns.</li>
-          </ul>
-        </section>
-
-        {/* Section 4 */}
-        <section className="mb-12">
-          <h2 className="text-2xl font-semibold mb-4">How does Mercato work?</h2>
-          <p className="text-base leading-7 mb-6">
-            Mercato operates through a transparent on-chain deal cycle that coordinates buyers, suppliers, and investors via non-custodial smart escrows on Stellar. A PyME creates a milestone-based deal, investors lock USDC in escrow, the supplier delivers goods in stages to trigger milestone releases, and the PyME finally repays the investors with interest.
-          </p>
-          <ol className="space-y-3 text-base leading-7 list-decimal pl-5">
-            <li><strong>Deal setup</strong> — The PyME describes the purchase, sets the term, and splits supplier payment into milestones (e.g. 50% on shipment, 50% on delivery).</li>
-            <li><strong>Escrow deployment</strong> — A non-custodial escrow contract is deployed on Stellar via Trustless Work. The PyME signs with their wallet.</li>
-            <li><strong>Investor funding</strong> — Investors commit USDC into the escrow from the marketplace. Funds are locked until milestone rules allow release.</li>
-            <li><strong>Delivery and releases</strong> — As the supplier delivers, the PyME approves each milestone and the contract releases the corresponding payment on-chain.</li>
-            <li><strong>Repayment</strong> — At term end, the PyME repays investors their principal and agreed yield.</li>
-          </ol>
-        </section>
-
-        {/* Section 5 */}
-        <section className="mb-16">
-          <h2 className="text-2xl font-semibold mb-4">Why blockchain escrow?</h2>
-          <p className="text-base leading-7">
-            Blockchain escrow makes fund movement transparent, auditable, and rule-bound.
-            Neither Mercato nor any single party can move funds outside the agreed contract logic.
-            Every release is triggered by milestone approval and settled on-chain in seconds —
-            giving suppliers confidence they will be paid and investors confidence their capital
-            is protected by code, not promises.
-          </p>
-        </section>
-
-        {/* CTA reused from landing */}
-        <LandingCta />
-
-      </main>
+      <OurStoryView />
     </>
   )
 }

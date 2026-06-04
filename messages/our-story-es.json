@@ -1,0 +1,100 @@
+{
+  "hero": {
+    "eyebrow": "Nuestra historia",
+    "title": "Hecho para el comercio latinoamericano, no para hojas de cálculo de Wall Street.",
+    "subtitle": "Mercato conecta PyMEs, inversionistas y proveedores con escrow transparente por hitos — para que el capital de trabajo fluya a la velocidad de la cadena de suministro real.",
+    "pill1": "USDC en Stellar",
+    "pill2": "Escrow por hitos",
+    "pill3": "Cadenas LATAM"
+  },
+  "mission": {
+    "quote": "Decenas de millones de pequeñas empresas en Latinoamérica no acceden a crédito de corto plazo en bancos. Mercato existe para cerrar esa brecha — sin otro intermediario opaco.",
+    "statLabel": "El problema que resolvemos",
+    "statValue": "Capital de trabajo atrapado entre comprador, proveedor e inversionista"
+  },
+  "what": {
+    "title": "¿Qué es Mercato?",
+    "body": "Mercato es una plataforma de financiamiento de cadena de suministro que ayuda a PyMEs a acceder a capital de trabajo mediante escrow asegurado en blockchain. Los inversionistas financian órdenes, los proveedores cobran por hitos y cada transacción liquida en USDC en Stellar — sin un banco en el medio."
+  },
+  "why": {
+    "title": "Por qué lo construimos",
+    "body": "Sin crédito, las PyMEs no pueden pagar proveedores por adelantado. Los proveedores esperan 60–90 días. Los compradores pierden ciclos de venta. Construimos Mercato para romper ese ciclo conectando PyMEs e inversionistas con escrow verificable por todos."
+  },
+  "roles": {
+    "title": "A quién sirve Mercato",
+    "subtitle": "Tres lados de la misma orden de compra — cada uno con un rol claro.",
+    "smb": {
+      "label": "PyMEs (compradores)",
+      "description": "Capital de corto plazo para pagar proveedores mientras cierran sus propias ventas."
+    },
+    "supplier": {
+      "label": "Proveedores",
+      "description": "Pago parcial al enviar y entregar, en lugar de esperar meses por facturas."
+    },
+    "investor": {
+      "label": "Inversionistas",
+      "description": "Rendimientos transparentes por orden real — no apuestas abstractas de mercado."
+    }
+  },
+  "flow": {
+    "title": "Cómo funciona Mercato",
+    "subtitle": "Un ciclo por hitos asegurado por contratos inteligentes no custodiales en Stellar.",
+    "steps": [
+      {
+        "title": "Configuración de la orden",
+        "description": "La PyME describe la compra, define el plazo y divide el pago al proveedor en hitos."
+      },
+      {
+        "title": "Despliegue del escrow",
+        "description": "Se despliega un escrow no custodial vía Trustless Work. La PyME firma con su billetera."
+      },
+      {
+        "title": "Financiamiento",
+        "description": "Los inversionistas aportan USDC al escrow desde el marketplace. Los fondos quedan bloqueados hasta cada hito."
+      },
+      {
+        "title": "Entrega y liberaciones",
+        "description": "Al entregar, la PyME aprueba hitos y el contrato paga al proveedor on-chain."
+      },
+      {
+        "title": "Reembolso",
+        "description": "Al vencimiento, la PyME reembolsa capital e interés acordado a los inversionistas."
+      }
+    ]
+  },
+  "trust": {
+    "title": "¿Por qué escrow en blockchain?",
+    "body": "El movimiento de fondos es transparente, auditable y regido por reglas. Ni Mercato ni ninguna parte puede mover dinero fuera de la lógica del contrato. Cada liberación se activa por hito y liquida en segundos.",
+    "points": [
+      "No custodial — tu billetera, tu firma",
+      "Reglas de hitos aplicadas por código",
+      "Liquidación pública y auditable en Stellar",
+      "Estabilidad USDC para comercio transfronterizo"
+    ]
+  },
+  "faq": {
+    "title": "Preguntas frecuentes",
+    "items": [
+      {
+        "question": "¿Mercato es un banco?",
+        "answer": "No. Mercato coordina órdenes. Los fondos están en contratos escrow inteligentes, no en una cuenta bancaria de Mercato."
+      },
+      {
+        "question": "¿Quién puede usar Mercato?",
+        "answer": "PyMEs que crean órdenes, proveedores que las cumplen e inversionistas que financian escrows — principalmente en cadenas de suministro latinoamericanas."
+      },
+      {
+        "question": "¿Qué moneda se usa?",
+        "answer": "Las órdenes liquidan en USDC en Stellar, un stablecoin anclado al dólar, reduciendo fricción cambiaria."
+      }
+    ]
+  },
+  "cta": {
+    "eyebrow": "Únete a la red",
+    "title": "¿Listo para mover tu próxima orden de compra?",
+    "description": "Crea una cuenta, explora órdenes activas o aprende el proceso paso a paso.",
+    "primaryCta": "Crear cuenta gratis",
+    "secondaryCta": "Cómo funciona",
+    "tertiaryCta": "Ver órdenes"
+  }
+}

@@ -254,6 +254,14 @@
     "highlight3Sub": "Milestone by milestone",
     "tagline": "No bank paperwork · Milestone escrow · LATAM supply chains"
   },
+  "blogEndCta": {
+    "eyebrow": "Next step",
+    "title": "Ready to try the Mercato vault?",
+    "description": "Put idle USDC to work between deals — or create an account and explore live purchase orders.",
+    "primaryCta": "Open Mercato vault",
+    "secondaryCta": "Create account",
+    "tertiaryCta": "Browse deals"
+  },
   "liveDeals": {
     "badgeLive": "Live on Mercato",
     "badgeActivity": "Platform activity",
@@ -352,6 +360,10 @@
     "tagline": "Supply chain finance for Latin America — purchase orders, milestone escrow, and real-economy returns on Stellar.",
     "builtOn": "Built on Stellar",
     "exploreTitle": "Explore",
+    "learnTitle": "Learn",
+    "blog": "Blog",
+    "ourStory": "Our story",
+    "howItWorksPage": "How it works",
     "getStartedTitle": "Get started",
     "browseDeals": "Browse deals",
     "createAccount": "Create account",

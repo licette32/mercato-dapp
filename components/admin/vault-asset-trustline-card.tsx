@@ -14,6 +14,10 @@ import {
   type ClassicBalanceHint,
   getVaultAssetTrustlineCopyTargets,
 } from '@/lib/stellar/vault-asset-trustline'
+import {
+  fetchTrustlineStatus,
+  invalidateTrustlineStatusCache,
+} from '@/lib/stellar/trustline-status-client'
 
 function sacTrustStorageKey(account: string, contract: string) {
   return `mercato:sac-trust:${account}:${contract}`
@@ -45,17 +49,22 @@ export function VaultAssetTrustlineCard({
   const isBlendAsset =
     assetContract === BLEND_TESTNET_USDC_CONTRACT || assetSymbol?.toUpperCase().includes('USDC')
 
-  const markSacTrustReady = useCallback(() => {
-    setSacTrustReady(true)
-    if (walletAddress?.trim()) {
-      try {
-        sessionStorage.setItem(sacTrustStorageKey(walletAddress, assetContract), '1')
-      } catch {
-        /* ignore */
+  const markSacTrustReady = useCallback(
+    (options?: { notifyParent?: boolean }) => {
+      setSacTrustReady(true)
+      if (walletAddress?.trim()) {
+        try {
+          sessionStorage.setItem(sacTrustStorageKey(walletAddress, assetContract), '1')
+        } catch {
+          /* ignore */
+        }
       }
-    }
-    onTrustlineReady?.()
-  }, [walletAddress, assetContract, onTrustlineReady])
+      if (options?.notifyParent !== false) {
+        onTrustlineReady?.()
+      }
+    },
+    [walletAddress, assetContract, onTrustlineReady],
+  )
 
   useEffect(() => {
     if (!walletAddress?.trim()) {
@@ -66,12 +75,11 @@ export function VaultAssetTrustlineCard({
       const stored = sessionStorage.getItem(sacTrustStorageKey(walletAddress, assetContract))
       if (stored === '1') {
         setSacTrustReady(true)
-        onTrustlineReady?.()
       }
     } catch {
       /* ignore */
     }
-  }, [walletAddress, assetContract, onTrustlineReady])
+  }, [walletAddress, assetContract])
 
   const refreshStatus = useCallback(async () => {
     if (!walletAddress?.trim()) {
@@ -80,20 +88,7 @@ export function VaultAssetTrustlineCard({
     }
     setChecking(true)
     try {
-      const params = new URLSearchParams({
-        account: walletAddress,
-        assetContract,
-      })
-      if (assetSymbol) params.set('symbol', assetSymbol)
-      const res = await fetch(`/api/stellar/trustline-status?${params}`, { credentials: 'include' })
-      if (!res.ok) {
-        setClassicBlendBalances([])
-        return
-      }
-      const data = (await res.json()) as {
-        classicBlendBalances?: ClassicBalanceHint[]
-        hasVaultSacTrust?: boolean
-      }
+      const data = await fetchTrustlineStatus(walletAddress, assetContract, assetSymbol)
       setClassicBlendBalances(data.classicBlendBalances ?? [])
       if (data.hasVaultSacTrust) markSacTrustReady()
     } catch {
@@ -133,6 +128,7 @@ export function VaultAssetTrustlineCard({
         return
       }
       toast.success(m.trustSuccess)
+      invalidateTrustlineStatusCache(walletAddress, assetContract, assetSymbol)
       markSacTrustReady()
       await refreshStatus()
     } catch (e) {

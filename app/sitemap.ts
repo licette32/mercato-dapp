@@ -1,8 +1,16 @@
 import type { MetadataRoute } from 'next'
 import { createClient } from '@supabase/supabase-js'
+import { getAllBlogPosts } from '@/lib/blog/posts'
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = 'https://mercato.app'
+
+  const blogPosts = getAllBlogPosts().map((post) => ({
+    url: `${baseUrl}/blog/${post.slug}`,
+    lastModified: new Date(post.updatedAt ?? post.publishedAt),
+    changeFrequency: 'monthly' as const,
+    priority: 0.7,
+  }))
 
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
   const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
@@ -10,6 +18,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // Static routes
   const staticRoutes = [
     '',
+    '/blog',
     '/our-story',
     '/how-it-works',
     '/deals',
@@ -29,7 +38,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   if (!supabaseUrl || !supabaseKey) {
     console.warn('Supabase URL/Key missing for sitemap generation. Returning static routes only.')
-    return staticSitemaps
+    return [...staticSitemaps, ...blogPosts]
   }
 
   const supabase = createClient(supabaseUrl, supabaseKey, {
@@ -74,5 +83,5 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     console.error('Error fetching suppliers for sitemap:', error)
   }
 
-  return [...staticSitemaps, ...dealSitemaps, ...supplierSitemaps]
+  return [...staticSitemaps, ...blogPosts, ...dealSitemaps, ...supplierSitemaps]
 }

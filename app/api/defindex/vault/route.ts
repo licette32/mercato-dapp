@@ -8,6 +8,7 @@ import {
 } from '@/lib/defindex/config'
 import { getServerDefindexSdk } from '@/lib/defindex/server-sdk'
 import { isLikelyStellarContractId } from '@/lib/defindex/stellar-address'
+import { buildVaultMonitorPayload } from '@/lib/defindex/vault-monitor'
 
 export const dynamic = 'force-dynamic'
 
@@ -37,6 +38,14 @@ export async function GET() {
       sdk.getVaultAPY(vaultAddress, network),
     ])
 
+    const monitor = buildVaultMonitorPayload(
+      vaultAddress,
+      vaultAddress,
+      true,
+      info,
+      apy.apy,
+    )
+
     return NextResponse.json({
       vaultAddress,
       network,
@@ -47,6 +56,9 @@ export async function GET() {
       totalManagedFunds: info.totalManagedFunds,
       /** APY value as returned by DeFindex (see SDK types). */
       apy: apy.apy,
+      totals: monitor.totals,
+      assetRows: monitor.assets,
+      explorerContractUrl: monitor.explorerContractUrl,
     })
   } catch (error) {
     return NextResponse.json({ error: defindexErrorMessage(error) }, { status: 502 })

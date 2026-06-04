@@ -8,6 +8,7 @@ import { useI18n } from '@/lib/i18n/provider'
 import {
   landingSectionHref,
   PUBLIC_NAV_LINKS,
+  PUBLIC_PAGE_LINKS,
   type LandingSectionId,
 } from '@/lib/navigation/landing-nav'
 
@@ -48,7 +49,7 @@ export function PublicNavLinks({ variant, onNavigate }: PublicNavLinksProps) {
         : 'text-muted-foreground hover:text-foreground',
     )
 
-  const items = PUBLIC_NAV_LINKS.map(({ sectionId, labelKey }) => (
+  const sectionItems = PUBLIC_NAV_LINKS.map(({ sectionId, labelKey }) => (
     <Link
       key={sectionId}
       href={landingSectionHref(sectionId, onHome)}
@@ -58,6 +59,26 @@ export function PublicNavLinks({ variant, onNavigate }: PublicNavLinksProps) {
       {t(labelKey)}
     </Link>
   ))
+
+  const pageItems = PUBLIC_PAGE_LINKS.map(({ href, labelKey }) => (
+    <Link
+      key={href}
+      href={href}
+      className={cn(
+        variant === 'desktop'
+          ? 'text-sm font-medium transition-colors'
+          : 'flex items-center text-sm font-medium py-0.5',
+        pathname.startsWith(href)
+          ? 'text-foreground'
+          : 'text-muted-foreground hover:text-foreground',
+      )}
+      onClick={onNavigate}
+    >
+      {t(labelKey)}
+    </Link>
+  ))
+
+  const items = [...sectionItems, ...pageItems]
 
   if (variant === 'desktop') {
     return (

@@ -23,7 +23,9 @@ export function InvestorCapitalOverview({ viewerRole = 'investor' }: { viewerRol
   const { isConnected, handleConnect, canSignTransactions, publicKey, walletInfo } = useWallet()
   const {
     walletBalance,
+    walletRawBalance,
     vaultBalance,
+    vaultRawBalance,
     availableCapital,
     isLoadingBalances,
     balanceError,
@@ -163,12 +165,15 @@ export function InvestorCapitalOverview({ viewerRole = 'investor' }: { viewerRol
         <MercatoVaultActions
           vaultMeta={vaultMeta}
           walletBalance={walletBalance}
+          walletRawBalance={walletRawBalance}
           vaultBalance={vaultBalance}
+          vaultRawBalance={vaultRawBalance}
           canSignTransactions={canSignTransactions}
           walletAddress={walletInfo?.address ?? publicKey ?? undefined}
           isLoadingBalances={isLoadingBalances}
           depositToVault={depositToVault}
           withdrawFromVault={withdrawFromVault}
+          onRefreshBalances={refreshBalances}
         />
       </div>
     </div>

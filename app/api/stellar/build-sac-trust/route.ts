@@ -33,6 +33,17 @@ export async function POST(request: Request) {
     return NextResponse.json({ xdr, network, assetContract })
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Failed to build trustline transaction.'
+    const lower = message.toLowerCase()
+    if (lower.includes('simulation failed') || lower.includes('simulation error')) {
+      return NextResponse.json(
+        {
+          error:
+            'Could not prepare SAC trust transaction. Ensure your wallet is funded with XLM for fees and try again.',
+          detail: message,
+        },
+        { status: 502 },
+      )
+    }
     return NextResponse.json({ error: message }, { status: 502 })
   }
 }

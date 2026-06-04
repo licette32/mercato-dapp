@@ -20,6 +20,11 @@ export function LandingFooter() {
       label: t(labelKey),
       href: landingSectionHref(sectionId, onHome),
     })),
+    [t('landing.footer.learnTitle')]: [
+      { label: t('landing.footer.blog'), href: '/blog' },
+      { label: t('landing.footer.howItWorksPage'), href: '/how-it-works' },
+      { label: t('landing.footer.ourStory'), href: '/our-story' },
+    ],
     [t('landing.footer.getStartedTitle')]: [
       { label: t('landing.footer.browseDeals'), href: '/deals' },
       { label: t('landing.footer.createAccount'), href: '/auth/sign-up' },
@@ -30,7 +35,7 @@ export function LandingFooter() {
   return (
     <footer className="border-t border-border/60 bg-gradient-to-b from-brand-ultra/40 to-background dark:from-background">
       <div className="container mx-auto px-4 py-12 md:py-14">
-        <div className="grid gap-10 md:grid-cols-[1.4fr_1fr_1fr] md:gap-12">
+        <div className="grid gap-10 md:grid-cols-2 lg:grid-cols-4 md:gap-8">
           <div>
             <Link href="/" className="mb-4 inline-flex items-center gap-2.5">
               <MercatoLogo className="h-6" />

@@ -2,16 +2,16 @@ import {
   Address,
   BASE_FEE,
   Contract,
-  Horizon,
-  Networks,
+  rpc,
   TransactionBuilder,
 } from '@stellar/stellar-sdk'
 import { isLikelyStellarAccountId, isLikelyStellarContractId } from '@/lib/defindex/stellar-address'
+import { getStellarNetworkConfig, type StellarNetwork } from '@/lib/stellar/network-config'
 
 export async function buildSacTrustTransactionXdr(
   sourceAccount: string,
   assetContract: string,
-  network: 'testnet' | 'mainnet',
+  network: StellarNetwork,
 ): Promise<string> {
   if (!isLikelyStellarAccountId(sourceAccount)) {
     throw new Error('Invalid Stellar account.')
@@ -20,23 +20,21 @@ export async function buildSacTrustTransactionXdr(
     throw new Error('Invalid asset contract address.')
   }
 
-  const horizonUrl =
-    network === 'mainnet' ? 'https://horizon.stellar.org' : 'https://horizon-testnet.stellar.org'
-  const networkPassphrase = network === 'mainnet' ? Networks.PUBLIC : Networks.TESTNET
-
-  const server = new Horizon.Server(horizonUrl)
-  const account = await server.loadAccount(sourceAccount)
+  const { rpcUrl, networkPassphrase } = getStellarNetworkConfig(network)
+  const rpcServer = new rpc.Server(rpcUrl)
+  const account = await rpcServer.getAccount(sourceAccount)
 
   const contract = new Contract(assetContract)
-  const op = contract.call('trust', new Address(sourceAccount).toScVal())
+  const operation = contract.call('trust', new Address(sourceAccount).toScVal())
 
-  const tx = new TransactionBuilder(account, {
+  const transaction = new TransactionBuilder(account, {
     fee: BASE_FEE,
     networkPassphrase,
   })
-    .addOperation(op)
+    .addOperation(operation)
     .setTimeout(180)
     .build()
 
-  return tx.toXDR()
+  const prepared = await rpcServer.prepareTransaction(transaction)
+  return prepared.toXDR()
 }

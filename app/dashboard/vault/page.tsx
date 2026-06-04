@@ -1,7 +1,6 @@
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
-import { DashboardPageHeader } from '@/components/dashboard/dashboard-page-header'
-import { InvestorCapitalOverview } from '@/components/dashboard/investor-capital-overview'
+import { VaultDashboard } from '@/components/dashboard/vault-dashboard'
 import { getServerDictionary } from '@/lib/i18n/server'
 
 export default async function DashboardVaultPage() {
@@ -24,12 +23,12 @@ export default async function DashboardVaultPage() {
   }
 
   return (
-    <div className="container mx-auto max-w-5xl px-4 py-8">
-      <DashboardPageHeader
-        title={t.dashboardNav.vault}
-        description={t.dashboardNav.vaultDescription}
-      />
-      <InvestorCapitalOverview viewerRole={userType === 'pyme' ? 'pyme' : 'investor'} />
+    <div className="container mx-auto max-w-6xl px-4 py-8 md:py-10">
+      <div className="sr-only">
+        <h1>{t.dashboardNav.vault}</h1>
+        <p>{t.dashboardNav.vaultDescription}</p>
+      </div>
+      <VaultDashboard viewerRole={userType === 'pyme' ? 'pyme' : 'investor'} />
     </div>
   )
 }

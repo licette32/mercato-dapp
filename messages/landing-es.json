@@ -254,6 +254,14 @@
     "highlight3Sub": "Hito por hito",
     "tagline": "Sin papeleo bancario · Escrow por hitos · Cadenas LATAM"
   },
+  "blogEndCta": {
+    "eyebrow": "Siguiente paso",
+    "title": "¿Listo para probar el vault de Mercato?",
+    "description": "Haz trabajar USDC ocioso entre órdenes — o crea una cuenta y explora órdenes de compra activas.",
+    "primaryCta": "Abrir vault de Mercato",
+    "secondaryCta": "Crear cuenta",
+    "tertiaryCta": "Ver órdenes"
+  },
   "liveDeals": {
     "badgeLive": "En vivo en Mercato",
     "badgeActivity": "Actividad de la plataforma",
@@ -352,6 +360,10 @@
     "tagline": "Financiamiento de cadena de suministro para Latinoamérica — órdenes de compra, escrow por hitos y rendimientos de economía real en Stellar.",
     "builtOn": "Construido en Stellar",
     "exploreTitle": "Explorar",
+    "learnTitle": "Aprender",
+    "blog": "Blog",
+    "ourStory": "Nuestra historia",
+    "howItWorksPage": "Cómo funciona",
     "getStartedTitle": "Comenzar",
     "browseDeals": "Ver órdenes",
     "createAccount": "Crear cuenta",

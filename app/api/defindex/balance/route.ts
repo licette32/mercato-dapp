@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 import { requireAuth } from '@/lib/ramp-api'
-import { sumUnderlyingDisplayAmounts } from '@/lib/defindex/amounts'
+import { parseVaultBalancePayload } from '@/lib/defindex/amounts'
 import { defindexErrorMessage } from '@/lib/defindex/api-error'
 import {
   getDefindexSupportedNetwork,
@@ -40,16 +40,15 @@ export async function GET(request: Request) {
   try {
     const sdk = getServerDefindexSdk()
     const balance = await sdk.getVaultBalance(vaultAddress, caller, network)
-    const underlying = Array.isArray(balance.underlyingBalance) ? balance.underlyingBalance : []
-    const underlyingTotal = sumUnderlyingDisplayAmounts(underlying)
+    const parsed = parseVaultBalancePayload(balance)
 
     return NextResponse.json({
       vaultAddress,
       network,
-      dfTokens: balance.dfTokens,
-      underlyingBalance: underlying,
-      /** Sum of underlying assets converted with `NEXT_PUBLIC_DEFINDEX_ASSET_DECIMALS` (default 7). */
-      underlyingTotal,
+      dfTokens: parsed.dfTokensRaw,
+      underlyingBalance: parsed.underlyingRawPerAsset,
+      underlyingTotalRaw: parsed.underlyingTotalRaw,
+      underlyingTotal: parsed.underlyingTotalDisplay,
     })
   } catch (error) {
     return NextResponse.json({ error: defindexErrorMessage(error) }, { status: 502 })

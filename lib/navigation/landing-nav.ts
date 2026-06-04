@@ -11,6 +11,10 @@ export const LANDING_SECTION_IDS = {
 export type LandingSectionId =
   (typeof LANDING_SECTION_IDS)[keyof typeof LANDING_SECTION_IDS]
 
+export const PUBLIC_PAGE_LINKS = [
+  { href: '/blog', labelKey: 'nav.blog' },
+] as const
+
 export const PUBLIC_NAV_LINKS = [
   { sectionId: LANDING_SECTION_IDS.howItWorks, labelKey: 'nav.howItWorks' },
   { sectionId: LANDING_SECTION_IDS.roles, labelKey: 'nav.roles' },

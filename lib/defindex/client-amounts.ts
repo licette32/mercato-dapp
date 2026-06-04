@@ -16,3 +16,13 @@ export function displayToRawTokenAmount(
   if (!Number.isFinite(displayAmount) || displayAmount <= 0) return 0
   return Math.round(displayAmount * 10 ** decimals)
 }
+
+/** Convert on-chain raw units to a human display amount. */
+export function rawToDisplayTokenAmount(
+  rawAmount: string | number,
+  decimals = getPublicDefindexAssetDecimals()
+): number {
+  const n = typeof rawAmount === 'string' ? Number(rawAmount) : rawAmount
+  if (!Number.isFinite(n)) return 0
+  return n / 10 ** decimals
+}
