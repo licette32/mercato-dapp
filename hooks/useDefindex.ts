@@ -10,12 +10,12 @@ import type { SendTransactionResponse } from '@defindex/sdk'
 import {
   readErrorMessage,
   hasClientVaultConfigured,
-  vaultMetaRequest,
   vaultBalanceRequest,
   sacBalanceRequest,
   invalidateVaultDataCache,
   isRateLimitMessage,
 } from '@/lib/defindex/vault-cache'
+import { useVaultMeta } from '@/hooks/use-vault-meta'
 
 type VaultAction<TArgs extends unknown[] = unknown[], TResult = unknown> = (
   ...args: TArgs
@@ -26,25 +26,7 @@ interface UseDefindexOptions {
   withdrawFromVaultAction?: VaultAction
 }
 
-import type { VaultMonitorAssetRow } from '@/lib/defindex/vault-monitor'
-
-export type MercatoVaultMeta = {
-  vaultAddress: string
-  network: string
-  name: string
-  symbol: string
-  apy: number
-  feesBps: { vaultFee: number; defindexFee: number }
-  assets?: Array<{ address: string; name?: string; symbol?: string; strategies?: unknown[] }>
-  totals?: {
-    tvlDisplay: number
-    idleDisplay: number
-    investedDisplay: number
-    idlePercent: number
-  }
-  assetRows?: VaultMonitorAssetRow[]
-  explorerContractUrl?: string
-}
+export type { MercatoVaultMeta } from '@/hooks/use-vault-meta'
 
 export const useDefindex = (options?: UseDefindexOptions) => {
   const { walletInfo, refreshBalance, canSignTransactions } = useWallet()
@@ -53,12 +35,17 @@ export const useDefindex = (options?: UseDefindexOptions) => {
   const [vaultBalance, setVaultBalance] = useState(0)
   const [vaultRawBalance, setVaultRawBalance] = useState(0)
   const [dfTokens, setDfTokens] = useState(0)
-  const [vaultMeta, setVaultMeta] = useState<MercatoVaultMeta | null>(null)
+  const {
+    vaultMeta,
+    vaultInfoError,
+    vaultMetaRef,
+    fetchVaultMeta,
+    fetchVaultMetaRef,
+    setVaultMeta,
+    setVaultInfoError,
+  } = useVaultMeta()
   const [isLoadingBalances, setIsLoadingBalances] = useState(false)
   const [balanceError, setBalanceError] = useState<string | null>(null)
-  const [vaultInfoError, setVaultInfoError] = useState<string | null>(null)
-  const vaultMetaRef = useRef<MercatoVaultMeta | null>(null)
-  vaultMetaRef.current = vaultMeta
   const walletBalanceRef = useRef(0)
   walletBalanceRef.current = walletBalance
   const walletRawBalanceRef = useRef(0)
@@ -67,26 +54,6 @@ export const useDefindex = (options?: UseDefindexOptions) => {
   vaultBalanceRef.current = vaultBalance
   const vaultRawBalanceRef = useRef(0)
   vaultRawBalanceRef.current = vaultRawBalance
-
-  const fetchVaultMeta = useCallback(async (): Promise<MercatoVaultMeta | null> => {
-    if (!hasClientVaultConfigured()) {
-      setVaultInfoError(null)
-      setVaultMeta(null)
-      return null
-    }
-    try {
-      const data = await vaultMetaRequest.fetch()
-      setVaultInfoError(null)
-      setVaultMeta(data)
-      return data
-    } catch (error) {
-      const message = error instanceof Error ? error.message : 'Failed to load vault metadata.'
-      if (!isRateLimitMessage(message) || !vaultMetaRef.current) {
-        setVaultInfoError(message)
-      }
-      return vaultMetaRef.current
-    }
-  }, [])
 
   const getVaultAssetBalance = useCallback(
     async (address: string, assetContract: string | undefined): Promise<number> => {
@@ -305,9 +272,6 @@ export const useDefindex = (options?: UseDefindexOptions) => {
   const refreshBalanceRef = useRef(refreshBalance)
   refreshBalanceRef.current = refreshBalance
 
-  const fetchVaultMetaRef = useRef(fetchVaultMeta)
-  fetchVaultMetaRef.current = fetchVaultMeta
-
   const loadUserBalancesRef = useRef(loadUserBalances)
   loadUserBalancesRef.current = loadUserBalances
 
@@ -332,12 +296,6 @@ export const useDefindex = (options?: UseDefindexOptions) => {
     invalidateVaultDataCache(address, meta?.assets?.[0]?.address)
     return loadUserBalancesRef.current(address, meta?.assets?.[0]?.address)
   }, [walletInfo?.address])
-
-  /** Load vault metadata on mount (no wallet required). */
-  useEffect(() => {
-    if (!hasClientVaultConfigured()) return
-    void fetchVaultMetaRef.current()
-  }, [])
 
   /** Load user balance when the Stellar account changes. */
   useEffect(() => {
