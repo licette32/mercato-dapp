@@ -40,9 +40,8 @@ export default function CreateDealContent() {
   const router = useRouter()
   const supabase = createClient()
   const { walletInfo, isConnected, handleConnect, provider } = useWallet()
-  const { createDealAndEscrow } = useCreateDealSubmit()
+  const { submit, isSubmitting, error } = useCreateDealSubmit()
   const [currentStep, setCurrentStep] = useState<FormStep>(1)
-  const [isLoading, setIsLoading] = useState(false)
   const [userId, setUserId] = useState<string | null>(null)
   const [userProfile, setUserProfile] = useState<CreateDealProfile | null>(null)
   const [supplierProducts, setSupplierProducts] = useState<SupplierProductRow[]>([])
@@ -225,46 +224,31 @@ export default function CreateDealContent() {
       return
     }
 
-    setIsLoading(true)
-    try {
-      const { dealId, contractId } = await createDealAndEscrow({
-        userId,
-        signerAddress,
-        supplierId: formData.supplierId,
-        productName: selectedProduct.name,
-        description: formData.description || selectedProduct.description || t('createDeal.missingDescription'),
-        productQuantity: Number(formData.quantity),
-        productUnitPrice: Number(selectedProduct.price_per_unit),
-        totalAmount,
-        termDays: Number(formData.term),
-        effectiveAPR,
-        yieldBonusApr,
-        category: formData.category || selectedProduct.category || 'other',
-        supplierName: formData.supplierName,
-        supplierContact: formData.supplierContact || null,
-        fundingWindowDays,
-        milestones: formData.milestones,
-        provider,
-      })
+    const result = await submit({
+      userId,
+      signerAddress,
+      supplierId: formData.supplierId,
+      productName: selectedProduct.name,
+      description: formData.description || selectedProduct.description || t('createDeal.missingDescription'),
+      productQuantity: Number(formData.quantity),
+      productUnitPrice: Number(selectedProduct.price_per_unit),
+      totalAmount,
+      termDays: Number(formData.term),
+      effectiveAPR,
+      yieldBonusApr,
+      category: formData.category || selectedProduct.category || 'other',
+      supplierName: formData.supplierName,
+      supplierContact: formData.supplierContact || null,
+      fundingWindowDays,
+      milestones: formData.milestones,
+      provider,
+    })
 
-      await supabase
-        .from('deals')
-        .update({
-          escrow_id: dealId,
-          escrow_contract_address: contractId ?? null,
-          escrow_status: 'initialized',
-        })
-        .eq('id', dealId)
-
+    if (result.ok) {
       toast.success(t('createDeal.success'))
       router.push('/dashboard')
-    } catch (error) {
-      const message =
-        error instanceof Error ? error.message : t('createDeal.tryAgain')
-      console.error('Error creating deal:', error)
-      toast.error(t('createDeal.errorPrefix', { message }))
-    } finally {
-      setIsLoading(false)
+    } else {
+      toast.error(t('createDeal.errorPrefix', { message: result.error }))
     }
   }
 
@@ -359,14 +343,14 @@ export default function CreateDealContent() {
                 <Button
                   type="button"
                   onClick={handleSubmit}
-                  disabled={!canSubmit || isLoading}
+                  disabled={!canSubmit || isSubmitting}
                   title={
                     !milestonesOk
                       ? t('createDeal.invalidMilestones')
                       : undefined
                   }
                 >
-                  {isLoading
+                  {isSubmitting
                     ? t('createDeal.creatingDeploying')
                     : t('createDeal.createDeploy')}
                 </Button>

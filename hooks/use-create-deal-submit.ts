@@ -1,6 +1,6 @@
 'use client'
 
-import { useMemo } from 'react'
+import { useMemo, useState } from 'react'
 import { useInitializeEscrow, useSendTransaction, useGetEscrowsFromIndexerBySigner } from '@trustless-work/escrow/hooks'
 import type { InitializeMultiReleaseEscrowPayload } from '@trustless-work/escrow'
 import { signTransaction } from '@/lib/trustless/wallet-kit'
@@ -45,6 +45,9 @@ export function useCreateDealSubmit() {
   const { sendTransaction } = useSendTransaction()
   const { getEscrowsBySigner } = useGetEscrowsFromIndexerBySigner()
   const pollar = usePollarSession()
+
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
   const deployAndSignEscrow = async (
     params: DeployEscrowParams
@@ -130,93 +133,114 @@ export function useCreateDealSubmit() {
     return { contractId }
   }
 
-  const createDealAndEscrow = async (
+  const submit = async (
     params: CreateDealParams
-  ): Promise<{ dealId: string; contractId: string | undefined }> => {
-    const { data: company } = await supabase
-      .from('supplier_companies')
-      .select('id, address, owner_id')
-      .eq('id', params.supplierId)
-      .single()
+  ): Promise<{ ok: true } | { ok: false; error: string }> => {
+    setIsSubmitting(true)
+    setError(null)
 
-    const supplierAddress = company?.address?.trim()
-    if (!supplierAddress) {
-      throw new Error('Supplier wallet address not found')
-    }
+    try {
+      const { data: company } = await supabase
+        .from('supplier_companies')
+        .select('id, address, owner_id')
+        .eq('id', params.supplierId)
+        .single()
 
-    const { data: ownerProfile } = await supabase
-      .from('profiles')
-      .select('email')
-      .eq('id', company?.owner_id)
-      .single()
-
-    const fundingExpiresAt = new Date(
-      Date.now() + params.fundingWindowDays * 24 * 60 * 60 * 1000
-    ).toISOString()
-
-    const { data: deal, error: dealError } = await supabase
-      .from('deals')
-      .insert({
-        pyme_id: params.userId,
-        title: params.productName,
-        description: params.description,
-        product_name: params.productName,
-        product_quantity: params.productQuantity,
-        product_unit_price: params.productUnitPrice,
-        amount: params.totalAmount,
-        term_days: params.termDays,
-        interest_rate: params.effectiveAPR,
-        yield_bonus_apr: params.yieldBonusApr,
-        category: params.category,
-        status: 'seeking_funding',
-        supplier_id: params.supplierId,
-        supplier_name: params.supplierName,
-        supplier_email: ownerProfile?.email ?? null,
-        supplier_contact: params.supplierContact,
-        platform_fee: 2.5,
-        funding_window_days: params.fundingWindowDays,
-        funding_expires_at: fundingExpiresAt,
-        extension_count: 0,
-      })
-      .select()
-      .single()
-
-    if (dealError) throw dealError
-
-    const milestones = params.milestones.map((m) => {
-      const pct = Number(m.percentage)
-      const amount = (params.totalAmount * pct) / 100
-      return {
-        deal_id: deal.id,
-        title: m.name.trim(),
-        description: `${m.name.trim()} — ${m.percentage}% of deal amount`,
-        percentage: pct,
-        amount,
-        status: 'pending' as const,
+      const supplierAddress = company?.address?.trim()
+      if (!supplierAddress) {
+        throw new Error('Supplier wallet address not found')
       }
-    })
 
-    const { error: milestonesError } = await supabase
-      .from('milestones')
-      .insert(milestones)
+      const { data: ownerProfile } = await supabase
+        .from('profiles')
+        .select('email')
+        .eq('id', company?.owner_id)
+        .single()
 
-    if (milestonesError) throw milestonesError
+      const fundingExpiresAt = new Date(
+        Date.now() + params.fundingWindowDays * 24 * 60 * 60 * 1000
+      ).toISOString()
 
-    const { contractId } = await deployAndSignEscrow({
-      dealId: deal.id,
-      signerAddress: params.signerAddress,
-      supplierAddress,
-      productName: params.productName,
-      description: params.description,
-      milestones: milestones.map((m) => ({
-        title: m.title,
-        amount: Math.round(m.amount * 100) / 100,
-      })),
-      provider: params.provider,
-    })
+      const { data: deal, error: dealError } = await supabase
+        .from('deals')
+        .insert({
+          pyme_id: params.userId,
+          title: params.productName,
+          description: params.description,
+          product_name: params.productName,
+          product_quantity: params.productQuantity,
+          product_unit_price: params.productUnitPrice,
+          amount: params.totalAmount,
+          term_days: params.termDays,
+          interest_rate: params.effectiveAPR,
+          yield_bonus_apr: params.yieldBonusApr,
+          category: params.category,
+          status: 'seeking_funding',
+          supplier_id: params.supplierId,
+          supplier_name: params.supplierName,
+          supplier_email: ownerProfile?.email ?? null,
+          supplier_contact: params.supplierContact,
+          platform_fee: 2.5,
+          funding_window_days: params.fundingWindowDays,
+          funding_expires_at: fundingExpiresAt,
+          extension_count: 0,
+        })
+        .select()
+        .single()
 
-    return { dealId: deal.id, contractId }
+      if (dealError) throw dealError
+
+      const milestones = params.milestones.map((m) => {
+        const pct = Number(m.percentage)
+        const amount = (params.totalAmount * pct) / 100
+        return {
+          deal_id: deal.id,
+          title: m.name.trim(),
+          description: `${m.name.trim()} — ${m.percentage}% of deal amount`,
+          percentage: pct,
+          amount,
+          status: 'pending' as const,
+        }
+      })
+
+      const { error: milestonesError } = await supabase
+        .from('milestones')
+        .insert(milestones)
+
+      if (milestonesError) throw milestonesError
+
+      const { contractId } = await deployAndSignEscrow({
+        dealId: deal.id,
+        signerAddress: params.signerAddress,
+        supplierAddress,
+        productName: params.productName,
+        description: params.description,
+        milestones: milestones.map((m) => ({
+          title: m.title,
+          amount: Math.round(m.amount * 100) / 100,
+        })),
+        provider: params.provider,
+      })
+
+      await supabase
+        .from('deals')
+        .update({
+          escrow_id: deal.id,
+          escrow_contract_address: contractId ?? null,
+          escrow_status: 'initialized',
+        })
+        .eq('id', deal.id)
+
+      return { ok: true }
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'An unexpected error occurred'
+      console.error('Error creating deal:', err)
+      setError(message)
+      return { ok: false, error: message }
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
-  return { createDealAndEscrow }
+  return { submit, isSubmitting, error }
 }
