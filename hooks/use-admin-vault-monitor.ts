@@ -20,11 +20,26 @@ export function useAdminVaultMonitor(options: UseAdminVaultMonitorOptions = {}) 
   const [isRefreshing, setIsRefreshing] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const mountedRef = useRef(true)
+  const abortControllerRef = useRef<AbortController | null>(null)
+  const isFetchingRef = useRef(false)
 
   const fetchMonitor = useCallback(
     async (opts?: { silent?: boolean }) => {
       if (!enabled) return
       const silent = opts?.silent ?? false
+
+      // A silent (background poll) tick that lands while a previous request
+      // is still in flight is dropped rather than queued, so slow responses
+      // can't overlap and race each other into state.
+      if (silent && isFetchingRef.current) return
+
+      // A manual refresh always takes priority: cancel any stale in-flight
+      // request so it can't clobber the fresh one's result when it lands.
+      abortControllerRef.current?.abort()
+      const controller = new AbortController()
+      abortControllerRef.current = controller
+      isFetchingRef.current = true
+
       if (!silent) setIsRefreshing(true)
 
       try {
@@ -35,6 +50,7 @@ export function useAdminVaultMonitor(options: UseAdminVaultMonitorOptions = {}) 
 
         const response = await fetch(`/api/defindex/admin/monitor${qs}`, {
           credentials: 'include',
+          signal: controller.signal,
         })
 
         if (!response.ok) {
@@ -52,38 +68,81 @@ export function useAdminVaultMonitor(options: UseAdminVaultMonitorOptions = {}) 
           setError(null)
         }
       } catch (e) {
+        if (controller.signal.aborted) return
         if (mountedRef.current) {
           setError(e instanceof Error ? e.message : 'Failed to load vault monitor')
           setData(null)
         }
       } finally {
-        if (mountedRef.current) {
-          setIsLoading(false)
-          setIsRefreshing(false)
+        // Only the still-current request is allowed to clear the in-flight
+        // markers/loading state — a stale, aborted request's `finally` must
+        // not stomp on whatever request superseded it.
+        const isCurrent = abortControllerRef.current === controller
+        if (isCurrent) {
+          abortControllerRef.current = null
+          isFetchingRef.current = false
+          if (mountedRef.current) {
+            setIsLoading(false)
+            setIsRefreshing(false)
+          }
         }
       }
     },
     [enabled, vaultOverride],
   )
 
+  // Initial fetch whenever the request identity (vault/enabled) changes.
   useEffect(() => {
     mountedRef.current = true
     setIsLoading(true)
     void fetchMonitor()
 
-    if (!enabled || pollMs <= 0) {
-      return () => {
-        mountedRef.current = false
+    return () => {
+      mountedRef.current = false
+      abortControllerRef.current?.abort()
+    }
+  }, [fetchMonitor])
+
+  // Background polling, paused while the tab is hidden and refreshed on
+  // return to visibility instead of firing while nobody can see it.
+  useEffect(() => {
+    if (!enabled || pollMs <= 0) return
+
+    let intervalId: number | null = null
+
+    const stopInterval = () => {
+      if (intervalId !== null) {
+        window.clearInterval(intervalId)
+        intervalId = null
       }
     }
 
-    const interval = window.setInterval(() => {
+    const startInterval = () => {
+      if (intervalId !== null) return
+      intervalId = window.setInterval(() => {
+        void fetchMonitor({ silent: true })
+      }, pollMs)
+    }
+
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'hidden') {
+        stopInterval()
+        return
+      }
       void fetchMonitor({ silent: true })
-    }, pollMs)
+      stopInterval()
+      startInterval()
+    }
+
+    if (document.visibilityState === 'visible') {
+      startInterval()
+    }
+
+    document.addEventListener('visibilitychange', handleVisibilityChange)
 
     return () => {
-      mountedRef.current = false
-      window.clearInterval(interval)
+      document.removeEventListener('visibilitychange', handleVisibilityChange)
+      stopInterval()
     }
   }, [enabled, fetchMonitor, pollMs])
 
