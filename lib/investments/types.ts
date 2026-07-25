@@ -1,3 +1,26 @@
+export type PortfolioMetrics = {
+  totalDeployed: number
+  activeCapital: number
+  completedPrincipal: number
+  pendingYieldAtMaturity: number
+  accruedYield: number
+  realizedYield: number
+  weightedApr: number
+  netReturnPercent: number
+  dealCount: number
+  activeCount: number
+  completedCount: number
+}
+
+export type InvestorHistoryPage = {
+  deals: EnrichedInvestorDeal[]
+  page: number
+  pageSize: number
+  total: number
+  hasMore: boolean
+}
+
+
 export type InvestorDeal = {
   id: string
   title: string
@@ -52,25 +75,13 @@ export type MaturityEvent = {
 }
 
 export type InvestorPortfolio = {
-  deals: EnrichedInvestorDeal[]
   active: EnrichedInvestorDeal[]
   completed: EnrichedInvestorDeal[]
   other: EnrichedInvestorDeal[]
-  metrics: {
-    totalDeployed: number
-    activeCapital: number
-    completedPrincipal: number
-    pendingYieldAtMaturity: number
-    accruedYield: number
-    realizedYield: number
-    weightedApr: number
-    netReturnPercent: number
-    dealCount: number
-    activeCount: number
-    completedCount: number
-  }
+  metrics: PortfolioMetrics
   allocation: AllocationSlice[]
   maturities: MaturityEvent[]
   openEscrowsBySmb: Record<string, number>
   displayName: string | null
+  history: InvestorHistoryPage
 }

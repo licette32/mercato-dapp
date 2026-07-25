@@ -7,7 +7,7 @@ import {
 import { getInvestorPortfolio } from '@/lib/investments/get-investor-portfolio'
 import { getServerDictionary } from '@/lib/i18n/server'
 
-type SearchParams = Promise<{ tab?: string }> | { tab?: string }
+type SearchParams = Promise<{ tab?: string; page?: string }> | { tab?: string; page?: string }
 
 export default async function DashboardInvestmentsPage({
   searchParams,
@@ -28,18 +28,26 @@ export default async function DashboardInvestmentsPage({
     .eq('id', user.id)
     .single()
 
-  const portfolio = await getInvestorPortfolio(supabase, user.id, profile, {
-    smbFallback: t.investments.smbFallbackName,
-    dealFallbackTitle: t.investments.dealFallbackTitle,
-  })
+  const params = searchParams
+    ? typeof (searchParams as Promise<{ tab?: string; page?: string }>).then === 'function'
+      ? await (searchParams as Promise<{ tab?: string; page?: string }>)
+      : (searchParams as { tab?: string; page?: string })
+    : {}
+
+  const page = Number(params.page) > 0 ? Number(params.page) : 1
+
+  const portfolio = await getInvestorPortfolio(
+    supabase,
+    user.id,
+    profile,
+    {
+      smbFallback: t.investments.smbFallbackName,
+      dealFallbackTitle: t.investments.dealFallbackTitle,
+    },
+    { page },
+  )
 
   if (!portfolio) redirect('/dashboard')
-
-  const params = searchParams
-    ? typeof (searchParams as Promise<{ tab?: string }>).then === 'function'
-      ? await (searchParams as Promise<{ tab?: string }>)
-      : (searchParams as { tab?: string })
-    : {}
 
   const tab = parseInvestmentsTab(params.tab)
 

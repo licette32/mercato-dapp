@@ -2,6 +2,13 @@ import type { SupabaseClient } from '@supabase/supabase-js'
 import type { InvestorDeal } from './types'
 import { buildInvestorPortfolio } from './portfolio-metrics'
 
+const DEAL_COLUMNS = `id, title, product_name, status, amount, interest_rate, term_days,
+   created_at, funded_at, pyme_id, escrow_contract_address,
+   pyme:profiles!deals_pyme_id_fkey(company_name, full_name, contact_name)`
+
+const ACTIVE_STATUSES = ['funded', 'in_progress']
+const DEFAULT_PAGE_SIZE = 10
+
 export async function getInvestorPortfolio(
   supabase: SupabaseClient,
   userId: string,
@@ -12,45 +19,51 @@ export async function getInvestorPortfolio(
     contact_name?: string | null
   } | null,
   labels: { smbFallback: string; dealFallbackTitle: string },
+  pagination: { page?: number; pageSize?: number } = {},
 ) {
   if (profile?.user_type !== 'investor') {
     return null
   }
 
-  const { data: deals } = await supabase
-    .from('deals')
-    .select(
-      `id, title, product_name, status, amount, interest_rate, term_days,
-       created_at, funded_at, pyme_id, escrow_contract_address,
-       pyme:profiles!deals_pyme_id_fkey(company_name, full_name, contact_name)`,
-    )
-    .eq('investor_id', userId)
-    .order('funded_at', { ascending: false })
+  const page = Math.max(1, pagination.page ?? 1)
+  const pageSize = pagination.pageSize ?? DEFAULT_PAGE_SIZE
+  const from = (page - 1) * pageSize
+  const to = from + pageSize - 1
 
-  const list = (deals ?? []) as InvestorDeal[]
-  const pymeIds = [...new Set(list.map((d) => d.pyme_id).filter(Boolean))] as string[]
+  const [{ data: summaryRows }, { data: activeDeals }, { data: historyDeals, count: historyTotal }] =
+    await Promise.all([
+      supabase.rpc('get_investor_portfolio_summary', { p_investor_id: userId }),
+      supabase
+        .from('deals')
+        .select(DEAL_COLUMNS)
+        .eq('investor_id', userId)
+        .in('status', ACTIVE_STATUSES)
+        .order('funded_at', { ascending: false }),
+      supabase
+        .from('deals')
+        .select(DEAL_COLUMNS, { count: 'exact' })
+        .eq('investor_id', userId)
+        .not('status', 'in', `(${ACTIVE_STATUSES.join(',')})`)
+        .order('funded_at', { ascending: false })
+        .range(from, to),
+    ])
 
-  const { data: activeCounts } =
-    pymeIds.length > 0
-      ? await supabase
-          .from('deals')
-          .select('pyme_id')
-          .in('pyme_id', pymeIds)
-          .in('status', ['funded', 'in_progress'])
-      : { data: [] as { pyme_id: string }[] | null }
-
-  const openEscrowsBySmb: Record<string, number> = {}
-  for (const row of activeCounts ?? []) {
-    if (row.pyme_id) openEscrowsBySmb[row.pyme_id] = (openEscrowsBySmb[row.pyme_id] ?? 0) + 1
+  const summary = summaryRows?.[0]
+  if (!summary) {
+    return null
   }
 
   const displayName = profile?.company_name || profile?.full_name || profile?.contact_name || null
 
-  return buildInvestorPortfolio(
-    list,
-    openEscrowsBySmb,
+  return buildInvestorPortfolio({
+    activeDeals: (activeDeals ?? []) as InvestorDeal[],
+    historyDeals: (historyDeals ?? []) as InvestorDeal[],
+    historyTotal: historyTotal ?? 0,
+    page,
+    pageSize,
+    summary,
     displayName,
-    labels.smbFallback,
-    labels.dealFallbackTitle,
-  )
+    smbFallback: labels.smbFallback,
+    dealFallbackTitle: labels.dealFallbackTitle,
+  })
 }

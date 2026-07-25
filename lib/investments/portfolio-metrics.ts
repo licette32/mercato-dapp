@@ -6,11 +6,11 @@ import type {
   InvestorPortfolio,
   MaturityEvent,
   PortfolioBucket,
+  PortfolioMetrics,
 } from './types'
 
 export function expectedYield(amount: number, rate: number, termDays: number): number {
   if (termDays <= 0 || rate <= 0) return 0
-  // Flat rate for the deal term (not annualized)
   return normalizeUSDC(amount * (rate / 100))
 }
 
@@ -19,7 +19,6 @@ export function accruedYield(amount: number, rate: number, fundedAt: string | nu
   const start = new Date(fundedAt).getTime()
   const elapsedMs = Math.max(0, Date.now() - start)
   const daysElapsed = Math.min(termDays, elapsedMs / 86_400_000)
-  // Accrue flat term yield proportionally over the deal term
   return normalizeUSDC(amount * (rate / 100) * (daysElapsed / termDays))
 }
 
@@ -51,91 +50,97 @@ function bucketForStatus(status: string): PortfolioBucket {
   return 'other'
 }
 
-export function buildInvestorPortfolio(
-  deals: InvestorDeal[],
-  openEscrowsBySmb: Record<string, number>,
-  displayName: string | null,
+type RawSummary = {
+  total_deployed: number
+  active_capital: number
+  completed_principal: number
+  pending_yield_at_maturity: number
+  accrued_yield: number
+  realized_yield: number
+  weighted_apr: number
+  deal_count: number
+  active_count: number
+  completed_count: number
+  open_escrows_by_smb: Record<string, number>
+}
+
+function enrichDeal(
+  d: InvestorDeal,
   smbFallback: string,
   dealFallbackTitle: string,
-): InvestorPortfolio {
-  const enriched: EnrichedInvestorDeal[] = deals.map((d) => {
-    const amountNum = Number(d.amount)
-    const apr = Number(d.interest_rate ?? 0)
-    const termDays = Number(d.term_days ?? 0)
-    const bucket = bucketForStatus(d.status)
-    const progress = termProgress(d.funded_at, d.term_days)
-    const yieldAtMaturity = expectedYield(amountNum, apr, termDays)
-    const accrued = bucket === 'active' ? accruedYield(amountNum, apr, d.funded_at, termDays) : 0
-
-    return {
-      ...d,
-      bucket,
-      displayTitle: d.product_name || d.title || dealFallbackTitle,
-      smbName: smbName(d.pyme, smbFallback),
-      amountNum,
-      apr,
-      termDays,
-      expectedYield: yieldAtMaturity,
-      accruedYield: accrued,
-      termProgress: progress,
-      openEscrowsWithSmb: d.pyme_id ? (openEscrowsBySmb[d.pyme_id] ?? 0) : 0,
-    }
-  })
-
-  const active = enriched.filter((d) => d.bucket === 'active')
-  const completed = enriched.filter((d) => d.bucket === 'completed')
-  const other = enriched.filter((d) => d.bucket === 'other')
-
-  let totalDeployed = 0
-  let activeCapital = 0
-  let completedPrincipal = 0
-  let pendingYieldAtMaturity = 0
-  let accruedYieldTotal = 0
-  let realizedYield = 0
-  let weightedAprNumerator = 0
-
-  for (const d of enriched) {
-    totalDeployed += d.amountNum
-    if (d.bucket === 'active') {
-      activeCapital += d.amountNum
-      pendingYieldAtMaturity += d.expectedYield
-      accruedYieldTotal += d.accruedYield
-      weightedAprNumerator += d.amountNum * d.apr
-    } else if (d.bucket === 'completed') {
-      completedPrincipal += d.amountNum
-      realizedYield += d.expectedYield
-    }
-  }
-
-  const weightedApr = activeCapital > 0 ? weightedAprNumerator / activeCapital : 0
-  const netReturnPercent =
-    completedPrincipal > 0 ? (realizedYield / completedPrincipal) * 100 : 0
-
-  const allocation = buildAllocation(active)
-  const maturities = buildMaturityEvents(active)
+  openEscrowsBySmb: Record<string, number>,
+): EnrichedInvestorDeal {
+  const amountNum = Number(d.amount)
+  const apr = Number(d.interest_rate ?? 0)
+  const termDays = Number(d.term_days ?? 0)
+  const bucket = bucketForStatus(d.status)
 
   return {
-    deals: enriched,
+    ...d,
+    bucket,
+    displayTitle: d.product_name || d.title || dealFallbackTitle,
+    smbName: smbName(d.pyme, smbFallback),
+    amountNum,
+    apr,
+    termDays,
+    expectedYield: expectedYield(amountNum, apr, termDays),
+    accruedYield: bucket === 'active' ? accruedYield(amountNum, apr, d.funded_at, termDays) : 0,
+    termProgress: termProgress(d.funded_at, d.term_days),
+    openEscrowsWithSmb: d.pyme_id ? (openEscrowsBySmb[d.pyme_id] ?? 0) : 0,
+  }
+}
+
+export function buildInvestorPortfolio(args: {
+  activeDeals: InvestorDeal[]
+  historyDeals: InvestorDeal[]
+  historyTotal: number
+  page: number
+  pageSize: number
+  summary: RawSummary
+  displayName: string | null
+  smbFallback: string
+  dealFallbackTitle: string
+}): InvestorPortfolio {
+  const openEscrowsBySmb = args.summary.open_escrows_by_smb ?? {}
+  const enrich = (d: InvestorDeal) => enrichDeal(d, args.smbFallback, args.dealFallbackTitle, openEscrowsBySmb)
+
+  const active = args.activeDeals.map(enrich)
+  const history = args.historyDeals.map(enrich)
+  const completed = history.filter((d) => d.bucket === 'completed')
+  const other = history.filter((d) => d.bucket === 'other')
+
+  const s = args.summary
+  const metrics: PortfolioMetrics = {
+    totalDeployed: Number(s.total_deployed),
+    activeCapital: Number(s.active_capital),
+    completedPrincipal: Number(s.completed_principal),
+    pendingYieldAtMaturity: Number(s.pending_yield_at_maturity),
+    accruedYield: Number(s.accrued_yield),
+    realizedYield: Number(s.realized_yield),
+    weightedApr: Number(s.weighted_apr),
+    netReturnPercent:
+      Number(s.completed_principal) > 0 ? (Number(s.realized_yield) / Number(s.completed_principal)) * 100 : 0,
+    dealCount: s.deal_count,
+    activeCount: s.active_count,
+    completedCount: s.completed_count,
+  }
+
+  return {
     active,
     completed,
     other,
-    metrics: {
-      totalDeployed,
-      activeCapital,
-      completedPrincipal,
-      pendingYieldAtMaturity,
-      accruedYield: accruedYieldTotal,
-      realizedYield,
-      weightedApr,
-      netReturnPercent,
-      dealCount: enriched.length,
-      activeCount: active.length,
-      completedCount: completed.length,
-    },
-    allocation,
-    maturities,
+    metrics,
+    allocation: buildAllocation(active),
+    maturities: buildMaturityEvents(active),
     openEscrowsBySmb,
-    displayName,
+    displayName: args.displayName,
+    history: {
+      deals: history,
+      page: args.page,
+      pageSize: args.pageSize,
+      total: args.historyTotal,
+      hasMore: args.page * args.pageSize < args.historyTotal,
+    },
   }
 }
 

@@ -50,11 +50,13 @@ export function InvestmentsPositions({
     other: labels.tabOther,
   }
 
+  const otherCount = portfolio.metrics.dealCount - portfolio.metrics.activeCount - portfolio.metrics.completedCount
+
   const counts: Record<PositionsTab, number> = {
-    all: portfolio.deals.length,
-    active: portfolio.active.length,
-    completed: portfolio.completed.length,
-    other: portfolio.other.length,
+    all: portfolio.metrics.dealCount,
+    active: portfolio.metrics.activeCount,
+    completed: portfolio.metrics.completedCount,
+    other: otherCount,
   }
 
   const showActive = tab === 'all' || tab === 'active'
@@ -65,6 +67,9 @@ export function InvestmentsPositions({
     (tab === 'active' && portfolio.active.length === 0) ||
     (tab === 'completed' && portfolio.completed.length === 0) ||
     (tab === 'other' && portfolio.other.length === 0)
+
+  const totalPages = Math.max(1, Math.ceil(portfolio.history.total / portfolio.history.pageSize))
+  const showHistoryPagination = tab !== 'active' && portfolio.history.total > portfolio.history.pageSize
 
   return (
     <section className="space-y-6">
@@ -119,15 +124,43 @@ export function InvestmentsPositions({
 
       {showCompleted && portfolio.completed.length > 0 && (
         <div>
-          <SectionHeading title={labels.completedHeading} count={portfolio.completed.length} />
+          <SectionHeading title={labels.completedHeading} count={portfolio.metrics.completedCount} />
           <CompletedList deals={portfolio.completed} labels={labels} />
         </div>
       )}
 
       {showOther && portfolio.other.length > 0 && (
         <div>
-          <SectionHeading title={labels.otherHeading} count={portfolio.other.length} />
+          <SectionHeading title={labels.otherHeading} count={otherCount} />
           <OtherList deals={portfolio.other} statusLabel={statusLabel} />
+        </div>
+      )}
+
+      {showHistoryPagination && (
+        <div className="flex items-center justify-between gap-4 pt-2">
+          <Link
+            href={`/dashboard/investments?tab=${tab}&page=${portfolio.history.page - 1}`}
+            aria-disabled={portfolio.history.page <= 1}
+            className={cn(
+              'text-sm font-medium text-muted-foreground hover:text-foreground',
+              portfolio.history.page <= 1 && 'pointer-events-none opacity-40',
+            )}
+          >
+            ← Previous
+          </Link>
+          <span className="text-xs text-muted-foreground">
+            Page {portfolio.history.page} of {totalPages}
+          </span>
+          <Link
+            href={`/dashboard/investments?tab=${tab}&page=${portfolio.history.page + 1}`}
+            aria-disabled={!portfolio.history.hasMore}
+            className={cn(
+              'text-sm font-medium text-muted-foreground hover:text-foreground',
+              !portfolio.history.hasMore && 'pointer-events-none opacity-40',
+            )}
+          >
+            Next →
+          </Link>
         </div>
       )}
     </section>
