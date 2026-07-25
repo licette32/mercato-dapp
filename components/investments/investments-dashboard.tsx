@@ -89,7 +89,7 @@ export function InvestmentsDashboard({ portfolio, tab, t }: InvestmentsDashboard
           }}
         />
 
-        {portfolio.deals.length === 0 ? (
+        {portfolio.metrics.dealCount === 0 ? (
           <InvestmentsEmpty
             labels={{
               emptyTitle: m.emptyTitle,
