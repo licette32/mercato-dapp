@@ -1243,6 +1243,7 @@
   "smbDetail": {
     "backToDirectory": "Volver a PyMEs",
     "verified": "Verificado",
+    "referredBySupplier": "Referido por {company}",
     "reputationLabel": "Reputación",
     "statDealsMercato": "Órdenes en MERCATO",
     "statActiveDeals": "Órdenes activas",

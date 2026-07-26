@@ -1243,6 +1243,7 @@
   "smbDetail": {
     "backToDirectory": "Back to SMBs",
     "verified": "Verified",
+    "referredBySupplier": "Referred by {company}",
     "reputationLabel": "Reputation",
     "statDealsMercato": "Deals on MERCATO",
     "statActiveDeals": "Active deals",
