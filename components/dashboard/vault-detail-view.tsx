@@ -1,5 +1,6 @@
 'use client'
 
+import { useMemo, useState } from 'react'
 import Link from 'next/link'
 import { ArrowLeft, ExternalLink, Layers, Waves } from 'lucide-react'
 import { CopyableCodeLine } from '@/components/admin/copyable-code-line'
@@ -14,12 +15,15 @@ import {
   formatCompactCurrency,
   getPrimarySupplyAsset,
 } from '@/lib/defindex/vault-display'
+import { flattenStrategyRows, type FlatStrategyRow } from '@/lib/defindex/vault-strategies'
 import { formatCurrency, formatPercent } from '@/lib/format'
 import type { MercatoVaultMeta } from '@/hooks/useDefindex'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Activity, Landmark, TrendingUp, User } from 'lucide-react'
+
+const INITIAL_STRATEGY_LIMIT = 6
 
 type VaultDetailViewProps = {
   vaultMeta: MercatoVaultMeta | null
@@ -61,6 +65,14 @@ export function VaultDetailView({
   const apy = vaultMeta?.apy ?? 0
   const hasApy = Number.isFinite(apy) && apy > 0
   const assetCount = vaultMeta?.assetRows?.length ?? vaultMeta?.assets?.length ?? 0
+
+  const allStrategyRows = useMemo(
+    () => flattenStrategyRows(vaultMeta?.assetRows ?? []),
+    [vaultMeta?.assetRows],
+  )
+  const [showAll, setShowAll] = useState(false)
+  const hasMore = allStrategyRows.length > INITIAL_STRATEGY_LIMIT
+  const visibleRows = showAll ? allStrategyRows : allStrategyRows.slice(0, INITIAL_STRATEGY_LIMIT)
 
   return (
     <div className="space-y-8 animate-mercato-slide-up-fade">
@@ -190,41 +202,20 @@ export function VaultDetailView({
               </p>
             ) : (
               <div className="space-y-3">
-                {vaultMeta.assetRows.flatMap((asset) =>
-                  asset.strategies.map((strategy) => (
-                    <div
-                      key={strategy.address}
-                      className="overflow-hidden rounded-2xl border border-border/70 bg-card shadow-sm transition-shadow hover:shadow-md"
-                    >
-                      <div className="flex min-w-0 flex-col gap-3 border-b border-border/50 bg-muted/20 px-4 py-3 sm:flex-row sm:items-start sm:justify-between sm:px-5 sm:py-4">
-                        <div className="min-w-0 flex-1">
-                          <p className="truncate font-medium">{strategy.name}</p>
-                          <p className="mt-0.5 text-xs text-muted-foreground">
-                            Asset · {asset.symbol}
-                          </p>
-                        </div>
-                        <div className="shrink-0 sm:text-right">
-                          <p className="font-display text-lg tabular-nums tracking-tight sm:text-xl">
-                            {formatCompactCurrency(strategy.allocatedDisplay)}
-                          </p>
-                          {strategy.paused && (
-                            <Badge
-                              variant="secondary"
-                              className="mt-1 bg-amber-500/15 text-amber-800 dark:text-amber-200"
-                            >
-                              Paused
-                            </Badge>
-                          )}
-                        </div>
-                      </div>
-                      <div className="min-w-0 px-4 py-3 sm:px-5">
-                        <CopyableCodeLine
-                          value={strategy.address}
-                          label="strategy contract"
-                        />
-                      </div>
-                    </div>
-                  )),
+                {visibleRows.map((row) => (
+                  <StrategyCard key={`${row.asset.address}-${row.strategy.address}`} row={row} />
+                ))}
+                {hasMore && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="w-full rounded-xl"
+                    onClick={() => setShowAll((prev) => !prev)}
+                  >
+                    {showAll
+                      ? 'Show fewer'
+                      : `Show all ${allStrategyRows.length} strategies`}
+                  </Button>
                 )}
               </div>
             )}
@@ -248,6 +239,38 @@ export function VaultDetailView({
             variant="panel"
           />
         </div>
+      </div>
+    </div>
+  )
+}
+
+function StrategyCard({ row }: { row: FlatStrategyRow }) {
+  const { asset, strategy } = row
+  return (
+    <div className="overflow-hidden rounded-2xl border border-border/70 bg-card shadow-sm transition-shadow hover:shadow-md">
+      <div className="flex min-w-0 flex-col gap-3 border-b border-border/50 bg-muted/20 px-4 py-3 sm:flex-row sm:items-start sm:justify-between sm:px-5 sm:py-4">
+        <div className="min-w-0 flex-1">
+          <p className="truncate font-medium">{strategy.name}</p>
+          <p className="mt-0.5 text-xs text-muted-foreground">
+            Asset · {asset.symbol}
+          </p>
+        </div>
+        <div className="shrink-0 sm:text-right">
+          <p className="font-display text-lg tabular-nums tracking-tight sm:text-xl">
+            {formatCompactCurrency(strategy.allocatedDisplay)}
+          </p>
+          {strategy.paused && (
+            <Badge
+              variant="secondary"
+              className="mt-1 bg-amber-500/15 text-amber-800 dark:text-amber-200"
+            >
+              Paused
+            </Badge>
+          )}
+        </div>
+      </div>
+      <div className="min-w-0 px-4 py-3 sm:px-5">
+        <CopyableCodeLine value={strategy.address} label="strategy contract" />
       </div>
     </div>
   )
