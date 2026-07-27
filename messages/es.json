@@ -252,6 +252,8 @@
     "creatingDeploying": "Creando orden...",
     "connectWalletContinue": "Conectar billetera para continuar",
     "basicsTitle": "Datos de la orden",
+    "searchLabel": "Buscar productos",
+    "searchPlaceholder": "Buscar productos por nombre...",
     "basicsDescription": "Elige categoría, proveedor y producto; el precio viene del catálogo del proveedor",
     "selectCategory": "Seleccionar categoría",
     "noCategories": "Aún no hay categorías disponibles",
