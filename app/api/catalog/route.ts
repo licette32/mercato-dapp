@@ -34,8 +34,13 @@ export type CatalogResponse = {
 export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url)
-    const page = parseInt(searchParams.get('page') || '1', 10)
-    const pageSize = parseInt(searchParams.get('pageSize') || '50', 10)
+    const MAX_PAGE_SIZE = 100
+    const rawPage = parseInt(searchParams.get('page') || '1', 10)
+    const rawPageSize = parseInt(searchParams.get('pageSize') || '50', 10)
+    const page = Number.isFinite(rawPage) && rawPage > 0 ? rawPage : 1
+    const pageSize = Number.isFinite(rawPageSize) && rawPageSize > 0
+      ? Math.min(rawPageSize, MAX_PAGE_SIZE)
+      : 50
     const search = searchParams.get('search') || ''
     const category = searchParams.get('category') || ''
 
@@ -61,6 +66,7 @@ export async function GET(request: Request) {
     const { data: products, error, count } = await query
       .order('category')
       .order('name')
+      .order('id')   // unique tiebreaker for stable pagination
       .range(start, end)
 
     if (error) {

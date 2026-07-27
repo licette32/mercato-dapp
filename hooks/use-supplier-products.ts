@@ -54,12 +54,22 @@ export function useSupplierProducts(
       const start = (page - 1) * PAGE_SIZE
       const end = start + PAGE_SIZE - 1
 
-      const { data: productsData, count } = await supabase
+      const { data: productsData, count, error: loadError } = await supabase
         .from('supplier_products')
         .select(PRODUCT_SELECT, { count: 'exact' })
         .eq('supplier_id', selectedCompanyId)
         .order('name')
+        .order('id') // unique tiebreaker for stable pagination
         .range(start, end)
+
+      if (loadError) {
+        console.error('[useSupplierProducts]', loadError)
+        if (isMounted) {
+          setHasMore(false)
+          setIsLoading(false)
+        }
+        return
+      }
 
       if (isMounted && productsData) {
         setProducts((prev) => {

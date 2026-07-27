@@ -28,21 +28,30 @@ export function useCreateDealForm(
   }, [initialFormData])
 
   useEffect(() => {
-    const fetchCatalog = async () => {
+    const controller = new AbortController()
+
+    // Debounce: wait 300 ms before firing the request
+    const timer = setTimeout(async () => {
       let url = `/api/catalog?pageSize=100`
       if (formData.category) url += `&category=${encodeURIComponent(formData.category)}`
       if (searchQuery) url += `&search=${encodeURIComponent(searchQuery)}`
       try {
-        const res = await fetch(url)
+        const res = await fetch(url, { signal: controller.signal })
         if (res.ok) {
           const json = await res.json()
           setFetchedProducts(json.data || [])
         }
       } catch (err) {
-        console.error(err)
+        if ((err as Error).name !== 'AbortError') {
+          console.error('[useCreateDealForm] fetchCatalog', err)
+        }
       }
+    }, 300)
+
+    return () => {
+      clearTimeout(timer)
+      controller.abort()
     }
-    fetchCatalog()
   }, [formData.category, searchQuery])
 
   // Combine initial supplierProducts with fetchedProducts to ensure selected items are always available

@@ -93,15 +93,17 @@ export function DealBasicsStep({
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
-        <div className="space-y-2">
-          <Label htmlFor="searchQuery">Search</Label>
-          <Input
-            id="searchQuery"
-            placeholder="Search for products by name..."
-            value={searchQuery || ''}
-            onChange={(e) => setSearchQuery?.(e.target.value)}
-          />
-        </div>
+        {setSearchQuery !== undefined && (
+          <div className="space-y-2">
+            <Label htmlFor="searchQuery">{t('createDeal.searchLabel')}</Label>
+            <Input
+              id="searchQuery"
+              placeholder={t('createDeal.searchPlaceholder')}
+              value={searchQuery || ''}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+          </div>
+        )}
 
         <div className="space-y-2">
           <Label htmlFor="category">{t('common.category')}</Label>
