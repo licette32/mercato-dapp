@@ -3,7 +3,7 @@ import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import { Navigation } from '@/components/navigation'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
+import { Badge, badgeVariants } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import {
   Mail,
@@ -63,7 +63,7 @@ export default async function SmbDetailPage({
 
   const { data: profile, error: profileError } = await supabase
     .from('profiles')
-    .select('id, company_name, bio, full_name, contact_name, email, phone, address, user_type, country, sector, verified, stake_amount')
+    .select('id, company_name, bio, full_name, contact_name, email, phone, address, user_type, country, sector, verified, stake_amount, referred_by_supplier_id')
     .eq('id', id)
     .single()
 
@@ -77,11 +77,20 @@ export default async function SmbDetailPage({
     .eq('pyme_id', id)
     .order('created_at', { ascending: false })
   const reputationPromise = getReputation(supabase, id)
+  const referringSupplierPromise = profile.referred_by_supplier_id
+    ? supabase
+        .from('supplier_companies')
+        .select('id, company_name')
+        .eq('id', profile.referred_by_supplier_id)
+        .maybeSingle()
+    : null
 
-  const [{ data: allDeals }, reputation] = await Promise.all([
+  const [{ data: allDeals }, reputation, referringSupplierResult] = await Promise.all([
     dealsPromise,
     reputationPromise,
+    referringSupplierPromise,
   ])
+  const referringSupplier = referringSupplierResult?.data ?? null
 
   const dealsList = (allDeals ?? []).slice(0, 10) as DealRow[]
   const totalDeals = (allDeals ?? []).length
@@ -140,6 +149,16 @@ export default async function SmbDetailPage({
                     <CheckCircle2 className="h-3 w-3" />
                     {tr(m, 'smbDetail.verified')}
                   </Badge>
+                )}
+                {referringSupplier && (
+                  <Link
+                    href={`/suppliers/${referringSupplier.id}`}
+                    className={badgeVariants({ variant: 'outline', className: 'hover:bg-muted' })}
+                  >
+                    {tr(m, 'smbDetail.referredBySupplier', {
+                      company: referringSupplier.company_name,
+                    })}
+                  </Link>
                 )}
               </div>
 
