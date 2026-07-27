@@ -37,6 +37,8 @@ interface CreateDealFormBodyProps {
   goNext: () => void
   updateFormData: (field: keyof CreateDealFormData, value: string) => void
   handleSupplierSelect: (supplierId: string) => void
+  searchQuery?: string
+  setSearchQuery?: (q: string) => void
   /** Override create-flow copy (edit deal page). */
   copy?: {
     badge: string
@@ -76,6 +78,8 @@ export function CreateDealFormBody({
   goNext,
   updateFormData,
   handleSupplierSelect,
+  searchQuery,
+  setSearchQuery,
   copy,
   requireWallet = true,
   showHowItWorks = true,
@@ -114,6 +118,8 @@ export function CreateDealFormBody({
               totalAmount={totalAmount}
               onUpdate={updateFormData}
               onSupplierSelect={handleSupplierSelect}
+              searchQuery={searchQuery}
+              setSearchQuery={setSearchQuery}
             />
           )}
           {currentStep === 2 && (

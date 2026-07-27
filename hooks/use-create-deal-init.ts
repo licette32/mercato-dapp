@@ -26,11 +26,13 @@ export function useCreateDealInit(options?: { redirectIfUnauthenticated?: boolea
       setUserId(user.id)
       let products: SupplierProductRow[] = []
       try {
-        const res = await fetch('/api/catalog')
+        const res = await fetch('/api/catalog?page=1&pageSize=50')
         if (res.ok) {
-          const data: unknown = await res.json()
-          if (Array.isArray(data)) {
-            products = data as SupplierProductRow[]
+          const json: any = await res.json()
+          if (json && Array.isArray(json.data)) {
+            products = json.data as SupplierProductRow[]
+          } else if (Array.isArray(json)) {
+            products = json as SupplierProductRow[]
           }
         }
       } catch {
@@ -43,6 +45,8 @@ export function useCreateDealInit(options?: { redirectIfUnauthenticated?: boolea
             'id, supplier_id, name, category, price_per_unit, description, image_url, sku, unit, stock_quantity, reserved_quantity, reorder_point, supplier:supplier_companies(id, company_name, address, owner_id, logo_url)'
           )
           .order('category')
+          .order('name')
+          .range(0, 49)
         const raw = (productsResult.data as any) || []
         const ownerIds = [...new Set(raw.map((p: any) => p.supplier?.owner_id).filter(Boolean))] as string[]
         const { data: ownerProfiles } = await supabase
