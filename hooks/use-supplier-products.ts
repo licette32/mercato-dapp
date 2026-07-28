@@ -21,6 +21,10 @@ export function useSupplierProducts(
   const { t } = useI18n()
 
   const [products, setProducts] = useState<SupplierProduct[]>([])
+  const [page, setPage] = useState(1)
+  const [hasMore, setHasMore] = useState(true)
+  const [isLoading, setIsLoading] = useState(false)
+  const PAGE_SIZE = 50
 
   const [addDialogOpen, setAddDialogOpen] = useState(false)
   const [editingProduct, setEditingProduct] = useState<SupplierProduct | null>(null)
@@ -32,18 +36,68 @@ export function useSupplierProducts(
   useEffect(() => {
     if (!selectedCompanyId || !user) {
       setProducts([])
+      setPage(1)
+      setHasMore(true)
       return
     }
+    setPage(1)
+    setProducts([])
+    setHasMore(true)
+  }, [selectedCompanyId, user])
+
+  useEffect(() => {
+    if (!selectedCompanyId || !user) return
+    let isMounted = true
+
     const loadProducts = async () => {
-      const { data: productsData } = await supabase
+      setIsLoading(true)
+      const start = (page - 1) * PAGE_SIZE
+      const end = start + PAGE_SIZE - 1
+
+      const { data: productsData, count, error: loadError } = await supabase
         .from('supplier_products')
-        .select(PRODUCT_SELECT)
+        .select(PRODUCT_SELECT, { count: 'exact' })
         .eq('supplier_id', selectedCompanyId)
         .order('name')
-      setProducts((productsData as SupplierProduct[]) ?? [])
+        .order('id') // unique tiebreaker for stable pagination
+        .range(start, end)
+
+      if (loadError) {
+        console.error('[useSupplierProducts]', loadError)
+        if (isMounted) {
+          setHasMore(false)
+          setIsLoading(false)
+        }
+        return
+      }
+
+      if (isMounted && productsData) {
+        setProducts((prev) => {
+          if (page === 1) return productsData as SupplierProduct[]
+          // Filter out duplicates just in case
+          const existingIds = new Set(prev.map(p => p.id))
+          const newProducts = (productsData as SupplierProduct[]).filter(p => !existingIds.has(p.id))
+          return [...prev, ...newProducts]
+        })
+        if (count !== null) {
+          setHasMore(start + productsData.length < count)
+        } else {
+          setHasMore(productsData.length === PAGE_SIZE)
+        }
+      }
+      if (isMounted) setIsLoading(false)
     }
     void loadProducts()
-  }, [selectedCompanyId, user, supabase])
+    return () => {
+      isMounted = false
+    }
+  }, [selectedCompanyId, user, supabase, page])
+
+  const loadMore = useCallback(() => {
+    if (!isLoading && hasMore) {
+      setPage((prev) => prev + 1)
+    }
+  }, [isLoading, hasMore])
 
   const openAddDialog = useCallback(() => {
     setFormProduct(EMPTY_PRODUCT_FORM)
@@ -290,5 +344,8 @@ export function useSupplierProducts(
     handleUpdateProduct,
     handleDeleteProduct,
     adjustStock,
+    hasMore,
+    isLoading,
+    loadMore,
   }
 }

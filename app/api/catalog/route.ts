@@ -21,19 +21,53 @@ export type CatalogProduct = {
   } | null
 }
 
+export type CatalogResponse = {
+  data: CatalogProduct[]
+  hasMore: boolean
+  count: number | null
+}
+
 /**
- * GET /api/catalog – returns all supplier products with company info.
+ * GET /api/catalog – returns paginated supplier products with company info.
  * Uses service role so the catalog is visible regardless of RLS (for Create Deal).
  */
-export async function GET() {
+export async function GET(request: Request) {
   try {
+    const { searchParams } = new URL(request.url)
+    const MAX_PAGE_SIZE = 100
+    const rawPage = parseInt(searchParams.get('page') || '1', 10)
+    const rawPageSize = parseInt(searchParams.get('pageSize') || '50', 10)
+    const page = Number.isFinite(rawPage) && rawPage > 0 ? rawPage : 1
+    const pageSize = Number.isFinite(rawPageSize) && rawPageSize > 0
+      ? Math.min(rawPageSize, MAX_PAGE_SIZE)
+      : 50
+    const search = searchParams.get('search') || ''
+    const category = searchParams.get('category') || ''
+
+    const start = (page - 1) * pageSize
+    const end = start + pageSize - 1
+
     const supabase = createServiceClient()
-    const { data: products, error } = await supabase
+    
+    let query = supabase
       .from('supplier_products')
       .select(
-        'id, supplier_id, name, category, price_per_unit, description, image_url, sku, unit, stock_quantity, reserved_quantity, reorder_point, supplier:supplier_companies(id, company_name, address, owner_id, logo_url)'
+        'id, supplier_id, name, category, price_per_unit, description, image_url, sku, unit, stock_quantity, reserved_quantity, reorder_point, supplier:supplier_companies(id, company_name, address, owner_id, logo_url)',
+        { count: 'exact' }
       )
+
+    if (search) {
+      query = query.ilike('name', `%${search}%`)
+    }
+    if (category) {
+      query = query.eq('category', category)
+    }
+
+    const { data: products, error, count } = await query
       .order('category')
+      .order('name')
+      .order('id')   // unique tiebreaker for stable pagination
+      .range(start, end)
 
     if (error) {
       console.error('[catalog]', error)
@@ -69,7 +103,13 @@ export async function GET() {
         : p.supplier,
     }))
 
-    return NextResponse.json(withEmail)
+    const hasMore = count !== null && start + (products?.length || 0) < count
+
+    return NextResponse.json({
+      data: withEmail,
+      hasMore,
+      count
+    } as CatalogResponse)
   } catch (err) {
     const message = err instanceof Error ? err.message : 'Failed to load catalog'
     console.error('[catalog]', err)

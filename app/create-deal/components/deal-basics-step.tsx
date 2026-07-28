@@ -51,6 +51,8 @@ interface DealBasicsStepProps {
   totalAmount: number
   onUpdate: (field: keyof CreateDealFormData, value: string) => void
   onSupplierSelect: (supplierId: string) => void
+  searchQuery?: string
+  setSearchQuery?: (q: string) => void
 }
 
 export function DealBasicsStep({
@@ -61,6 +63,8 @@ export function DealBasicsStep({
   totalAmount,
   onUpdate,
   onSupplierSelect,
+  searchQuery,
+  setSearchQuery,
 }: DealBasicsStepProps) {
   const { t, messages } = useI18n()
   const selectedProduct = productsForSupplier.find((p) => p.id === formData.productId)
@@ -89,6 +93,18 @@ export function DealBasicsStep({
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
+        {setSearchQuery !== undefined && (
+          <div className="space-y-2">
+            <Label htmlFor="searchQuery">{t('createDeal.searchLabel')}</Label>
+            <Input
+              id="searchQuery"
+              placeholder={t('createDeal.searchPlaceholder')}
+              value={searchQuery || ''}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+          </div>
+        )}
+
         <div className="space-y-2">
           <Label htmlFor="category">{t('common.category')}</Label>
           <Select

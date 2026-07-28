@@ -253,6 +253,8 @@
     "connectWalletContinue": "Connect Wallet to Continue",
     "basicsTitle": "Deal Basics",
     "basicsDescription": "Choose a category, supplier, and product; price comes from the supplier catalog",
+    "searchLabel": "Search Products",
+    "searchPlaceholder": "Search for products by name...",
     "selectCategory": "Select category",
     "noCategories": "No categories available yet",
     "catalogEmpty": "No products in catalog yet. Ask suppliers to add products in their profile.",

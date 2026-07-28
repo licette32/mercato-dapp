@@ -94,6 +94,8 @@ export default function CreateDealContent() {
           goNext={form.goNext}
           updateFormData={form.updateFormData}
           handleSupplierSelect={form.handleSupplierSelect}
+          searchQuery={form.searchQuery}
+          setSearchQuery={form.setSearchQuery}
         />
       </main>
     </div>

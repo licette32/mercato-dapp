@@ -9,6 +9,7 @@ import {
   platformFeeAmount,
   PLATFORM_FEE_PERCENT,
 } from '@/lib/deals/fees'
+import { PRODUCT_CATEGORIES } from '@/lib/categories'
 
 export function useCreateDealForm(
   supplierProducts: SupplierProductRow[],
@@ -17,6 +18,8 @@ export function useCreateDealForm(
   const [formData, setFormData] = useState<CreateDealFormData>(DEFAULT_FORM_DATA)
   const [currentStep, setCurrentStep] = useState<FormStep>(1)
   const hydratedInitial = useRef(false)
+  const [fetchedProducts, setFetchedProducts] = useState<SupplierProductRow[]>(supplierProducts)
+  const [searchQuery, setSearchQuery] = useState('')
 
   useEffect(() => {
     if (!initialFormData || hydratedInitial.current) return
@@ -24,30 +27,61 @@ export function useCreateDealForm(
     hydratedInitial.current = true
   }, [initialFormData])
 
-  const availableCategories = Array.from(
-    new Set(supplierProducts.map((p) => p.category).filter(Boolean))
-  ).sort()
+  useEffect(() => {
+    const controller = new AbortController()
+
+    // Debounce: wait 300 ms before firing the request
+    const timer = setTimeout(async () => {
+      let url = `/api/catalog?pageSize=100`
+      if (formData.category) url += `&category=${encodeURIComponent(formData.category)}`
+      if (searchQuery) url += `&search=${encodeURIComponent(searchQuery)}`
+      try {
+        const res = await fetch(url, { signal: controller.signal })
+        if (res.ok) {
+          const json = await res.json()
+          setFetchedProducts(json.data || [])
+        }
+      } catch (err) {
+        if ((err as Error).name !== 'AbortError') {
+          console.error('[useCreateDealForm] fetchCatalog', err)
+        }
+      }
+    }, 300)
+
+    return () => {
+      clearTimeout(timer)
+      controller.abort()
+    }
+  }, [formData.category, searchQuery])
+
+  // Combine initial supplierProducts with fetchedProducts to ensure selected items are always available
+  const combinedProducts = [
+    ...supplierProducts,
+    ...fetchedProducts.filter(p => !supplierProducts.some(sp => sp.id === p.id))
+  ]
+
+  const availableCategories = PRODUCT_CATEGORIES.map(c => c.value).sort()
 
   const supplierIdsInCategory = formData.category
-    ? [...new Set(supplierProducts.filter((p) => p.category === formData.category).map((p) => p.supplier_id))]
-    : [...new Set(supplierProducts.map((p) => p.supplier_id))]
+    ? [...new Set(combinedProducts.filter((p) => p.category === formData.category).map((p) => p.supplier_id))]
+    : [...new Set(combinedProducts.map((p) => p.supplier_id))]
 
   const filteredSuppliers = supplierIdsInCategory
     .map((sid) => {
-      const product = supplierProducts.find((p) => p.supplier_id === sid)
+      const product = combinedProducts.find((p) => p.supplier_id === sid)
       const sup = product?.supplier
       return sup ? { id: sid, company_name: sup.company_name ?? '', email: sup.email, address: sup.address, logo_url: sup.logo_url } : null
     })
     .filter(Boolean) as { id: string; company_name: string; email?: string; address?: string; logo_url?: string | null }[]
 
   const productsForSupplier = formData.supplierId
-    ? supplierProducts.filter(
+    ? combinedProducts.filter(
         (p) => p.supplier_id === formData.supplierId && (!formData.category || p.category === formData.category)
       )
     : []
 
   const selectedProduct = formData.productId
-    ? supplierProducts.find((p) => p.id === formData.productId)
+    ? combinedProducts.find((p) => p.id === formData.productId)
     : null
 
   const parsedQuantity = Number(formData.quantity)
@@ -104,7 +138,7 @@ export function useCreateDealForm(
   }
 
   const handleSupplierSelect = (supplierId: string) => {
-    const product = supplierProducts.find((p) => p.supplier_id === supplierId)
+    const product = combinedProducts.find((p) => p.supplier_id === supplierId)
     const sup = product?.supplier
     if (sup) {
       setFormData((prev) => ({
@@ -138,6 +172,8 @@ export function useCreateDealForm(
     canSubmit,
     supplierLogoUrl,
     currentStep,
+    searchQuery,
+    setSearchQuery,
     updateFormData,
     handleSupplierSelect,
     goBack: () => setCurrentStep((prev) => Math.max(1, prev - 1) as FormStep),
