@@ -37,7 +37,7 @@ export async function GET(request: Request) {
     const activity = await fetchVaultActivityForAccount({
       accountId: account,
       vaultContractId: vaultAddress,
-      limit: 50,
+      limit: 50, // server-side cap — client paginates locally from this batch
     })
 
     return NextResponse.json({
