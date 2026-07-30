@@ -1,9 +1,4 @@
-import { test, expect, mock, afterEach, beforeAll } from "bun:test";
-import { GlobalRegistrator } from "@happy-dom/global-registrator";
-
-beforeAll(() => {
-  GlobalRegistrator.register();
-});
+import { test, expect, mock, afterEach } from "bun:test";
 
 import React from "react";
 import { render, screen, cleanup, within } from "@testing-library/react";
@@ -133,4 +128,21 @@ test("terminal state shows 'No hay más actividad' and hide button when all entr
   expect(screen.getAllByRole("listitem").length).toBe(12);
   expect(screen.queryByRole("button", { name: /Cargar más/i })).toBeNull();
   expect(screen.getByText(/No hay más actividad/i)).toBeTruthy();
+});
+
+test("visibleCount no se resetea si activity cambia de referencia pero no de contenido", async () => {
+  const activity = buildActivity(15);
+
+  const { rerender } = render(
+    <VaultActivitySection {...defaultProps} activity={activity} />,
+  );
+
+  const loadMoreBtn = screen.getByRole("button", { name: /Cargar más/i });
+  await userEvent.click(loadMoreBtn);
+  expect(screen.getAllByRole("listitem").length).toBe(15);
+
+  const sameDataNewRef = [...activity];
+  rerender(<VaultActivitySection {...defaultProps} activity={sameDataNewRef} />);
+
+  expect(screen.getAllByRole("listitem").length).toBe(15);
 });

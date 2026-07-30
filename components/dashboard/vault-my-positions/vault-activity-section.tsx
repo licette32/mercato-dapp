@@ -28,11 +28,12 @@ export function VaultActivitySection({
   supplySymbol,
   onRetry,
 }: VaultActivitySectionProps) {
-  const [prevActivity, setPrevActivity] = useState(activity)
+  const activityKey = activity.map((entry) => entry.id).join(',')
+  const [prevActivityKey, setPrevActivityKey] = useState(activityKey)
   const [visibleCount, setVisibleCount] = useState(INITIAL_VISIBLE_COUNT)
 
-  if (activity !== prevActivity) {
-    setPrevActivity(activity)
+  if (activityKey !== prevActivityKey) {
+    setPrevActivityKey(activityKey)
     setVisibleCount(INITIAL_VISIBLE_COUNT)
   }
 
