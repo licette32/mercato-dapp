@@ -8,6 +8,7 @@ import { signTransaction } from '@/lib/trustless/wallet-kit'
 import { PollarWalletKitLimitations } from '@/lib/mercato-wallet'
 import type { SendTransactionResponse } from '@defindex/sdk'
 import { readErrorMessage, invalidateVaultDataCache } from '@/lib/defindex/vault-cache'
+import { getMercatoVaultContractId, isDefindexConfigured } from '@/lib/defindex/config'
 import { useVaultMeta } from '@/hooks/use-vault-meta'
 import { useVaultBalance } from '@/hooks/use-vault-balance'
 
@@ -21,6 +22,21 @@ interface UseDefindexOptions {
 }
 
 export type { MercatoVaultMeta } from '@/hooks/use-vault-meta'
+
+async function invalidateVaultActivity(address: string): Promise<void> {
+  const vaultAddress = isDefindexConfigured() ? getMercatoVaultContractId() : ''
+  if (!address || !vaultAddress) return
+  try {
+    await fetch('/api/stellar/vault-activity/invalidate', {
+      method: 'POST',
+      credentials: 'include',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ account: address, vaultAddress }),
+    })
+  } catch {
+    /* best-effort */
+  }
+}
 
 export const useDefindex = (options?: UseDefindexOptions) => {
   const { walletInfo, refreshBalance, canSignTransactions } = useWallet()
@@ -234,10 +250,12 @@ export const useDefindex = (options?: UseDefindexOptions) => {
           throw new Error('depositToVault requires a number[] of raw per-asset amounts')
         }
         const result = await defaultDeposit(amounts)
+        const address = walletInfo?.address ?? ''
         invalidateVaultDataCache(
-          walletInfo?.address ?? '',
+          address,
           vaultMetaRef.current?.assets?.[0]?.address,
         )
+        void invalidateVaultActivity(address)
         await refreshBalances()
         return result
       },
@@ -257,10 +275,12 @@ export const useDefindex = (options?: UseDefindexOptions) => {
           throw new Error('withdrawFromVault requires a number[] of raw per-asset amounts')
         }
         const result = await defaultWithdraw(amounts)
+        const address = walletInfo?.address ?? ''
         invalidateVaultDataCache(
-          walletInfo?.address ?? '',
+          address,
           vaultMetaRef.current?.assets?.[0]?.address,
         )
+        void invalidateVaultActivity(address)
         await refreshBalances()
         return result
       },
@@ -271,10 +291,11 @@ export const useDefindex = (options?: UseDefindexOptions) => {
     () =>
       async (shares: number) => {
         const result = await defaultWithdrawShares(shares)
+        void invalidateVaultActivity(walletInfo?.address ?? '')
         await refreshBalances()
         return result
       },
-    [defaultWithdrawShares, refreshBalances]
+    [defaultWithdrawShares, refreshBalances, walletInfo?.address]
   )
 
   return {

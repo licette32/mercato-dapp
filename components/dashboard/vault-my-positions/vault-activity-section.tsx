@@ -16,17 +16,23 @@ const LOAD_MORE_INCREMENT = 10
 export type VaultActivitySectionProps = {
   activity: VaultActivityEntry[]
   isLoading: boolean
+  isLoadingMore?: boolean
   activityError: string | null
+  hasMore?: boolean
   supplySymbol: string
   onRetry: () => void
+  onLoadMore?: () => void
 }
 
 export function VaultActivitySection({
   activity,
   isLoading,
+  isLoadingMore,
   activityError,
+  hasMore,
   supplySymbol,
   onRetry,
+  onLoadMore,
 }: VaultActivitySectionProps) {
   const activityKey = activity.map((entry) => entry.id).join(',')
   const [prevActivityKey, setPrevActivityKey] = useState(activityKey)
@@ -139,6 +145,27 @@ export function VaultActivitySection({
                 No hay más actividad
               </p>
             ) : null}
+          </div>
+        )}
+
+        {!isLoading && hasMore && (
+          <div className="flex justify-center pt-3">
+            {isLoadingMore ? (
+              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                <span className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
+                Loading…
+              </div>
+            ) : (
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                className="rounded-full"
+                onClick={onLoadMore}
+              >
+                Cargar más
+              </Button>
+            )}
           </div>
         )}
 
