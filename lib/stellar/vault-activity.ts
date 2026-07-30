@@ -2,6 +2,10 @@ import { Address, scValToNative, xdr } from '@stellar/stellar-sdk'
 import { getDefindexAssetDecimals } from '@/lib/defindex/config'
 import { rawToDisplayAmount } from '@/lib/defindex/amounts'
 import { getAppStellarNetwork, getStellarNetworkConfig } from '@/lib/stellar/network-config'
+import {
+  getCachedVaultActivityPage,
+  setCachedVaultActivityPage,
+} from '@/lib/stellar/vault-activity-cache'
 
 export type VaultActivityKind = 'deposit' | 'withdraw'
 
@@ -23,6 +27,7 @@ type HorizonOperation = {
   created_at?: string
   function?: string
   parameters?: Array<{ value?: string; type?: string }>
+  paging_token?: string
 }
 
 type HorizonPage<T> = {
@@ -106,7 +111,7 @@ function primaryRawAmount(params: HorizonOperation['parameters'], startIndex: nu
   return amounts[0] ?? 0
 }
 
-function parseVaultOperation(
+export function parseVaultOperation(
   op: HorizonOperation,
   vaultContractId: string,
   network = getAppStellarNetwork(),
@@ -162,31 +167,58 @@ export async function fetchVaultActivityForAccount(input: {
   accountId: string
   vaultContractId: string
   limit?: number
+  cursor?: string | null
   network?: ReturnType<typeof getAppStellarNetwork>
-}): Promise<VaultActivityEntry[]> {
-  const limit = Math.min(Math.max(input.limit ?? 50, 1), 200)
+}): Promise<{ entries: VaultActivityEntry[]; nextCursor: string | null; hasMore: boolean }> {
+  const effectiveLimit = Math.min(Math.max(input.limit ?? 20, 1), 200)
   const network = input.network ?? getAppStellarNetwork()
   const { horizonUrl } = getStellarNetworkConfig(network)
 
-  const entries: VaultActivityEntry[] = []
-  let nextUrl: string | null =
-    `${horizonUrl}/accounts/${encodeURIComponent(input.accountId)}/operations?order=desc&limit=200`
+  const cacheKeyCursor = input.cursor ?? null
+  const cached = getCachedVaultActivityPage(input.accountId, input.vaultContractId, cacheKeyCursor, effectiveLimit)
+  if (cached) return cached
 
-  while (nextUrl && entries.length < limit) {
+  const entries: VaultActivityEntry[] = []
+  const baseUrl = `${horizonUrl}/accounts/${encodeURIComponent(input.accountId)}/operations?order=desc&limit=200`
+  let nextUrl: string | null = input.cursor ? `${baseUrl}&cursor=${encodeURIComponent(input.cursor)}` : baseUrl
+  let nextCursor: string | null = null
+  let hasMore = false
+
+  while (nextUrl && entries.length < effectiveLimit) {
     const page: HorizonPage<HorizonOperation> = await fetchHorizonPage<HorizonOperation>(nextUrl)
     const records = page._embedded?.records ?? []
 
+    if (records.length === 0) break
+
+    const hasNextPage = !!page._links?.next?.href
+
     for (const op of records) {
+      nextCursor = op.paging_token ?? op.id ?? null
       const parsed = parseVaultOperation(op, input.vaultContractId, network)
       if (parsed) entries.push(parsed)
-      if (entries.length >= limit) break
+      if (entries.length >= effectiveLimit) break
     }
 
-    nextUrl = entries.length >= limit ? null : (page._links?.next?.href ?? null)
-    if (records.length === 0) break
+    if (entries.length >= effectiveLimit) {
+      hasMore = hasNextPage
+      if (!hasNextPage) nextCursor = null
+      break
+    }
+
+    if (!hasNextPage) {
+      nextCursor = null
+      hasMore = false
+      break
+    }
+
+    nextUrl = page._links!.next!.href
   }
 
-  return entries.sort((a, b) => Date.parse(b.createdAt) - Date.parse(a.createdAt))
+  entries.sort((a, b) => Date.parse(b.createdAt) - Date.parse(a.createdAt))
+
+  const result = { entries, nextCursor, hasMore }
+  setCachedVaultActivityPage(input.accountId, input.vaultContractId, cacheKeyCursor, effectiveLimit, result)
+  return result
 }
 
 export function summarizeVaultActivity(entries: VaultActivityEntry[]): {

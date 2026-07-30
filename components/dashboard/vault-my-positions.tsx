@@ -24,6 +24,8 @@ import { summarizeVaultActivity } from '@/lib/stellar/vault-activity'
 
 type VaultActivityApiResponse = {
   activity: VaultActivityEntry[]
+  nextCursor: string | null
+  hasMore: boolean
   activitySummary: {
     depositCount: number
     withdrawCount: number
@@ -73,10 +75,13 @@ export function VaultMyPositions({
   onWithdraw,
 }: VaultMyPositionsProps) {
   const [activity, setActivity] = useState<VaultActivityEntry[]>([])
+  const [nextCursor, setNextCursor] = useState<string | null>(null)
+  const [hasMore, setHasMore] = useState(false)
   const [activitySummary, setActivitySummary] = useState<VaultActivityApiResponse['activitySummary'] | null>(
     null,
   )
   const [isLoadingActivity, setIsLoadingActivity] = useState(false)
+  const [isLoadingMore, setIsLoadingMore] = useState(false)
   const [activityError, setActivityError] = useState<string | null>(null)
 
   const supply = getPrimarySupplyAsset(vaultMeta)
@@ -100,20 +105,50 @@ export function VaultMyPositions({
     try {
       const data = await vaultActivityRequest.fetch(walletAddress)
       setActivity(data.activity)
+      setNextCursor(data.nextCursor)
+      setHasMore(data.hasMore)
       setActivitySummary(data.activitySummary)
     } catch (error) {
       setActivityError(error instanceof Error ? error.message : 'Failed to load investment history.')
       setActivity([])
+      setNextCursor(null)
+      setHasMore(false)
       setActivitySummary(null)
     } finally {
       setIsLoadingActivity(false)
     }
   }, [walletAddress])
 
+  const loadMoreActivity = useCallback(async () => {
+    if (!walletAddress || !nextCursor) return
+    setIsLoadingMore(true)
+    try {
+      const url = new URL('/api/stellar/vault-activity', window.location.origin)
+      url.searchParams.set('account', walletAddress)
+      url.searchParams.set('cursor', nextCursor)
+      const response = await fetch(url.toString(), { credentials: 'include' })
+      if (!response.ok) {
+        const data = (await response.json().catch(() => null)) as { error?: string } | null
+        throw new Error(data?.error ?? `Request failed (${response.status})`)
+      }
+      const data = (await response.json()) as VaultActivityApiResponse
+      setActivity((prev) => [...prev, ...data.activity])
+      setNextCursor(data.nextCursor)
+      setHasMore(data.hasMore)
+    } catch (error) {
+      setActivityError(error instanceof Error ? error.message : 'Failed to load more activity.')
+    } finally {
+      setIsLoadingMore(false)
+    }
+  }, [walletAddress, nextCursor])
+
+  const refreshNonceDerived = historyRefreshNonce || refreshNonce
+
   useEffect(() => {
     vaultActivityRequest.invalidate(walletAddress)
-    void loadActivity()
-  }, [loadActivity, historyRefreshNonce || refreshNonce, walletAddress])
+    const timer = setTimeout(() => loadActivity(), 0)
+    return () => clearTimeout(timer)
+  }, [walletAddress, refreshNonceDerived, loadActivity])
 
   const vaultName = vaultMeta?.name ?? 'Mercato Vault'
   const isLoading = isLoadingBalances
@@ -233,12 +268,15 @@ export function VaultMyPositions({
       <VaultActivitySection
         activity={activity}
         isLoading={isLoadingHistory}
+        isLoadingMore={isLoadingMore}
         activityError={activityError}
+        hasMore={hasMore}
         supplySymbol={supply.symbol}
         onRetry={() => {
           vaultActivityRequest.invalidate(walletAddress)
           void loadActivity()
         }}
+        onLoadMore={loadMoreActivity}
       />
     </div>
   )

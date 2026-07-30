@@ -16,6 +16,11 @@ export async function GET(request: Request) {
 
   const { searchParams } = new URL(request.url)
   const account = searchParams.get('account')?.trim() ?? ''
+  const cursor = searchParams.get('cursor')?.trim() || null
+  const rawLimit = searchParams.get('limit')?.trim()
+  const limit = rawLimit
+    ? Math.min(Math.max(Number.isFinite(parseInt(rawLimit, 10)) ? parseInt(rawLimit, 10) : 20, 1), 200)
+    : undefined
 
   if (!account || !isLikelyStellarAccountId(account)) {
     return NextResponse.json({ error: 'Valid account (G…) is required.' }, { status: 400 })
@@ -34,16 +39,19 @@ export async function GET(request: Request) {
   }
 
   try {
-    const activity = await fetchVaultActivityForAccount({
+    const result = await fetchVaultActivityForAccount({
       accountId: account,
       vaultContractId: vaultAddress,
-      limit: 50,
+      limit: limit ?? 20,
+      cursor,
     })
 
     return NextResponse.json({
       vaultAddress,
-      activity,
-      activitySummary: summarizeVaultActivity(activity),
+      activity: result.entries,
+      nextCursor: result.nextCursor,
+      hasMore: result.hasMore,
+      activitySummary: summarizeVaultActivity(result.entries),
     })
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Failed to load vault activity.'
