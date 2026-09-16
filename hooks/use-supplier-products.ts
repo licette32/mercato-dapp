@@ -153,7 +153,11 @@ export function useSupplierProducts(
     const stockQty = Math.max(0, Math.floor(Number.parseInt(formProduct.stock_quantity, 10) || 0))
     const reorderPoint = Math.max(0, Math.floor(Number.parseInt(formProduct.reorder_point, 10) || 0))
     const status = formProduct.status || 'active'
-    const handleStatusChange = useCallback(async (product: SupplierProduct, newStatus: 'active' | 'paused' | 'discontinued') => {
+
+    return { name, category, price, minOrder, deliveryTime, sku, unit, stockQty, reorderPoint, status }
+  }, [formProduct])
+
+  const handleStatusChange = useCallback(async (product: SupplierProduct, newStatus: 'active' | 'paused' | 'discontinued') => {
     try {
       const { error } = await supabase
         .from('supplier_products')
@@ -169,9 +173,6 @@ export function useSupplierProducts(
       toast.error(t('supplierProfile.toastStatusUpdateFail') || 'Failed to update status')
     }
   }, [supabase, t])
-
-  return { name, category, price, minOrder, deliveryTime, sku, unit, stockQty, reorderPoint, status }
-  }, [formProduct])
 
   const adjustStock = useCallback(async (product: SupplierProduct, delta: number) => {
     if (!selectedCompanyId) return
