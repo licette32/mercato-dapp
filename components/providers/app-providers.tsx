@@ -8,6 +8,7 @@ import type { Messages } from '@/lib/i18n/dictionaries'
 import { PollarProvider } from '@/providers/pollar-provider'
 import { TrustlessWorkProvider } from '@/lib/trustless/config'
 import { WalletProvider } from '@/providers/wallet-provider'
+import { NotificationsProvider } from '@/components/notifications/notifications-provider'
 
 export function AppProviders({
   children,
@@ -21,11 +22,13 @@ export function AppProviders({
   return (
     <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
       <I18nProvider locale={locale} messages={messages}>
-        <PollarProvider>
-          <TrustlessWorkProvider>
-            <WalletProvider>{children}</WalletProvider>
-          </TrustlessWorkProvider>
-        </PollarProvider>
+        <NotificationsProvider>
+          <PollarProvider>
+            <TrustlessWorkProvider>
+              <WalletProvider>{children}</WalletProvider>
+            </TrustlessWorkProvider>
+          </PollarProvider>
+        </NotificationsProvider>
       </I18nProvider>
     </ThemeProvider>
   )
