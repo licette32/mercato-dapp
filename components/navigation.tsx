@@ -131,9 +131,7 @@ export function Navigation({ overHero = false }: { overHero?: boolean } = {}) {
         <div className="flex items-center gap-2 sm:gap-3">
           <LanguageSwitcher />
           <ThemeToggle />
-          {isAuthenticated && user?.id && (
-            <NotificationDropdown userId={user.id} />
-          )}
+          {isAuthenticated && <NotificationDropdown />}
           <div className="hidden items-center gap-2 md:flex md:gap-3">
             {authReady && !isAuthenticated && (
               <>

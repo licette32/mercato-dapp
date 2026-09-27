@@ -10,6 +10,7 @@ import type { NavAuthSnapshot } from '@/lib/navigation/nav-auth'
 import { PollarProvider } from '@/providers/pollar-provider'
 import { TrustlessWorkProvider } from '@/lib/trustless/config'
 import { WalletProvider } from '@/providers/wallet-provider'
+import { NotificationsProvider } from '@/components/notifications/notifications-provider'
 
 export function AppProviders({
   children,
