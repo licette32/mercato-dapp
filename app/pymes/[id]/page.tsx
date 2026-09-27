@@ -24,7 +24,7 @@ import { dealStatusLabel, getServerDictionary, tr } from '@/lib/i18n/server'
 import { aggregateDealsToStats, computePymeReputation } from '@/lib/pyme-reputation'
 import { ReputationTooltip } from '@/components/reputation-tooltip'
 import { VerifiedBadge } from '@/components/verified-badge'
-import { fetchPublicPymeProfile } from '@/lib/pymes/directory'
+import { getPublicPymeProfile } from '@/lib/pymes/directory'
 import { createServiceClient } from '@/lib/supabase/service'
 
 type DealRow = {
@@ -59,7 +59,7 @@ export async function generateMetadata({
   params: Promise<{ id: string }>
 }) {
   const { id } = await params
-  const profile = await fetchPublicPymeProfile(id)
+  const profile = await getPublicPymeProfile(id)
   if (!profile) {
     return { title: 'PyME Not Found | Mercato' }
   }
@@ -94,7 +94,7 @@ export default async function SmbDetailPage({
   const serviceSupabase = createServiceClient()
   const m = await getServerDictionary()
 
-  const profile = await fetchPublicPymeProfile(id)
+  const profile = await getPublicPymeProfile(id)
   if (!profile) notFound()
 
   const dealsPromise = serviceSupabase

@@ -1,4 +1,5 @@
 import { createClient } from '@/lib/supabase/server'
+import { getPublicInvestorProfile } from '@/lib/investors/directory'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import { Navigation } from '@/components/navigation'
@@ -66,13 +67,8 @@ export async function generateMetadata({
   const { id } = await params
   const locale = await getServerLocale()
   const m = getDictionary(locale)
-  const supabase = await createClient()
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('company_name, full_name, contact_name, user_type')
-    .eq('id', id)
-    .single()
-  if (!profile || profile.user_type !== 'investor') {
+  const profile = await getPublicInvestorProfile(id)
+  if (!profile) {
     return { title: tr(m, 'investorDetail.metaTitle') }
   }
   const name =
@@ -102,13 +98,9 @@ export default async function InvestorDetailPage({
     .eq('investor_id', id)
     .order('created_at', { ascending: false })
 
-  const { data: profile, error: profileError } = await supabase
-    .from('profiles')
-    .select('id, company_name, bio, full_name, contact_name, email, phone, user_type, country, sector, verified, stake_amount')
-    .eq('id', id)
-    .single()
+  const profile = await getPublicInvestorProfile(id)
 
-  if (profileError || !profile || profile.user_type !== 'investor') {
+  if (!profile) {
     notFound()
   }
 
